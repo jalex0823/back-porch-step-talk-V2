@@ -169,8 +169,8 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
               background: `radial-gradient(circle at 38% 30%, ${glowColor}66, ${color}cc 30%, ${color}ee 60%, ${color}bb 100%)`,
               border: `1px solid ${glowColor}33`,
             }}
-            animate={{ rotateY: [0, 360] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+            animate={{ scale: [1, 1.07, 1], opacity: [0.9, 1, 0.9] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           >
             <div className="absolute rounded-full"
               style={{ top: '8%', left: '14%', width: '48%', height: '32%',
