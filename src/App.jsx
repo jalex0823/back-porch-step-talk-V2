@@ -422,22 +422,12 @@ export default function App() {
                     {/* Rotating orbit container */}
                     <motion.div
                       className="absolute inset-0"
-                      animate={
-                        phase === 'spin'
-                          ? { rotate: 360 }
-                          : phase === 'idle' || phase === 'card'
-                          ? { rotate: 360 }
-                          : { rotate: 0 }
-                      }
+                      initial={{ rotate: 0 }}
+                      animate={phase === 'spin' ? { rotate: 360 } : { rotate: 0 }}
                       transition={
                         phase === 'spin'
-                          ? {
-                              duration: 4.5,
-                              ease: [0.12, 0.6, 0.08, 1],
-                            }
-                          : phase === 'idle' || phase === 'card'
-                          ? { duration: 120, repeat: Infinity, ease: 'linear' }
-                          : { duration: 0.3, ease: 'easeOut' }
+                          ? { duration: 4.5, ease: [0.12, 0.6, 0.08, 1] }
+                          : { duration: 0 }
                       }
                     >
                       {/* Comet trails — rendered at orbit level so they rotate with the container */}
@@ -445,26 +435,27 @@ export default function App() {
                         const angle = (index / TOPICS.length) * 360 - 90;
                         const radius = 185;
                         const center = 240;
-                        return [1, 2, 3, 4, 5].map(t => {
-                          const trailAngle = angle - t * 5; // offset behind by 5° each
+                        return [1, 2, 3, 4, 5, 6, 7, 8].map(t => {
+                          const trailAngle = angle - t * 8; // offset behind by 8° each
                           const trailRad = (trailAngle * Math.PI) / 180;
-                          const size = Math.max(4, 22 - t * 4);
+                          const size = Math.max(5, 32 - t * 3.2);
+                          const opacity = 0.92 - t * 0.1;
                           return (
                             <motion.div
                               key={`trail-${topic.id}-${t}`}
                               className="absolute rounded-full pointer-events-none"
                               initial={{ opacity: 0 }}
-                              animate={{ opacity: 0.7 - t * 0.12 }}
+                              animate={{ opacity }}
                               exit={{ opacity: 0 }}
-                              transition={{ duration: 0.3, delay: t * 0.04 }}
+                              transition={{ duration: 0.25, delay: t * 0.03 }}
                               style={{
                                 left: center + Math.cos(trailRad) * radius - size / 2,
                                 top: center + Math.sin(trailRad) * radius - size / 2,
                                 width: size,
                                 height: size,
-                                background: `radial-gradient(circle, ${topic.glowColor}88, transparent 70%)`,
-                                boxShadow: `0 0 ${size}px ${topic.glowColor}44`,
-                                filter: `blur(${1 + t}px)`,
+                                background: `radial-gradient(circle, ${topic.glowColor}cc, transparent 70%)`,
+                                boxShadow: `0 0 ${size * 1.5}px ${topic.glowColor}88`,
+                                filter: `blur(${0.5 + t * 0.8}px)`,
                               }}
                             />
                           );
@@ -504,11 +495,7 @@ export default function App() {
                               scale: isRevealed ? fillScale : isNotSelected ? 0.15 : 1,
                               opacity: isNotSelected ? 0 : 1,
                               // Counter-rotate to keep balls upright
-                              rotate: phase === 'spin'
-                                ? -360
-                                : phase === 'idle' || phase === 'card'
-                                ? -360
-                                : 0,
+                              rotate: phase === 'spin' ? -360 : 0,
                             }}
                             transition={
                               phase === 'spin'
@@ -521,22 +508,17 @@ export default function App() {
                                   }
                                 : isRevealed
                                 ? {
-                                    rotate: { duration: 0.15, ease: 'easeOut' },
+                                    rotate: { duration: 0 },
                                     default: { duration: 1.4, ease: [0.22, 1, 0.36, 1] },
                                   }
                                 : isNotSelected
                                 ? {
-                                    rotate: { duration: 0.15, ease: 'easeOut' },
+                                    rotate: { duration: 0 },
                                     default: { duration: 1.0, ease: 'easeIn' },
                                   }
-                                : phase === 'idle' || phase === 'card'
-                                ? {
-                                    rotate: { duration: 120, repeat: Infinity, ease: 'linear' },
-                                    default: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-                                  }
                                 : {
-                                    duration: 0.8,
-                                    ease: [0.22, 1, 0.36, 1],
+                                    rotate: { duration: 0 },
+                                    default: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
                                   }
                             }
                           >
