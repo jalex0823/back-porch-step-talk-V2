@@ -431,37 +431,68 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
       >
         <motion.button
           onClick={onHome}
-          className="py-2.5 px-4 rounded-lg text-xs sm:text-sm font-bold tracking-[0.15em] uppercase flex items-center gap-2"
+          className="relative py-2.5 px-4 rounded-lg text-xs sm:text-sm font-bold tracking-[0.15em] uppercase flex items-center gap-2 overflow-hidden"
           style={{
             fontFamily: "'Orbitron', 'Inter', sans-serif",
             color: '#fff',
-            background: 'linear-gradient(180deg, rgba(80,85,95,0.9), rgba(60,65,75,0.8))',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'linear-gradient(160deg, rgba(90,95,108,0.95) 0%, rgba(60,65,75,0.9) 50%, rgba(40,44,52,1) 100%)',
+            border: '1px solid rgba(255,255,255,0.1)',
             cursor: 'pointer',
-            textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)',
+            textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.35), inset 0 -2px 6px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.06)',
           }}
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.02, boxShadow: '0 6px 18px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.1)' }}
           whileTap={{ scale: 0.97 }}
         >
-          <Home size={14} /> Home
+          {/* Specular */}
+          <span className="pointer-events-none absolute rounded-full"
+            style={{ top: '4%', left: '6%', width: '55%', height: '44%',
+              background: 'radial-gradient(ellipse at 40% 60%, rgba(255,255,255,0.18) 0%, transparent 70%)',
+              filter: 'blur(1px)' }} />
+          {/* Caustic */}
+          <span className="pointer-events-none absolute rounded-full"
+            style={{ top: '6%', left: '12%', width: '16%', height: '28%',
+              background: 'radial-gradient(ellipse, rgba(255,255,255,0.45) 0%, transparent 70%)',
+              filter: 'blur(0.5px)' }} />
+          {/* Bottom reflection */}
+          <span className="pointer-events-none absolute rounded-lg"
+            style={{ bottom: '0%', left: '10%', width: '80%', height: '30%',
+              background: 'radial-gradient(ellipse, rgba(180,190,210,0.1) 0%, transparent 70%)',
+              filter: 'blur(3px)' }} />
+          <span className="relative z-10 flex items-center gap-2"><Home size={14} /> Home</span>
         </motion.button>
+
         <motion.button
           onClick={onDrawAgain}
-          className="flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-bold tracking-[0.15em] uppercase flex items-center justify-center gap-2"
+          className="relative flex-1 py-2.5 rounded-lg text-xs sm:text-sm font-bold tracking-[0.15em] uppercase flex items-center justify-center gap-2 overflow-hidden"
           style={{
             fontFamily: "'Orbitron', 'Inter', sans-serif",
             color: '#fff',
-            background: `linear-gradient(180deg, ${buttonColor}ee, ${buttonColor}bb)`,
-            border: 'none',
+            background: `linear-gradient(160deg, ${buttonColor}ee 0%, ${buttonColor}cc 45%, ${buttonColor}99 100%)`,
+            border: `1px solid ${glowColor}44`,
             cursor: 'pointer',
-            textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-            boxShadow: `0 4px 12px ${shadowColor}, inset 0 1px 0 rgba(255,255,255,0.2)`,
+            textShadow: `0 0 10px ${glowColor}99, 0 1px 2px rgba(0,0,0,0.4)`,
+            boxShadow: `0 6px 18px ${shadowColor}88, inset 0 -3px 8px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.08)`,
           }}
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.02, boxShadow: `0 8px 24px ${shadowColor}aa, inset 0 0 0 1px rgba(255,255,255,0.12)` }}
           whileTap={{ scale: 0.97 }}
         >
-          <Shuffle size={14} /> Randomizer
+          {/* Specular */}
+          <span className="pointer-events-none absolute rounded-full"
+            style={{ top: '4%', left: '6%', width: '55%', height: '44%',
+              background: 'radial-gradient(ellipse at 40% 60%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.07) 50%, transparent 75%)',
+              filter: 'blur(1px)' }} />
+          {/* Caustic */}
+          <span className="pointer-events-none absolute rounded-full"
+            style={{ top: '6%', left: '14%', width: '14%', height: '26%',
+              background: 'radial-gradient(ellipse, rgba(255,255,255,0.6) 0%, transparent 70%)',
+              filter: 'blur(0.5px)' }} />
+          {/* Bottom reflection */}
+          <span className="pointer-events-none absolute rounded-lg"
+            style={{ bottom: '0%', left: '10%', width: '80%', height: '30%',
+              background: `radial-gradient(ellipse, ${glowColor}22 0%, transparent 70%)`,
+              filter: 'blur(4px)' }} />
+          <span className="relative z-10 flex items-center gap-2"><Shuffle size={14} /> Randomizer</span>
         </motion.button>
       </motion.div>
     </div>
