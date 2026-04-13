@@ -159,27 +159,66 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
               />
             ))}
           </svg>
-          {/* Spinning topic ball — centered */}
+          {/* Glass orb ball — centered */}
           <motion.div
-            className="absolute rounded-full overflow-hidden"
+            className="absolute"
             style={{
               width: 76, height: 76,
               top: '50%', left: '50%',
               marginTop: -38, marginLeft: -38,
-              background: `radial-gradient(circle at 38% 30%, ${glowColor}66, ${color}cc 30%, ${color}ee 60%, ${color}bb 100%)`,
-              border: `1px solid ${glowColor}33`,
+              perspective: '200px',
             }}
             animate={{ scale: [1, 1.07, 1], opacity: [0.9, 1, 0.9] }}
             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <div className="absolute rounded-full"
-              style={{ top: '8%', left: '14%', width: '48%', height: '32%',
-                background: 'radial-gradient(ellipse at 50% 65%, rgba(255,255,255,0.25), transparent 70%)' }}
-            />
+            {/* Outer glow */}
+            <div className="absolute inset-0 rounded-full" style={{
+              boxShadow: `0 0 18px 5px ${shadowColor}99`,
+            }} />
+            {/* Base body */}
+            <div className="absolute inset-0 rounded-full" style={{
+              background: `radial-gradient(circle at 42% 35%,
+                ${glowColor}55 0%,
+                ${color}99 20%,
+                ${color}dd 52%,
+                ${color}bb 75%,
+                rgba(0,0,0,0.4) 100%)`,
+              boxShadow: `0 6px 20px rgba(0,0,0,0.65), inset 0 2px 5px rgba(255,255,255,0.08), inset 0 -4px 10px rgba(0,0,0,0.55), inset 0 0 18px 5px ${shadowColor}`,
+              border: `1px solid ${glowColor}55`,
+            }} />
+            {/* Glass refraction */}
+            <div className="absolute inset-0 rounded-full" style={{
+              background: `radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.14) 0%, transparent 55%),
+                           radial-gradient(ellipse at 70% 75%, ${glowColor}22 0%, transparent 50%)`,
+            }} />
+            {/* Primary specular */}
+            <div className="absolute rounded-full" style={{
+              top: '7%', left: '12%', width: '44%', height: '28%',
+              background: 'radial-gradient(ellipse at 40% 55%, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.18) 40%, transparent 70%)',
+              filter: 'blur(1px)',
+            }} />
+            {/* Caustic pinpoint */}
+            <div className="absolute rounded-full" style={{
+              top: '10%', left: '20%', width: '16%', height: '11%',
+              background: 'radial-gradient(ellipse, rgba(255,255,255,0.85) 0%, transparent 70%)',
+              filter: 'blur(0.5px)',
+            }} />
+            {/* Bottom underside glow */}
+            <div className="absolute rounded-full" style={{
+              bottom: '8%', left: '20%', width: '60%', height: '16%',
+              background: `radial-gradient(ellipse, ${glowColor}33 0%, transparent 70%)`,
+              filter: 'blur(3px)',
+            }} />
+            {/* Rim refraction */}
+            <div className="absolute inset-0 rounded-full" style={{
+              boxShadow: `inset 0 0 0 1.5px rgba(255,255,255,0.13), inset 0 -2px 4px rgba(255,255,255,0.06)`,
+            }} />
+            {/* Icon + Label */}
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
-              {Icon && <Icon size={18} strokeWidth={1.6} style={{ color: '#fff' }} />}
+              {Icon && <Icon size={18} strokeWidth={1.6} style={{ color: '#fff', filter: `drop-shadow(0 0 5px ${glowColor})` }} />}
               <span className="text-center font-bold tracking-wide leading-tight px-0.5"
-                style={{ fontFamily: "'Orbitron', sans-serif", fontSize: '0.42rem', color: '#fff' }}>
+                style={{ fontFamily: "'Orbitron', sans-serif", fontSize: '0.42rem', color: '#fff',
+                  textShadow: `0 0 6px ${glowColor}, 0 1px 2px rgba(0,0,0,0.5)` }}>
                 {label}
               </span>
             </div>

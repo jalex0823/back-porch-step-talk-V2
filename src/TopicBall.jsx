@@ -191,35 +191,60 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
         }}
       />
 
-      {/* Solid orb body */}
+      {/* Orb base — deep glass body */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: `radial-gradient(circle at 42% 35%,
+            ${glowColor}55 0%,
+            ${color}99 20%,
+            ${color}dd 50%,
+            ${color}bb 75%,
+            rgba(0,0,0,0.35) 100%)`,
+          boxShadow: `0 6px 24px rgba(0,0,0,0.6), inset 0 2px 6px rgba(255,255,255,0.08), inset 0 -4px 12px rgba(0,0,0,0.5), inset 0 0 20px 6px ${shadowColor}`,
+          border: `1px solid ${glowColor}55`,
+        }}
+      />
+      {/* Glass refraction layer */}
       <div
         className="absolute inset-0 rounded-full overflow-hidden"
         style={{
-          background: `radial-gradient(circle at 38% 30%, 
-            ${glowColor}66 0%, 
-            ${color}cc 28%, 
-            ${color}ee 55%, 
-            ${color}dd 80%, 
-            ${color}bb 100%)`,
-          border: `1px solid ${glowColor}33`,
-          boxShadow: `0 4px 12px rgba(0,0,0,0.45), inset 0 0 16px 4px ${shadowColor}`,
+          background: `radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.13) 0%, transparent 55%),
+                       radial-gradient(ellipse at 70% 75%, ${glowColor}22 0%, transparent 50%)`,
         }}
-      >
-        {/* Specular highlight */}
-        <div className="absolute rounded-full"
-          style={{
-            top: '8%', left: '14%', width: '48%', height: '34%',
-            background: 'radial-gradient(ellipse at 50% 65%, rgba(255,255,255,0.28), transparent 70%)',
-          }}
-        />
-        {/* Rim light */}
-        <div className="absolute rounded-full"
-          style={{
-            bottom: '10%', right: '10%', width: '30%', height: '18%',
-            background: 'radial-gradient(ellipse at 50% 30%, rgba(255,255,255,0.08), transparent 70%)',
-          }}
-        />
-      </div>
+      />
+      {/* Primary specular — sharp top-left glint */}
+      <div className="absolute rounded-full"
+        style={{
+          top: '7%', left: '12%', width: '44%', height: '28%',
+          background: 'radial-gradient(ellipse at 40% 55%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 40%, transparent 70%)',
+          filter: 'blur(1px)',
+        }}
+      />
+      {/* Secondary caustic — small bright pinpoint */}
+      <div className="absolute rounded-full"
+        style={{
+          top: '11%', left: '20%', width: '18%', height: '12%',
+          background: 'radial-gradient(ellipse, rgba(255,255,255,0.75) 0%, transparent 70%)',
+          filter: 'blur(0.5px)',
+        }}
+      />
+      {/* Bottom reflection — faint underside glow */}
+      <div className="absolute rounded-full"
+        style={{
+          bottom: '8%', left: '20%', width: '60%', height: '18%',
+          background: `radial-gradient(ellipse, ${glowColor}33 0%, transparent 70%)`,
+          filter: 'blur(3px)',
+        }}
+      />
+      {/* Edge rim — outer ring refraction */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: 'transparent',
+          boxShadow: `inset 0 0 0 1.5px rgba(255,255,255,0.12), inset 0 -2px 4px rgba(255,255,255,0.06)`,
+        }}
+      />
 
       {/* Icon + Label */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-1"
