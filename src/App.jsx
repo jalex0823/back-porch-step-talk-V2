@@ -282,7 +282,7 @@ export default function App() {
                     />
                   )}
                   {/* Header with hash marks */}
-                  <div className="flex items-center justify-center gap-3 mb-1">
+                  <div className="flex items-center justify-center gap-3 mb-0">
                     <div className="flex gap-[3px]">
                       {[...Array(4)].map((_, i) => (
                         <div key={i} className="w-[3px] h-5 rounded-sm"
@@ -310,12 +310,12 @@ export default function App() {
                   </div>
 
                   {/* Animated line sweep divider */}
-                  <div className="w-full h-px mb-2 line-sweep"
+                  <div className="w-full h-px mb-1 line-sweep"
                     style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.5), transparent)' }}
                   />
 
                   {/* Instructional subtitle */}
-                  <p className="text-center mb-4 px-4"
+                  <p className="text-center mb-2 px-4"
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: '0.7rem',
@@ -328,7 +328,7 @@ export default function App() {
                   </p>
 
                   {/* Orbital area — perfect circle */}
-                  <div className="relative mx-auto mb-4" style={{ width: '480px', height: '480px' }}>
+                  <div className="relative mx-auto mb-1" style={{ width: '480px', height: '480px' }}>
 
                     {/* Center "sun" glow — pulses during spin */}
                     <motion.div
@@ -657,7 +657,7 @@ export default function App() {
                       <motion.div
                         key="control-panel"
                         className="flex items-end justify-center w-full"
-                        style={{ paddingRight: '80px' }}
+                        style={{ paddingRight: '60px', marginTop: '-12px' }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
