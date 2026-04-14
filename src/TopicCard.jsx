@@ -27,7 +27,40 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [showKeys, setShowKeys] = useState(false);
   const [glitching, setGlitching] = useState(false);
+  const [cardCopied, setCardCopied] = useState(false);
   const glitchTimer = useRef(null);
+
+  const copyFullCard = () => {
+    const lines = [
+      cardTitle,
+      cardSubtitle,
+      '',
+      'SUMMARY',
+      summary,
+      '',
+      `"${quote}"`,
+      '',
+      'KEY POINTS',
+      ...keyPoints.map(p => `• ${p}`),
+      '',
+      'DISCUSSION QUESTIONS',
+      ...discussionQuestions.map((q, i) => `${i + 1}. ${q}`),
+      ...(readings?.length ? ['', 'SUGGESTED READINGS', ...readings.map(r => `• ${r}`)] : []),
+      ...(actionItems?.length ? ['', 'ACTION ITEMS', ...actionItems.map(a => `☐ ${a}`)] : []),
+    ].join('\n');
+    navigator.clipboard.writeText(lines).then(() => {
+      setCardCopied(true);
+      setTimeout(() => setCardCopied(false), 2000);
+    });
+  };
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'c' || e.key === 'C') copyFullCard();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [cardTitle, summary, quote, keyPoints, discussionQuestions, readings, actionItems]);
 
   useEffect(() => {
     const schedule = () => {
@@ -566,11 +599,14 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
             onClick={() => setShowKeys(k => !k)}
             className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.5rem] tracking-wide uppercase"
             style={{
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(200,210,220,0.35)', cursor: 'pointer', fontFamily: "'Orbitron', sans-serif",
+              background: cardCopied ? `${accentColor}22` : 'rgba(255,255,255,0.04)',
+              border: cardCopied ? `1px solid ${accentColor}55` : '1px solid rgba(255,255,255,0.08)',
+              color: cardCopied ? accentColor : 'rgba(200,210,220,0.35)',
+              cursor: 'pointer', fontFamily: "'Orbitron', sans-serif",
+              transition: 'all 0.3s ease',
             }}>
-            <Keyboard size={9} />
-            Shortcuts
+            {cardCopied ? <Check size={9} /> : <Keyboard size={9} />}
+            {cardCopied ? 'Copied!' : 'Shortcuts'}
           </button>
           <AnimatePresence>
             {showKeys && (
@@ -587,6 +623,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
                 {[
                   ['Space', 'Randomize'],
                   ['1 – 6', 'Pick topic directly'],
+                  ['C', 'Copy full card'],
                   ['Esc', 'Return home'],
                 ].map(([key, desc]) => (
                   <div key={key} className="flex items-center justify-between gap-4 mb-1 last:mb-0">
