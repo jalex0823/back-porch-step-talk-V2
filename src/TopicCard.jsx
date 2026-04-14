@@ -203,8 +203,15 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       }} />
     </div>
 
-    <div className="relative flex flex-col w-full max-h-[70vh] overflow-y-auto pr-1"
-      style={{ scrollbarWidth: 'thin', scrollbarColor: `${accentColor}44 transparent`, zIndex: 1 }}>
+    <motion.div
+      className="relative flex flex-col w-full max-h-[70vh] overflow-y-auto pr-1"
+      style={{ scrollbarWidth: 'thin', scrollbarColor: `${accentColor}44 transparent`, zIndex: 1 }}
+      animate={glitching
+        ? { x: [-2, 3, -1, 2, 0], y: [1, -1, 2, -1, 0], filter: ['blur(0px)', 'blur(0.6px)', 'blur(0px)'] }
+        : { x: 0, y: 0, filter: 'blur(0px)' }
+      }
+      transition={{ duration: 0.35, ease: 'linear' }}
+    >
 
       {/* Header row: compass widget with ball + title */}
       <div className="flex items-center gap-6 mb-2">
@@ -684,7 +691,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
           <span className="relative z-10 flex items-center gap-2"><Shuffle size={14} /> Randomizer</span>
         </motion.button>
       </motion.div>
-    </div>
+    </motion.div>
     </div>
   );
 }
