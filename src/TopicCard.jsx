@@ -57,10 +57,11 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === 'c' || e.key === 'C') copyFullCard();
+      if (e.key === 'n' || e.key === 'N') onDrawAgain();
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [cardTitle, summary, quote, keyPoints, discussionQuestions, readings, actionItems]);
+  }, [cardTitle, summary, quote, keyPoints, discussionQuestions, readings, actionItems, onDrawAgain]);
 
   useEffect(() => {
     const schedule = () => {
@@ -623,6 +624,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
                 {[
                   ['Space', 'Randomize'],
                   ['1 – 6', 'Pick topic directly'],
+                  ['N', 'Next card'],
                   ['C', 'Copy full card'],
                   ['Esc', 'Return home'],
                 ].map(([key, desc]) => (
@@ -657,7 +659,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       )}
 
       {/* Select Again button */}
-      <motion.div className="flex gap-3 flex-shrink-0"
+      <motion.div className="flex gap-2 flex-shrink-0 flex-wrap"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 1.4, ease: [0.34, 1.56, 0.64, 1] }}
@@ -726,6 +728,33 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
               background: `radial-gradient(ellipse, ${glowColor}22 0%, transparent 70%)`,
               filter: 'blur(4px)' }} />
           <span className="relative z-10 flex items-center gap-2"><Shuffle size={14} /> Randomizer</span>
+        </motion.button>
+
+        {/* Copy card button */}
+        <motion.button
+          onClick={copyFullCard}
+          className="relative py-2.5 px-3 rounded-lg text-xs font-bold tracking-[0.12em] uppercase flex items-center gap-1.5 overflow-hidden"
+          style={{
+            fontFamily: "'Orbitron', 'Inter', sans-serif",
+            color: cardCopied ? accentColor : 'rgba(200,210,220,0.55)',
+            background: cardCopied ? `${accentColor}18` : 'rgba(255,255,255,0.04)',
+            border: cardCopied ? `1px solid ${accentColor}44` : '1px solid rgba(255,255,255,0.08)',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+          }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          title="Copy full card (C)"
+        >
+          {cardCopied ? <Check size={13} /> : (
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <rect x="0.5" y="3.5" width="8" height="9" rx="1" stroke="currentColor" strokeWidth="0.9"/>
+              <path d="M3 3V2a1 1 0 011-1h7a1 1 0 011 1v7a1 1 0 01-1 1h-1" stroke="currentColor" strokeWidth="0.9"/>
+              <line x1="2.5" y1="6" x2="7" y2="6" stroke="currentColor" strokeWidth="0.7" strokeDasharray="1.5 1"/>
+              <line x1="2.5" y1="8" x2="6" y2="8" stroke="currentColor" strokeWidth="0.7" strokeDasharray="1.5 1"/>
+            </svg>
+          )}
+          {cardCopied ? 'Copied' : 'Copy'}
         </motion.button>
       </motion.div>
     </motion.div>

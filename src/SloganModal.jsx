@@ -1,9 +1,25 @@
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, RefreshCw } from 'lucide-react';
+import { X, RefreshCw, Copy, Check } from 'lucide-react';
 
 export default function SloganModal({ slogan, onClose, onNew }) {
   const title = slogan?.slogan ?? '';
   const meaning = slogan?.meaning ?? '';
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  const copySlogan = () => {
+    navigator.clipboard.writeText(`${title}\n\n${meaning}`).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   return (
     <AnimatePresence>
       {slogan && (
@@ -58,10 +74,14 @@ export default function SloganModal({ slogan, onClose, onNew }) {
               </button>
 
               {/* Label */}
-              <p className="text-[0.55rem] tracking-[0.25em] uppercase"
-                style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.7)' }}>
-                AA Slogan
-              </p>
+              <div className="flex items-center gap-3 w-full justify-center">
+                <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.3))' }} />
+                <p className="text-[0.55rem] tracking-[0.25em] uppercase"
+                  style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.7)' }}>
+                  AA Slogan
+                </p>
+                <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg, transparent, rgba(61,158,207,0.3))' }} />
+              </div>
 
               {/* Big quote mark */}
               <span className="pointer-events-none absolute"
@@ -81,27 +101,43 @@ export default function SloganModal({ slogan, onClose, onNew }) {
                   style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.95)' }}>
                   {title}
                 </p>
+                <div className="w-full h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.2), transparent)' }} />
                 <p className="text-center text-sm leading-relaxed"
                   style={{ fontFamily: "'Inter', sans-serif", color: 'rgba(210,220,230,0.78)' }}>
                   {meaning}
                 </p>
               </motion.div>
 
-              {/* Another one button */}
-              <button
-                onClick={onNew}
-                className="flex items-center gap-2 px-4 py-2 rounded-full text-[0.6rem] tracking-[0.15em] uppercase"
-                style={{
-                  fontFamily: "'Orbitron', sans-serif",
-                  background: 'rgba(61,158,207,0.12)',
-                  border: '1px solid rgba(61,158,207,0.3)',
-                  color: 'rgba(61,158,207,0.85)',
-                  boxShadow: '0 0 12px rgba(61,158,207,0.1)',
-                  cursor: 'pointer',
-                }}>
-                <RefreshCw size={11} />
-                Another one
-              </button>
+              {/* Buttons row */}
+              <div className="flex items-center gap-3 w-full justify-center">
+                <button
+                  onClick={copySlogan}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.55rem] tracking-[0.12em] uppercase"
+                  style={{
+                    fontFamily: "'Orbitron', sans-serif",
+                    background: copied ? 'rgba(61,158,207,0.2)' : 'rgba(255,255,255,0.05)',
+                    border: copied ? '1px solid rgba(61,158,207,0.5)' : '1px solid rgba(255,255,255,0.1)',
+                    color: copied ? 'rgba(61,158,207,0.95)' : 'rgba(200,210,220,0.5)',
+                    cursor: 'pointer', transition: 'all 0.3s ease',
+                  }}>
+                  {copied ? <Check size={10} /> : <Copy size={10} />}
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
+                <button
+                  onClick={onNew}
+                  className="flex items-center gap-2 px-4 py-2 rounded-full text-[0.6rem] tracking-[0.15em] uppercase"
+                  style={{
+                    fontFamily: "'Orbitron', sans-serif",
+                    background: 'rgba(61,158,207,0.12)',
+                    border: '1px solid rgba(61,158,207,0.3)',
+                    color: 'rgba(61,158,207,0.85)',
+                    boxShadow: '0 0 12px rgba(61,158,207,0.1)',
+                    cursor: 'pointer',
+                  }}>
+                  <RefreshCw size={11} />
+                  Another one
+                </button>
+              </div>
             </div>
           </motion.div>
         </>

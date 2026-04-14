@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
@@ -41,10 +41,12 @@ function Model() {
 }
 
 export default function CompassModel({ visible, onClick }) {
-  // Orbit area is 480x480, center is at 240,240. Canvas is 220x220 so offset is -110.
+  const [hovered, setHovered] = useState(false);
   return (
     <motion.div
       onClick={visible ? onClick : undefined}
+      onMouseEnter={() => visible && setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         position: 'absolute',
         left: 273,
@@ -61,6 +63,28 @@ export default function CompassModel({ visible, onClick }) {
       whileTap={{ scale: 1.18, transition: { type: 'spring', stiffness: 420, damping: 14 } }}
       transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
     >
+      {/* Hover tooltip */}
+      <motion.div
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2"
+        style={{ bottom: '105%', whiteSpace: 'nowrap', zIndex: 10 }}
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 4 }}
+        transition={{ duration: 0.2 }}
+      >
+        <span style={{
+          fontFamily: "'Orbitron', sans-serif",
+          fontSize: '0.5rem',
+          letterSpacing: '0.18em',
+          color: 'rgba(61,158,207,0.85)',
+          background: 'rgba(10,14,20,0.85)',
+          border: '1px solid rgba(61,158,207,0.25)',
+          borderRadius: '4px',
+          padding: '3px 8px',
+          textTransform: 'uppercase',
+        }}>
+          ✦ AA Slogan
+        </span>
+      </motion.div>
       <Canvas
         camera={{ position: [0, 0.18, 3.0], fov: 44 }}
         gl={{ alpha: true, antialias: true }}
