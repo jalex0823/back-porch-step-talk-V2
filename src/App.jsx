@@ -153,6 +153,13 @@ export default function App() {
   const [bottomOffsetX, setBottomOffsetX] = useState(148);
   const [starOffsetX, setStarOffsetX] = useState(53);
   const [starOffsetY, setStarOffsetY] = useState(47);
+  const [devConfirmed, setDevConfirmed] = useState(false);
+  const handleDevSet = () => {
+    const code = `oX:${orbitOffsetX} oY:${orbitOffsetY} oR:${orbitRadius} cX:${compassX} cY:${compassY} ttl:${titleOffsetY} btmX:${bottomOffsetX} btmY:${bottomOffsetY} sX:${starOffsetX} sY:${starOffsetY}`;
+    navigator.clipboard.writeText(code).catch(() => {});
+    setDevConfirmed(true);
+    setTimeout(() => setDevConfirmed(false), 2000);
+  };
 
   // Mouse-following parallax
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -843,7 +850,7 @@ export default function App() {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.4, delay: 1.2 }}
-            className="absolute left-12 z-50 flex flex-col p-1 rounded" style={{ top: 248, background: 'rgba(4,20,28,0.55)', border: '1px solid rgba(255,255,255,0.4)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
+            className="absolute left-12 z-50 flex flex-col p-1 rounded" style={{ top: 236, background: 'rgba(4,20,28,0.55)', border: '1px solid rgba(255,255,255,0.4)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
             <p style={{ color: '#fff' }}>DEV</p>
             <label style={{ color: '#ffe066' }}>oX:{orbitOffsetX}<input type="range" min="-500" max="0" value={orbitOffsetX} onChange={e => setOrbitOffsetX(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
             <label style={{ color: '#ffe066' }}>oY:{orbitOffsetY}<input type="range" min="-200" max="200" value={orbitOffsetY} onChange={e => setOrbitOffsetY(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
@@ -855,6 +862,14 @@ export default function App() {
             <label style={{ color: '#f87171' }}>btmY:{bottomOffsetY}<input type="range" min="-100" max="300" value={bottomOffsetY} onChange={e => setBottomOffsetY(Number(e.target.value))} style={{ accentColor: '#f87171', width: '100%', height: 6 }} /></label>
             <label style={{ color: '#c084fc' }}>sX:{starOffsetX}<input type="range" min="-200" max="200" value={starOffsetX} onChange={e => setStarOffsetX(Number(e.target.value))} style={{ accentColor: '#c084fc', width: '100%', height: 6 }} /></label>
             <label style={{ color: '#c084fc' }}>sY:{starOffsetY}<input type="range" min="-200" max="200" value={starOffsetY} onChange={e => setStarOffsetY(Number(e.target.value))} style={{ accentColor: '#c084fc', width: '100%', height: 6 }} /></label>
+            <motion.button
+              onClick={handleDevSet}
+              animate={{ background: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.25)' }}
+              transition={{ duration: 0.3 }}
+              style={{ marginTop: 4, width: '100%', border: `1px solid ${devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.5)'}`, borderRadius: 3, padding: '2px 0', fontFamily: 'monospace', fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#fff' : '#2ba4b5', letterSpacing: '0.1em' }}
+            >
+              {devConfirmed ? '✓ LOCKED' : 'SET DEFAULT'}
+            </motion.button>
           </motion.div>
           )}
           </AnimatePresence>
