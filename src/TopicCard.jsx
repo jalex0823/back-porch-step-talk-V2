@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, CheckCircle2, Home, Copy, Check, Hash, Keyboard } from 'lucide-react';
+import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, CheckCircle2, Home, Check, Hash, Keyboard } from 'lucide-react';
 
 const AAIcon = ({ size = 24, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={style}>
@@ -26,6 +26,21 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
   const Icon = ICON_MAP[icon];
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [showKeys, setShowKeys] = useState(false);
+  const [glitching, setGlitching] = useState(false);
+  const glitchTimer = useRef(null);
+
+  useEffect(() => {
+    const schedule = () => {
+      const delay = 8000 + Math.random() * 12000;
+      glitchTimer.current = setTimeout(() => {
+        setGlitching(true);
+        setTimeout(() => setGlitching(false), 420);
+        schedule();
+      }, delay);
+    };
+    schedule();
+    return () => clearTimeout(glitchTimer.current);
+  }, []);
 
   const copyQuestion = (text, i) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -36,6 +51,57 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
 
   return (
     <div className="relative w-full">
+      {/* Transmission glitch overlay */}
+      <AnimatePresence>
+        {glitching && (
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-50 overflow-hidden rounded-[14px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.08 }}
+          >
+            {/* Horizontal scan slice */}
+            <motion.div
+              className="absolute w-full"
+              animate={{ top: ['15%','45%','22%','60%','10%'] }}
+              transition={{ duration: 0.35, ease: 'linear' }}
+              style={{ height: 3, background: `${accentColor}55`, filter: 'blur(1px)', mixBlendMode: 'screen' }}
+            />
+            {/* RGB channel shift */}
+            <motion.div
+              className="absolute inset-0"
+              animate={{ x: [-3, 3, -2, 0], opacity: [0, 0.18, 0, 0.12, 0] }}
+              transition={{ duration: 0.35, ease: 'linear' }}
+              style={{ background: `repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(255,0,80,0.06) 4px, rgba(255,0,80,0.06) 5px)` }}
+            />
+            <motion.div
+              className="absolute inset-0"
+              animate={{ x: [4, -4, 2, 0], opacity: [0, 0.15, 0, 0.1, 0] }}
+              transition={{ duration: 0.35, ease: 'linear' }}
+              style={{ background: `repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0,200,255,0.06) 4px, rgba(0,200,255,0.06) 5px)` }}
+            />
+            {/* Random block tear */}
+            <motion.div
+              className="absolute"
+              style={{
+                top: `${20 + Math.random() * 50}%`,
+                left: `${Math.random() * 30}%`,
+                width: `${30 + Math.random() * 40}%`,
+                height: Math.random() > 0.5 ? 2 : 1,
+                background: accentColor,
+                opacity: 0.3,
+                mixBlendMode: 'screen',
+              }}
+            />
+            {/* Corner data burst */}
+            <div className="absolute top-1 right-2 text-[0.45rem] font-mono opacity-40"
+              style={{ color: accentColor, fontFamily: 'monospace', letterSpacing: 1 }}>
+              {Math.random().toString(36).substring(2,8).toUpperCase()}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Square HUD data-matrix widget — right side blank space */}
       <motion.div
         className="absolute pointer-events-none hidden sm:block"
@@ -383,7 +449,19 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
                 className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 p-0.5 rounded"
                 style={{ color: copiedIndex === i ? accentColor : 'rgba(200,210,220,0.4)', cursor: 'pointer', background: 'transparent', border: 'none' }}
                 title="Copy question">
-                {copiedIndex === i ? <Check size={11} /> : <Copy size={11} />}
+                {copiedIndex === i
+                  ? <Check size={11} />
+                  : (
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ display: 'block' }}>
+                      <rect x="0.5" y="3.5" width="8" height="9" rx="1" stroke="currentColor" strokeWidth="0.9"/>
+                      <path d="M3 3V2a1 1 0 011-1h7a1 1 0 011 1v7a1 1 0 01-1 1h-1" stroke="currentColor" strokeWidth="0.9"/>
+                      <line x1="2.5" y1="6" x2="7" y2="6" stroke="currentColor" strokeWidth="0.7" strokeDasharray="1.5 1"/>
+                      <line x1="2.5" y1="8" x2="6" y2="8" stroke="currentColor" strokeWidth="0.7" strokeDasharray="1.5 1"/>
+                      <line x1="2.5" y1="10" x2="5" y2="10" stroke="currentColor" strokeWidth="0.7" strokeDasharray="1.5 1"/>
+                      <circle cx="9.5" cy="9.5" r="0.8" fill="currentColor" opacity="0.6"/>
+                    </svg>
+                  )
+                }
               </button>
             </motion.li>
           ))}
