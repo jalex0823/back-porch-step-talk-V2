@@ -615,8 +615,20 @@ export default function App() {
                     )}
                   </AnimatePresence>
 
-                  {/* Control Panel */}
-                  <ControlPanel onDraw={runDraw} disabled={false} phase={phase} />
+                  {/* Control Panel — hidden during reveal transition */}
+                  <AnimatePresence>
+                    {phase !== 'reveal' && (
+                      <motion.div
+                        key="control-panel"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ControlPanel onDraw={runDraw} disabled={false} phase={phase} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
 
