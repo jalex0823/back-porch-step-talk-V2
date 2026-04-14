@@ -23,13 +23,13 @@ function Model() {
   useFrame((_, delta) => {
     clock.current += delta;
     if (!groupRef.current) return;
-    // Very slow sun-style spin (~60s per rotation)
-    groupRef.current.rotation.z += delta * 0.10;
+    // Very slow sun-style spin (~120s per rotation)
+    groupRef.current.rotation.z += delta * 0.052;
     // Floating bob
-    groupRef.current.position.y = Math.sin(clock.current * 0.5) * 0.08;
-    // Angled tilt so it looks tilted like a planet axis
-    groupRef.current.rotation.x = 0.35 + Math.sin(clock.current * 0.35) * 0.08;
-    groupRef.current.rotation.y = Math.cos(clock.current * 0.28) * 0.06;
+    groupRef.current.position.y = Math.sin(clock.current * 0.45) * 0.07;
+    // Tilt top toward viewer (negative X) so you see the rim/side
+    groupRef.current.rotation.x = -0.42 + Math.sin(clock.current * 0.32) * 0.07;
+    groupRef.current.rotation.y = Math.cos(clock.current * 0.25) * 0.05;
   });
 
   return (
@@ -48,15 +48,15 @@ export default function CompassModel({ visible }) {
         position: 'absolute',
         left: 240,
         top: 240,
-        width: 220,
-        height: 220,
-        marginLeft: -110,
-        marginTop: -110,
+        width: 240,
+        height: 240,
+        marginLeft: -120,
+        marginTop: -120,
         zIndex: 5,
         opacity: 0,
       }}
       initial={{ opacity: 0, scale: 0.75 }}
-      animate={{ opacity: visible ? 0.55 : 0, scale: visible ? 1 : 0.75 }}
+      animate={{ opacity: visible ? 0.35 : 0, scale: visible ? 1 : 0.75 }}
       transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
     >
       <Canvas
