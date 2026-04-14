@@ -5,17 +5,17 @@ export default function ControlPanel({ onDraw, disabled, phase }) {
   const inProgress = phase !== 'idle' && phase !== 'reveal';
 
   return (
-    <div className="flex flex-col items-center w-full" style={{ minWidth: 300, maxWidth: 440 }}>
+    <div className="flex flex-col items-center w-full" style={{ maxWidth: 440 }}>
       <motion.button
         onClick={() => { if (!disabled && !inProgress) onDraw(); }}
         disabled={disabled || inProgress}
-        className="relative py-3.5 sm:py-4 rounded-lg text-sm sm:text-base font-bold tracking-[0.18em] uppercase select-none outline-none disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden"
+        className="relative w-full py-3.5 sm:py-4 rounded-lg text-sm sm:text-base font-bold tracking-[0.18em] uppercase select-none outline-none disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden"
         style={{
           fontFamily: "'Orbitron', 'Inter', sans-serif",
           color: inProgress ? 'rgba(255,255,255,0.45)' : '#fff',
           background: inProgress
             ? 'linear-gradient(160deg, rgba(55,60,68,0.95) 0%, rgba(40,45,52,0.98) 60%, rgba(30,33,38,1) 100%)'
-            : 'linear-gradient(160deg, #3bc4d6dd 0%, #2ba4b5cc 40%, #1a8090bb 100%)',
+            : 'linear-gradient(160deg, #3bc4d688 0%, #2ba4b566 40%, #1a809055 100%)',
           border: inProgress ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(100,220,235,0.35)',
           cursor: inProgress ? 'not-allowed' : 'pointer',
           textShadow: inProgress ? 'none' : '0 0 10px rgba(43,220,235,0.6), 0 1px 3px rgba(0,0,0,0.4)',

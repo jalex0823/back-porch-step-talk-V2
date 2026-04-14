@@ -10,8 +10,25 @@ import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
 import CompassModel from './CompassModel';
 import OwlSentinel from './OwlSentinel';
-import SloganModal from './SloganModal';
 import { AA_SLOGANS } from './slogans';
+import { Copy, Check } from 'lucide-react';
+
+function SloganCopyBtn({ slogan }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(`${slogan.slogan}\n\n${slogan.meaning}`).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button onClick={copy} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[0.55rem] tracking-[0.12em] uppercase"
+      style={{ fontFamily: "'Orbitron', sans-serif", background: copied ? 'rgba(61,158,207,0.2)' : 'rgba(255,255,255,0.05)', border: copied ? '1px solid rgba(61,158,207,0.5)' : '1px solid rgba(255,255,255,0.1)', color: copied ? 'rgba(61,158,207,0.95)' : 'rgba(200,210,220,0.5)', cursor: 'pointer', transition: 'all 0.3s ease' }}>
+      {copied ? <Check size={10} /> : <Copy size={10} />}
+      {copied ? 'Copied' : 'Copy'}
+    </button>
+  );
+}
 
 export default function App() {
   // idle | energize | spin | shimmer | reveal | card
@@ -122,6 +139,12 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [phase, runDraw, selectTopic, resetDraw]);
 
+  // Dev position controls
+  const [orbitOffsetX, setOrbitOffsetX] = useState(-340);
+  const [orbitOffsetY, setOrbitOffsetY] = useState(0);
+  const [compassX, setCompassX] = useState(295);
+  const [compassY, setCompassY] = useState(295);
+
   // Mouse-following parallax
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   useEffect(() => {
@@ -149,9 +172,38 @@ export default function App() {
   return (
     <div className="relative w-full h-full min-h-screen flex items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(150deg, #3a3028 0%, #2a2520 30%, #1e1c1a 60%, #252220 100%)',
+        background: '#060a12',
       }}
     >
+      {/* BG image — smaller, shifted down-left */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          backgroundImage: 'url(/bg.png)',
+          backgroundSize: '72%',
+          backgroundPosition: '46% 30%',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.75,
+        }}
+      />
+      {/* Neon glow pulse over bg */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        animate={{
+          opacity: [0.35, 0.65, 0.35],
+        }}
+        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+        style={{
+          backgroundImage: 'url(/bg.png)',
+          backgroundSize: '72%',
+          backgroundPosition: '46% 30%',
+          backgroundRepeat: 'no-repeat',
+          filter: 'blur(6px) brightness(5) saturate(6) hue-rotate(185deg)',
+          mixBlendMode: 'screen',
+        }}
+      />
+      {/* Dark vignette */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at center, transparent 30%, rgba(4,8,14,0.75) 100%)' }} />
       {/* Warm ambient light spots — parallax */}
       <motion.div className="absolute inset-0 pointer-events-none"
         animate={{
@@ -210,36 +262,99 @@ export default function App() {
       {/* ===== MAIN GLASS PANEL ===== */}
       <div
         className="relative z-10"
-        style={{ perspective: '1200px' }}
       >
         <motion.div
           className="glass-panel relative"
           style={{
-            transform: 'rotateY(-2deg) rotateX(1deg)',
-            width: 'min(860px, 96vw)',
+            width: 'min(920px, 96vw)',
             minHeight: '800px',
           }}
-          whileHover={{ rotateY: 0, rotateX: 0 }}
-          transition={{ duration: 0.6 }}
         >
           {/* Animated side widgets — inside card edges */}
           <SideWidgets />
 
-          {/* Glass shine overlay */}
-          <div className="absolute inset-0 rounded-[14px] glass-shine" />
+          {/* Slogan overlay — centered inside the panel */}
+          <AnimatePresence>
+            {activeSlogan && (
+              <>
+                <motion.div
+                  className="absolute inset-0 rounded-[14px] z-40"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  style={{ background: 'rgba(8,12,20,0.82)', backdropFilter: 'blur(6px)' }}
+                  onClick={() => setActiveSlogan(null)}
+                />
+                <motion.div
+                  className="absolute z-50 flex flex-col items-center"
+                  style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 'min(420px, 80%)' }}
+                  initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.88, y: 12 }}
+                  transition={{ type: 'spring', stiffness: 340, damping: 26 }}
+                >
+                  <div className="relative w-full rounded-2xl px-8 py-8 flex flex-col items-center gap-5"
+                    style={{
+                      background: 'linear-gradient(145deg, rgba(22,28,38,0.98) 0%, rgba(14,18,28,0.99) 100%)',
+                      border: '1px solid rgba(61,158,207,0.3)',
+                      boxShadow: '0 0 60px rgba(61,158,207,0.15), 0 20px 40px rgba(0,0,0,0.6)',
+                    }}
+                  >
+                    {/* Glow orb */}
+                    <div className="pointer-events-none absolute inset-0 rounded-2xl overflow-hidden">
+                      <div style={{ position: 'absolute', top: '-30%', left: '50%', transform: 'translateX(-50%)', width: '80%', height: '80%', background: 'radial-gradient(ellipse, rgba(61,158,207,0.1) 0%, transparent 70%)' }} />
+                    </div>
+                    {/* Close */}
+                    <button onClick={() => setActiveSlogan(null)} className="absolute top-3 right-3 p-1.5 rounded-full"
+                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(200,210,220,0.4)', cursor: 'pointer' }}>
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><line x1="2" y1="2" x2="11" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><line x1="11" y1="2" x2="2" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                    </button>
+                    {/* Label with rules */}
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.35))' }} />
+                      <p className="text-[0.55rem] tracking-[0.25em] uppercase" style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.7)', whiteSpace: 'nowrap' }}>AA Slogan</p>
+                      <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg, transparent, rgba(61,158,207,0.35))' }} />
+                    </div>
+                    {/* Big quote mark */}
+                    <span className="pointer-events-none absolute" style={{ top: 28, left: 24, fontSize: '4.5rem', lineHeight: 1, color: 'rgba(61,158,207,0.08)', fontFamily: 'Georgia, serif', fontWeight: 700, userSelect: 'none' }}>&ldquo;</span>
+                    {/* Slogan + meaning */}
+                    <motion.div key={activeSlogan.slogan} className="relative flex flex-col items-center gap-3 px-2"
+                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}>
+                      <p className="text-center text-base sm:text-lg font-bold tracking-wide" style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.95)' }}>{activeSlogan.slogan}</p>
+                      <div className="w-full h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.25), transparent)' }} />
+                      <p className="text-center text-sm leading-relaxed" style={{ fontFamily: "'Inter', sans-serif", color: 'rgba(210,220,230,0.8)' }}>{activeSlogan.meaning}</p>
+                    </motion.div>
+                    {/* Buttons */}
+                    <div className="flex items-center gap-3">
+                      <SloganCopyBtn slogan={activeSlogan} />
+                      <button onClick={pickSlogan} className="flex items-center gap-2 px-4 py-2 rounded-full text-[0.6rem] tracking-[0.15em] uppercase"
+                        style={{ fontFamily: "'Orbitron', sans-serif", background: 'rgba(61,158,207,0.12)', border: '1px solid rgba(61,158,207,0.3)', color: 'rgba(61,158,207,0.85)', cursor: 'pointer' }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        Another one
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
 
-          {/* Scanning light beam (Login-style) */}
-          <div className="absolute inset-0 rounded-[14px] overflow-hidden pointer-events-none">
+          {/* Glass shine overlay — card only */}
+          {phase === 'card' && <div className="absolute inset-0 rounded-[14px] glass-shine" />}
+
+          {/* Scanning light beam — card only */}
+          {phase === 'card' && <div className="absolute inset-0 rounded-[14px] overflow-hidden pointer-events-none">
             <div className="glass-scan absolute inset-y-0"
               style={{
                 width: '60px',
                 background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)',
               }}
             />
-          </div>
+          </div>}
 
-          {/* Radial gradient edge shadows for depth (Login sample) */}
-          <div className="absolute inset-0 rounded-[14px] pointer-events-none"
+          {/* Radial gradient edge shadows for depth — card only */}
+          {phase === 'card' && <div className="absolute inset-0 rounded-[14px] pointer-events-none"
             style={{
               boxShadow: `
                 inset 12px 0 20px -12px rgba(0,0,0,0.25),
@@ -248,19 +363,19 @@ export default function App() {
                 inset 0 -12px 20px -12px rgba(0,0,0,0.3)
               `,
             }}
-          />
+          />}
 
-          {/* Metallic edge — left */}
+          {/* Metallic edges — card only */}
+          {phase === 'card' && <>
           <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full pointer-events-none"
             style={{ background: 'linear-gradient(180deg, rgba(190,195,205,0.4), rgba(140,145,155,0.15), rgba(190,195,205,0.3))' }}
           />
-          {/* Metallic edge — right */}
           <div className="absolute right-0 top-3 bottom-3 w-[3px] rounded-full pointer-events-none"
             style={{ background: 'linear-gradient(180deg, rgba(190,195,205,0.3), rgba(140,145,155,0.1), rgba(190,195,205,0.25))' }}
-          />
+          /></>}
 
           {/* Content area */}
-          <div className="relative z-10 px-6 py-5 sm:px-8 sm:py-6">
+          <div className="relative z-10 px-6 py-5 sm:px-8 sm:py-6 flex flex-col" style={{ minHeight: '800px' }}>
 
             <AnimatePresence mode="wait">
               {/* ===== DRAW VIEW ===== */}
@@ -268,7 +383,7 @@ export default function App() {
                 <motion.div
                   key="draw-view"
                   className="relative flex flex-col items-center"
-                  style={{ minHeight: 'inherit' }}
+                  style={{ flex: 1, minHeight: 0 }}
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, y: 15 }}
                   transition={{ duration: 0.8 }}
@@ -286,7 +401,7 @@ export default function App() {
                     <div className="flex gap-[3px]">
                       {[...Array(4)].map((_, i) => (
                         <div key={i} className="w-[3px] h-5 rounded-sm"
-                          style={{ background: '#3d9ecf', opacity: 0.7, transform: 'rotate(-12deg)' }}
+                          style={{ background: '#3d9ecf', opacity: 0.35, transform: 'rotate(-12deg)' }}
                         />
                       ))}
                     </div>
@@ -294,7 +409,7 @@ export default function App() {
                       className="text-xl sm:text-2xl md:text-3xl font-bold tracking-[0.12em] uppercase"
                       style={{
                         fontFamily: "'Orbitron', 'Inter', sans-serif",
-                        color: '#fff',
+                        color: 'rgba(255,255,255,0.55)',
                         textShadow: '0 2px 8px rgba(0,0,0,0.4)',
                       }}
                     >
@@ -303,7 +418,7 @@ export default function App() {
                     <div className="flex gap-[3px]">
                       {[...Array(4)].map((_, i) => (
                         <div key={i} className="w-[3px] h-5 rounded-sm"
-                          style={{ background: '#3d9ecf', opacity: 0.7, transform: 'rotate(-12deg)' }}
+                          style={{ background: '#3d9ecf', opacity: 0.35, transform: 'rotate(-12deg)' }}
                         />
                       ))}
                     </div>
@@ -311,7 +426,7 @@ export default function App() {
 
                   {/* Animated line sweep divider */}
                   <div className="w-full h-px mb-2 line-sweep"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.5), transparent)' }}
+                    style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.2), transparent)' }}
                   />
 
                   {/* Instructional subtitle */}
@@ -319,7 +434,7 @@ export default function App() {
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: '0.7rem',
-                      color: 'rgba(200, 210, 220, 0.5)',
+                      color: 'rgba(200, 210, 220, 0.28)',
                       letterSpacing: '0.06em',
                       lineHeight: '1.5',
                     }}
@@ -328,7 +443,7 @@ export default function App() {
                   </p>
 
                   {/* Orbital area — perfect circle */}
-                  <div className="relative mx-auto mb-1" style={{ width: '480px', height: '480px' }}>
+                  <div className="relative mb-0" style={{ width: '560px', height: '560px', marginLeft: `calc(50% + ${orbitOffsetX}px)`, marginTop: orbitOffsetY }}>
 
                     {/* Center "sun" glow — pulses during spin */}
                     <motion.div
@@ -410,6 +525,8 @@ export default function App() {
                     <CompassModel
                       visible={phase === 'idle' || phase === 'card'}
                       onClick={pickSlogan}
+                      offsetX={compassX}
+                      offsetY={compassY}
                     />
 
                     {/* Circular orbit path ring — pulsing glow (OrbButton-inspired) */}
@@ -478,8 +595,8 @@ export default function App() {
                       {/* Comet trails — rendered at orbit level so they rotate with the container */}
                       {(phase === 'spin' || phase === 'shimmer') && TOPICS.map((topic, index) => {
                         const angle = (index / TOPICS.length) * 360 - 90;
-                        const radius = 185;
-                        const center = 240;
+                        const radius = 215;
+                        const center = 280;
                         return [1, 2, 3, 4, 5, 6, 7, 8].map(t => {
                           const trailAngle = angle - t * 8; // offset behind by 8° each
                           const trailRad = (trailAngle * Math.PI) / 180;
@@ -494,8 +611,8 @@ export default function App() {
                               exit={{ opacity: 0 }}
                               transition={{ duration: 0.25, delay: t * 0.03 }}
                               style={{
-                                left: center + Math.cos(trailRad) * radius - size / 2,
-                                top: center + Math.sin(trailRad) * radius - size / 2,
+                                left: 280 + Math.cos(trailRad) * 215 - size / 2,
+                                top: 280 + Math.sin(trailRad) * 215 - size / 2,
                                 width: size,
                                 height: size,
                                 background: `radial-gradient(circle, ${topic.glowColor}cc, transparent 70%)`,
@@ -509,11 +626,11 @@ export default function App() {
 
                       {TOPICS.map((topic, index) => {
                         const angle = (index / TOPICS.length) * 360 - 90; // start from top
-                        const radius = 185; // perfect circle
+                        const radius = 215; // match bg circle
                         const rad = (angle * Math.PI) / 180;
                         const ballSize = 105; // scaled up ball
                         const half = ballSize / 2;
-                        const center = 240; // center of 480px area
+                        const center = 280; // center of 560px area
                         const cx = center + Math.cos(rad) * radius - half;
                         const cy = center + Math.sin(rad) * radius - half;
 
@@ -521,7 +638,7 @@ export default function App() {
                         const isRevealed = phase === 'reveal' && selectedIndex === index;
                         const isNotSelected = phase === 'reveal' && selectedIndex !== null && selectedIndex !== index;
                         // Fill entire 380px area: 380/88 ≈ 4.32
-                        const fillScale = 480 / ballSize;
+                        const fillScale = 560 / ballSize;
                         const targetX = isRevealed ? center - half : cx;
                         const targetY = isRevealed ? center - half : cy;
 
@@ -592,12 +709,15 @@ export default function App() {
                     </motion.div>
                   </div>
 
+                  {/* Bottom area — hint + button with explicit spacing */}
+                  <div className="flex flex-col items-center w-full" style={{ gap: 32, paddingTop: 40, paddingBottom: 36 }}>
+
                   {/* Compass hint — only during idle/card */}
                   <AnimatePresence>
                     {(phase === 'idle' || phase === 'card') && (
                       <motion.p
                         key="compass-hint"
-                        className="text-center mb-1"
+                        className="text-center"
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
@@ -607,6 +727,7 @@ export default function App() {
                           fontSize: '0.62rem',
                           color: 'rgba(61,158,207,0.45)',
                           letterSpacing: '0.08em',
+                          marginTop: '-12px',
                         }}
                       >
                         ✦ Tap the compass for a random AA slogan ✦
@@ -618,7 +739,7 @@ export default function App() {
                   <AnimatePresence>
                     {phase === 'reveal' && selectedIndex !== null && (
                       <motion.div
-                        className="mb-1 text-center relative"
+                        className="text-center relative"
                         initial={{ opacity: 0, y: 12, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8 }}
@@ -651,32 +772,40 @@ export default function App() {
                     )}
                   </AnimatePresence>
 
-                  {/* Control Panel + Owl row — hidden during reveal */}
+                  {/* Button row — centered */}
                   <AnimatePresence>
-                    {phase !== 'reveal' && (
+                    {phase !== 'reveal' && phase !== 'spin' && phase !== 'shimmer' && (
                       <motion.div
                         key="control-panel"
-                        className="flex items-end justify-center w-full"
-                        style={{ marginTop: '-8px' }}
+                        className="flex justify-center w-full"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <div className="pointer-events-none flex-shrink-0" style={{ width: 170, height: 220, marginBottom: -14, marginRight: -16 }}>
-                          <OwlSentinel visible={phase === 'idle' || phase === 'card'} />
-                        </div>
                         <ControlPanel onDraw={runDraw} disabled={false} phase={phase} />
                       </motion.div>
                     )}
                   </AnimatePresence>
+
+                  </div>{/* end bottom-area */}
                 </motion.div>
               )}
 
               {/* ===== CARD VIEW ===== */}
               {phase === 'card' && selectedIndex !== null && (
+                <>
+                <motion.div
+                  className="absolute inset-0 rounded-[14px] pointer-events-none z-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.6, delay: 0.5 }}
+                  style={{ background: 'linear-gradient(145deg, rgba(100,110,125,0.72) 0%, rgba(70,78,92,0.68) 50%, rgba(95,105,118,0.72) 100%)', backdropFilter: 'blur(16px)' }}
+                />
                 <motion.div
                   key="card-view"
+                  className="relative z-10"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
@@ -706,12 +835,23 @@ export default function App() {
                     </motion.div>
                   </AnimatePresence>
                 </motion.div>
+                </>
               )}
             </AnimatePresence>
+
+          {/* ===== DEV SLIDERS ===== */}
+          <div className="absolute top-80 left-1 z-50 flex flex-col p-1 rounded" style={{ background: 'rgba(4,20,28,0.55)', border: '1px solid rgba(43,164,181,0.35)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
+            <p style={{ color: '#2ba4b5' }}>DEV</p>
+            <label style={{ color: '#3bc4d6' }}>oX:{orbitOffsetX}<input type="range" min="-500" max="0" value={orbitOffsetX} onChange={e => setOrbitOffsetX(Number(e.target.value))} style={{ accentColor: '#2ba4b5', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#3bc4d6' }}>oY:{orbitOffsetY}<input type="range" min="-200" max="200" value={orbitOffsetY} onChange={e => setOrbitOffsetY(Number(e.target.value))} style={{ accentColor: '#2ba4b5', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#3bc4d6' }}>cX:{compassX}<input type="range" min="200" max="360" value={compassX} onChange={e => setCompassX(Number(e.target.value))} style={{ accentColor: '#2ba4b5', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#3bc4d6' }}>cY:{compassY}<input type="range" min="200" max="360" value={compassY} onChange={e => setCompassY(Number(e.target.value))} style={{ accentColor: '#2ba4b5', width: '100%', height: 6 }} /></label>
+          </div>
+
           </div>
         </motion.div>
 
-        {/* Panel shadow on "floor" */}
+      {/* Panel shadow on "floor" */}
         <div className="mt-2 mx-auto rounded-full"
           style={{
             width: '80%',
@@ -777,12 +917,6 @@ export default function App() {
         </svg>
       </motion.button>
 
-      {/* Slogan modal — triggered by compass click */}
-      <SloganModal
-        slogan={activeSlogan}
-        onClose={() => setActiveSlogan(null)}
-        onNew={pickSlogan}
-      />
 
       {/* Session counter — bottom left */}
       {drawCount > 0 && (

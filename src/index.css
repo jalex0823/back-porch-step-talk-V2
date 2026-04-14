@@ -23,20 +23,12 @@ body {
 
 /* Glass panel effect */
 .glass-panel {
-  background: linear-gradient(145deg,
-    rgba(100, 110, 125, 0.65) 0%,
-    rgba(80, 88, 100, 0.60) 25%,
-    rgba(70, 78, 92, 0.55) 50%,
-    rgba(85, 93, 108, 0.58) 75%,
-    rgba(95, 105, 118, 0.62) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.5px solid rgba(180, 185, 195, 0.4);
+  background: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
   border-radius: 14px;
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 /* Glass shine overlay */
