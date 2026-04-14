@@ -177,33 +177,26 @@ export function playSelectSound() {
   blip(2400, t + 0.12, 0.03, 0.02, 'sine');
 }
 
-/* ── HOME: descending digital sweep — "powering down" feel ── */
+/* ── HOME: gaster-vanish.mp3 ── */
+let homeBuffer = null;
+if (audioCtx) {
+  fetch('/gaster-vanish.mp3')
+    .then(r => r.arrayBuffer())
+    .then(buf => audioCtx.decodeAudioData(buf))
+    .then(decoded => { homeBuffer = decoded; })
+    .catch(() => {});
+}
+
 export function playHomeSound() {
-  if (!audioCtx) return;
+  if (!audioCtx || !homeBuffer) return;
   if (audioCtx.state === 'suspended') audioCtx.resume();
-  const t = audioCtx.currentTime;
-
-  // Descending sine sweep
-  const osc = audioCtx.createOscillator();
+  const src = audioCtx.createBufferSource();
+  src.buffer = homeBuffer;
   const g = audioCtx.createGain();
-  osc.type = 'sine';
-  osc.frequency.setValueAtTime(1000, t);
-  osc.frequency.exponentialRampToValueAtTime(300, t + 0.25);
-  g.gain.setValueAtTime(0.06, t);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.3);
-  osc.connect(g); g.connect(audioCtx.destination);
-  osc.start(t); osc.stop(t + 0.3);
-
-  // Low thump
-  const sub = audioCtx.createOscillator();
-  const sg = audioCtx.createGain();
-  sub.type = 'sine';
-  sub.frequency.setValueAtTime(60, t + 0.05);
-  sub.frequency.exponentialRampToValueAtTime(25, t + 0.2);
-  sg.gain.setValueAtTime(0.07, t + 0.05);
-  sg.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-  sub.connect(sg); sg.connect(audioCtx.destination);
-  sub.start(t + 0.05); sub.stop(t + 0.2);
+  g.gain.setValueAtTime(0.6, audioCtx.currentTime);
+  src.connect(g);
+  g.connect(audioCtx.destination);
+  src.start(0);
 }
 
 /* ── AGAIN: CrossEffect.mp3 sound ── */
