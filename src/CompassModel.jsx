@@ -25,11 +25,12 @@ function Model() {
     if (!groupRef.current) return;
     // Very slow sun-style spin (~120s per rotation)
     groupRef.current.rotation.z += delta * 0.052;
-    // Floating bob
-    groupRef.current.position.y = Math.sin(clock.current * 0.45) * 0.07;
-    // Deeper tilt — top toward viewer, shows more rim
-    groupRef.current.rotation.x = -0.68 + Math.sin(clock.current * 0.32) * 0.07;
-    groupRef.current.rotation.y = Math.cos(clock.current * 0.25) * 0.06;
+    // Floating bob — gentle up/down drift
+    groupRef.current.position.y = Math.sin(clock.current * 0.45) * 0.12;
+    groupRef.current.position.x = Math.cos(clock.current * 0.31) * 0.06;
+    // Wobble — noticeable rocking on X and Y axes at different tempos
+    groupRef.current.rotation.x = -0.68 + Math.sin(clock.current * 0.38) * 0.18;
+    groupRef.current.rotation.y = Math.cos(clock.current * 0.27) * 0.14;
   });
 
   return (
@@ -46,7 +47,7 @@ export default function CompassModel({ visible }) {
       className="pointer-events-none"
       style={{
         position: 'absolute',
-        left: 258,
+        left: 273,
         top: 260,
         width: 240,
         height: 240,
