@@ -9,6 +9,7 @@ import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHom
 import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
 import CompassModel from './CompassModel';
+import OwlSentinel from './OwlSentinel';
 import SloganModal from './SloganModal';
 import { AA_SLOGANS } from './slogans';
 
@@ -327,6 +328,12 @@ export default function App() {
 
                   {/* Orbital area — perfect circle */}
                   <div className="relative mx-auto mb-4" style={{ width: '480px', height: '480px' }}>
+
+                    {/* Iron Owl Sentinel — bottom-right of orbit */}
+                    <div className="absolute pointer-events-none" style={{ right: -145, bottom: 10, width: 140, height: 180, zIndex: 6 }}>
+                      <OwlSentinel visible={phase === 'idle' || phase === 'card'} />
+                    </div>
+
                     {/* Center "sun" glow — pulses during spin */}
                     <motion.div
                       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
