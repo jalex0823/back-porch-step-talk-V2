@@ -597,7 +597,7 @@ export default function App() {
                     {(phase === 'idle' || phase === 'card') && (
                       <motion.p
                         key="compass-hint"
-                        className="text-center mb-2"
+                        className="text-center mb-1"
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
@@ -618,7 +618,7 @@ export default function App() {
                   <AnimatePresence>
                     {phase === 'reveal' && selectedIndex !== null && (
                       <motion.div
-                        className="mb-3 text-center relative"
+                        className="mb-1 text-center relative"
                         initial={{ opacity: 0, y: 12, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8 }}
