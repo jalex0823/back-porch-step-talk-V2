@@ -358,7 +358,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       </div>
 
       {/* Animated line sweep divider */}
-      <div className="w-full h-px mb-3 line-sweep"
+      <div className="w-full h-px mb-4 line-sweep"
         style={{ background: `linear-gradient(90deg, transparent, ${accentColor}55, transparent)` }} />
 
       {/* Summary */}
@@ -401,8 +401,8 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       </motion.div>
 
       {/* #5 Key Points with ruled header */}
-      <motion.div className="mb-3" {...stagger(0.4)}>
-        <div className="flex items-center gap-2 mb-1.5">
+      <motion.div className="mb-5" {...stagger(0.4)}>
+        <div className="flex items-center gap-2 mb-2.5">
           <Hash size={10} style={{ color: accentColor, opacity: 0.7, flexShrink: 0 }} />
           <p className="text-[0.6rem] tracking-[0.15em] uppercase"
             style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
@@ -410,7 +410,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
           </p>
           <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
         </div>
-        <ul className="space-y-1">
+        <ul className="space-y-2">
           {keyPoints.map((point, i) => (
             <motion.li key={i} className="flex gap-2 items-start"
               initial={{ opacity: 0, x: -10 }}
@@ -428,8 +428,8 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       </motion.div>
 
       {/* #5 + #8 Discussion Questions with copy */}
-      <motion.div className="mb-3" {...stagger(0.65)}>
-        <div className="flex items-center gap-2 mb-1.5">
+      <motion.div className="mb-5" {...stagger(0.65)}>
+        <div className="flex items-center gap-2 mb-2.5">
           <Hash size={10} style={{ color: accentColor, opacity: 0.7, flexShrink: 0 }} />
           <p className="text-[0.6rem] tracking-[0.15em] uppercase"
             style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
@@ -437,7 +437,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
           </p>
           <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
         </div>
-        <ol className="space-y-1.5 list-none">
+        <ol className="space-y-2.5 list-none">
           {discussionQuestions.map((q, i) => (
             <motion.li key={i} className="group flex gap-2 items-start"
               initial={{ opacity: 0, x: -10 }}
@@ -477,8 +477,8 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
 
       {/* Suggested Readings */}
       {readings && readings.length > 0 && (
-        <motion.div className="mb-3" {...stagger(0.85)}>
-          <div className="flex items-center gap-1.5 mb-1.5">
+        <motion.div className="mb-5" {...stagger(0.85)}>
+          <div className="flex items-center gap-1.5 mb-2.5">
             <BookMarked size={10} style={{ color: accentColor, opacity: 0.7, flexShrink: 0 }} />
             <p className="text-[0.6rem] tracking-[0.15em] uppercase"
               style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
@@ -486,7 +486,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
             </p>
             <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
           </div>
-          <ul className="space-y-1">
+          <ul className="space-y-2">
             {readings.map((r, i) => (
               <motion.li key={i} className="flex gap-2 items-start"
                 initial={{ opacity: 0, x: -10 }}
@@ -506,8 +506,8 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
 
       {/* Action Items */}
       {actionItems && actionItems.length > 0 && (
-        <motion.div className="mb-3" {...stagger(1.05)}>
-          <div className="flex items-center gap-1.5 mb-1.5">
+        <motion.div className="mb-5" {...stagger(1.05)}>
+          <div className="flex items-center gap-1.5 mb-2.5">
             <CheckCircle2 size={10} style={{ color: accentColor, opacity: 0.7, flexShrink: 0 }} />
             <p className="text-[0.6rem] tracking-[0.15em] uppercase"
               style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
@@ -515,7 +515,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
             </p>
             <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
           </div>
-          <ul className="space-y-1">
+          <ul className="space-y-2">
             {actionItems.map((item, i) => (
               <motion.li key={i} className="flex gap-2 items-center"
                 initial={{ opacity: 0, x: -10 }}
@@ -536,11 +536,11 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       )}
 
       {/* Divider before tags */}
-      <div className="w-full h-px mb-3 line-sweep"
+      <div className="w-full h-px mb-4 line-sweep"
         style={{ background: `linear-gradient(90deg, transparent, ${accentColor}33, transparent)` }} />
 
       {/* #4 Tags — glow border pills */}
-      <motion.div className="flex flex-wrap gap-1.5 mb-4" {...stagger(1.2)}>
+      <motion.div className="flex flex-wrap gap-2 mb-5" {...stagger(1.2)}>
         {tags.map((tag, i) => (
           <motion.span key={i} className="px-2 py-0.5 rounded-full text-[0.55rem] tracking-wide uppercase"
             initial={{ opacity: 0, scale: 0.7 }}
