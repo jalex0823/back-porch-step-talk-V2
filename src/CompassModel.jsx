@@ -27,9 +27,9 @@ function Model() {
     groupRef.current.rotation.z += delta * 0.052;
     // Floating bob
     groupRef.current.position.y = Math.sin(clock.current * 0.45) * 0.07;
-    // Tilt top toward viewer (negative X) so you see the rim/side
-    groupRef.current.rotation.x = -0.42 + Math.sin(clock.current * 0.32) * 0.07;
-    groupRef.current.rotation.y = Math.cos(clock.current * 0.25) * 0.05;
+    // Deeper tilt — top toward viewer, shows more rim
+    groupRef.current.rotation.x = -0.68 + Math.sin(clock.current * 0.32) * 0.07;
+    groupRef.current.rotation.y = Math.cos(clock.current * 0.25) * 0.06;
   });
 
   return (
@@ -60,7 +60,7 @@ export default function CompassModel({ visible }) {
       transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
     >
       <Canvas
-        camera={{ position: [0, 0, 3.0], fov: 44 }}
+        camera={{ position: [0, 0.18, 3.0], fov: 44 }}
         gl={{ alpha: true, antialias: true }}
         style={{ background: 'transparent', width: '100%', height: '100%' }}
       >
