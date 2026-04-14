@@ -16,22 +16,20 @@ function Model() {
     const center = new THREE.Vector3();
     box.getCenter(center);
     scene.position.sub(center);
-
-    // Tilt the scene so the compass face points toward the camera (+Z)
-    // Most compass/disc GLBs lie flat on XZ plane — rotating X by -90deg makes it face +Z
+    // Rotate the scene so the compass face points at the camera
     scene.rotation.x = -Math.PI / 2;
   }, [scene]);
 
   useFrame((_, delta) => {
     clock.current += delta;
     if (!groupRef.current) return;
-    // Very slow spin — like the sun (full rotation ~60s)
+    // Very slow sun-style spin (~60s per rotation)
     groupRef.current.rotation.z += delta * 0.10;
-    // Gentle float (Y axis in world space)
-    groupRef.current.position.y = Math.sin(clock.current * 0.55) * 0.06;
-    // Subtle wobble tilt — feels alive
-    groupRef.current.rotation.x = Math.sin(clock.current * 0.4) * 0.05;
-    groupRef.current.rotation.y = Math.cos(clock.current * 0.3) * 0.04;
+    // Floating bob
+    groupRef.current.position.y = Math.sin(clock.current * 0.5) * 0.08;
+    // Angled tilt so it looks tilted like a planet axis
+    groupRef.current.rotation.x = 0.35 + Math.sin(clock.current * 0.35) * 0.08;
+    groupRef.current.rotation.y = Math.cos(clock.current * 0.28) * 0.06;
   });
 
   return (
@@ -42,16 +40,27 @@ function Model() {
 }
 
 export default function CompassModel({ visible }) {
+  // Orbit area is 480x480, center is at 240,240. Canvas is 220x220 so offset is -110.
   return (
     <motion.div
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-      style={{ width: 200, height: 200, zIndex: 5 }}
+      className="pointer-events-none"
+      style={{
+        position: 'absolute',
+        left: 240,
+        top: 240,
+        width: 220,
+        height: 220,
+        marginLeft: -110,
+        marginTop: -110,
+        zIndex: 5,
+        opacity: 0,
+      }}
       initial={{ opacity: 0, scale: 0.75 }}
-      animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.75 }}
+      animate={{ opacity: visible ? 0.55 : 0, scale: visible ? 1 : 0.75 }}
       transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
     >
       <Canvas
-        camera={{ position: [0, 0, 3.2], fov: 42 }}
+        camera={{ position: [0, 0, 3.0], fov: 44 }}
         gl={{ alpha: true, antialias: true }}
         style={{ background: 'transparent', width: '100%', height: '100%' }}
       >
