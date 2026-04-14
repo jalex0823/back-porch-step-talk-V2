@@ -53,11 +53,11 @@ export default function CompassModel({ visible }) {
         height: 240,
         marginLeft: -120,
         marginTop: -120,
-        zIndex: 5,
+        zIndex: 1,
         opacity: 0,
       }}
       initial={{ opacity: 0, scale: 0.75 }}
-      animate={{ opacity: visible ? 0.35 : 0, scale: visible ? 1 : 0.75 }}
+      animate={{ opacity: visible ? 0.52 : 0, scale: visible ? 1 : 0.75 }}
       transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
     >
       <Canvas
