@@ -495,9 +495,8 @@ export default function App() {
                   {/* Orbital area — perfect circle */}
                   <motion.div
                     className="relative mb-0"
-                    initial={orbitBounced.current ? false : { scale: 0.7, opacity: 0 }}
+                    initial={{ scale: 0.7, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    onAnimationComplete={() => { orbitBounced.current = true; }}
                     transition={{ type: 'spring', stiffness: 180, damping: 12, mass: 1, delay: 0.2 }}
                     style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
 
