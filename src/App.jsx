@@ -656,14 +656,14 @@ export default function App() {
                     {phase !== 'reveal' && (
                       <motion.div
                         key="control-panel"
-                        className="flex items-end justify-center gap-2 w-full"
-                        style={{ paddingRight: '60px' }}
+                        className="flex items-end justify-center w-full"
+                        style={{ paddingRight: '80px' }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                       >
-                        <div className="pointer-events-none flex-shrink-0" style={{ width: 140, height: 185, marginBottom: -10 }}>
+                        <div className="pointer-events-none flex-shrink-0" style={{ width: 170, height: 220, marginBottom: -14, marginRight: -8 }}>
                           <OwlSentinel visible={phase === 'idle' || phase === 'card'} />
                         </div>
                         <ControlPanel onDraw={runDraw} disabled={false} phase={phase} />
