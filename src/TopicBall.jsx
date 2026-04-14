@@ -19,7 +19,7 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
 
   let glowIntensity = 1;
   let dimmed = false;
-  const isIdle = phase === 'idle';
+  const isIdle = phase === 'idle' || phase === 'card';
   const isSpin = phase === 'spin';
   const isEnergize = phase === 'energize';
   const isShimmer = phase === 'shimmer';
