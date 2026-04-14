@@ -9,7 +9,7 @@ export default function ControlPanel({ onDraw, disabled, phase }) {
       <motion.button
         onClick={() => { if (!disabled && !inProgress) onDraw(); }}
         disabled={disabled || inProgress}
-        className="relative w-full max-w-xs py-3 sm:py-3.5 rounded-lg text-sm sm:text-base font-bold tracking-[0.18em] uppercase select-none outline-none disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden"
+        className="relative w-full max-w-md py-3.5 sm:py-4 rounded-lg text-sm sm:text-base font-bold tracking-[0.18em] uppercase select-none outline-none disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden"
         style={{
           fontFamily: "'Orbitron', 'Inter', sans-serif",
           color: inProgress ? 'rgba(255,255,255,0.45)' : '#fff',

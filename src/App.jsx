@@ -296,7 +296,7 @@ export default function App() {
                         textShadow: '0 2px 8px rgba(0,0,0,0.4)',
                       }}
                     >
-                      Back Porch Step Talk
+                      Step Talk
                     </h1>
                     <div className="flex gap-[3px]">
                       {[...Array(4)].map((_, i) => (
@@ -322,7 +322,7 @@ export default function App() {
                       lineHeight: '1.5',
                     }}
                   >
-                    Choose a topic below or tap <span style={{ color: '#2ba4b5', fontWeight: 600 }}>Randomizer</span> to pick one for you
+                    AA Discussion Cards — choose a topic or tap <span style={{ color: '#2ba4b5', fontWeight: 600 }}>Randomizer</span> to draw one
                   </p>
 
                   {/* Orbital area — perfect circle */}
