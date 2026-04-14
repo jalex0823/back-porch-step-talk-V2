@@ -329,8 +329,8 @@ export default function App() {
                   {/* Orbital area — perfect circle */}
                   <div className="relative mx-auto mb-4" style={{ width: '480px', height: '480px' }}>
 
-                    {/* Iron Owl Sentinel — bottom-right of orbit */}
-                    <div className="absolute pointer-events-none" style={{ right: -145, bottom: 10, width: 140, height: 180, zIndex: 6 }}>
+                    {/* Iron Owl Sentinel — bottom-right corner */}
+                    <div className="absolute pointer-events-none" style={{ right: -190, bottom: -60, width: 190, height: 240, zIndex: 6 }}>
                       <OwlSentinel visible={phase === 'idle' || phase === 'card'} />
                     </div>
 

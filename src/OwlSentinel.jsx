@@ -20,14 +20,10 @@ function Model() {
   useFrame((_, delta) => {
     clock.current += delta;
     if (!groupRef.current) return;
-    // Back-and-forth tilt — pendulum
-    groupRef.current.rotation.z = Math.sin(clock.current * 0.55) * 0.14;
-    // Subtle nod
-    groupRef.current.rotation.x = Math.sin(clock.current * 0.38) * 0.06;
-    // Slow Y drift
-    groupRef.current.rotation.y = Math.sin(clock.current * 0.22) * 0.08;
-    // Float
-    groupRef.current.position.y = Math.sin(clock.current * 0.6) * 0.06;
+    // Gentle float only — no rocking
+    groupRef.current.position.y = Math.sin(clock.current * 0.55) * 0.07;
+    // Very subtle Y turn so it feels alive
+    groupRef.current.rotation.y = Math.sin(clock.current * 0.3) * 0.06;
   });
 
   return (
@@ -53,16 +49,6 @@ export default function OwlSentinel({ visible }) {
           filter: 'blur(5px)',
         }}
       />
-      {/* Scanline overlay */}
-      <div className="pointer-events-none absolute inset-0 rounded-lg overflow-hidden" style={{ zIndex: 2 }}>
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(61,158,207,0.02) 3px, rgba(61,158,207,0.02) 4px)',
-        }} />
-      </div>
-      {/* Inner glow rim */}
-      <div className="pointer-events-none absolute inset-0 rounded-lg" style={{ boxShadow: 'inset 0 0 24px rgba(61,158,207,0.07)', zIndex: 3 }} />
-
       <Canvas
         camera={{ position: [0, 0.1, 3.2], fov: 40 }}
         gl={{ alpha: true, antialias: true }}
