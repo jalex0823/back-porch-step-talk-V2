@@ -153,6 +153,7 @@ export default function App() {
   const [bottomOffsetX, setBottomOffsetX] = useState(148);
   const [starOffsetX, setStarOffsetX] = useState(53);
   const [starOffsetY, setStarOffsetY] = useState(47);
+  const orbitBounced = useRef(false);
   const [devConfirmed, setDevConfirmed] = useState(false);
   const handleDevSet = () => {
     const code = `oX:${orbitOffsetX} oY:${orbitOffsetY} oR:${orbitRadius} cX:${compassX} cY:${compassY} ttl:${titleOffsetY} btmX:${bottomOffsetX} btmY:${bottomOffsetY} sX:${starOffsetX} sY:${starOffsetY}`;
@@ -492,7 +493,13 @@ export default function App() {
                   </div>{/* end header+subtitle group */}
 
                   {/* Orbital area — perfect circle */}
-                  <div className="relative mb-0" style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
+                  <motion.div
+                    className="relative mb-0"
+                    initial={orbitBounced.current ? false : { scale: 0.7, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    onAnimationComplete={() => { orbitBounced.current = true; }}
+                    transition={{ type: 'spring', stiffness: 180, damping: 12, mass: 1, delay: 0.2 }}
+                    style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
 
                     {/* Center "sun" glow — pulses during spin */}
                     <motion.div
@@ -748,7 +755,7 @@ export default function App() {
                         );
                       })}
                     </motion.div>
-                  </div>
+                  </motion.div>
 
                   {/* Bottom area — hint + button with explicit spacing */}
                   <div className="flex flex-col items-center w-full" style={{ gap: 32, paddingTop: 16, paddingBottom: 36, transform: `translate(${bottomOffsetX}px, ${bottomOffsetY}px)`, position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, width: '560px', alignSelf: 'flex-start' }}>
@@ -864,9 +871,9 @@ export default function App() {
             <label style={{ color: '#c084fc' }}>sY:{starOffsetY}<input type="range" min="-200" max="200" value={starOffsetY} onChange={e => setStarOffsetY(Number(e.target.value))} style={{ accentColor: '#c084fc', width: '100%', height: 6 }} /></label>
             <motion.button
               onClick={handleDevSet}
-              animate={{ background: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.25)' }}
+              animate={{ background: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.25)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.5)' }}
               transition={{ duration: 0.3 }}
-              style={{ marginTop: 4, width: '100%', border: `1px solid ${devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.5)'}`, borderRadius: 3, padding: '2px 0', fontFamily: 'monospace', fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#fff' : '#2ba4b5', letterSpacing: '0.1em' }}
+              style={{ marginTop: 4, width: '100%', borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(43,164,181,0.5)', borderRadius: 3, padding: '2px 0', fontFamily: 'monospace', fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#fff' : '#2ba4b5', letterSpacing: '0.1em' }}
             >
               {devConfirmed ? '✓ LOCKED' : 'SET DEFAULT'}
             </motion.button>

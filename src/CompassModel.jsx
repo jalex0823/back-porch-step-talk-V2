@@ -56,7 +56,7 @@ export default function CompassModel({ visible, onClick, offsetX = 295, offsetY 
       initial={{ opacity: 0 }}
       animate={{ opacity: visible ? 1 : 0 }}
       whileTap={{ scale: 0.97 }}
-      transition={{ duration: visible ? 1.8 : 0.3, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ opacity: { duration: visible ? 1.8 : 0.3, ease: [0.22, 1, 0.36, 1] } }}
     >
       {/* Hover tooltip */}
       <motion.div
