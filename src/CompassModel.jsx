@@ -40,11 +40,11 @@ function Model() {
   );
 }
 
-export default function CompassModel({ visible }) {
+export default function CompassModel({ visible, onClick }) {
   // Orbit area is 480x480, center is at 240,240. Canvas is 220x220 so offset is -110.
   return (
     <motion.div
-      className="pointer-events-none"
+      onClick={visible ? onClick : undefined}
       style={{
         position: 'absolute',
         left: 273,
@@ -55,9 +55,11 @@ export default function CompassModel({ visible }) {
         marginTop: -120,
         zIndex: 1,
         opacity: 0,
+        cursor: visible ? 'pointer' : 'default',
       }}
       initial={{ opacity: 0, scale: 0.75 }}
       animate={{ opacity: visible ? 0.52 : 0, scale: visible ? 1 : 0.75 }}
+      whileTap={{ scale: 1.18, transition: { type: 'spring', stiffness: 420, damping: 14 } }}
       transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
     >
       <Canvas

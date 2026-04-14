@@ -9,6 +9,8 @@ import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHom
 import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
 import CompassModel from './CompassModel';
+import SloganModal from './SloganModal';
+import { AA_SLOGANS } from './slogans';
 
 export default function App() {
   // idle | energize | spin | shimmer | reveal | card
@@ -20,7 +22,13 @@ export default function App() {
   const [homeSparkleKey, setHomeSparkleKey] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [cardNumber, setCardNumber] = useState(0);
+  const [activeSlogan, setActiveSlogan] = useState(null);
   const timeoutsRef = useRef([]);
+
+  const pickSlogan = useCallback(() => {
+    const next = AA_SLOGANS[Math.floor(Math.random() * AA_SLOGANS.length)];
+    setActiveSlogan(next);
+  }, []);
 
   const clearTimeouts = () => {
     timeoutsRef.current.forEach(clearTimeout);
@@ -396,7 +404,10 @@ export default function App() {
                     </AnimatePresence>
 
                     {/* GLB compass — centered, visible idle/card, fades on selection */}
-                    <CompassModel visible={phase === 'idle' || phase === 'card'} />
+                    <CompassModel
+                      visible={phase === 'idle' || phase === 'card'}
+                      onClick={pickSlogan}
+                    />
 
                     {/* Circular orbit path ring — pulsing glow (OrbButton-inspired) */}
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none orbit-ring-pulse"
@@ -735,6 +746,13 @@ export default function App() {
           )}
         </svg>
       </motion.button>
+
+      {/* Slogan modal — triggered by compass click */}
+      <SloganModal
+        slogan={activeSlogan}
+        onClose={() => setActiveSlogan(null)}
+        onNew={pickSlogan}
+      />
 
       {/* Session counter — bottom left */}
       {drawCount > 0 && (
