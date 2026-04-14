@@ -46,8 +46,9 @@ export default function CompassModel({ visible }) {
     <motion.div
       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
       style={{ width: 200, height: 200, zIndex: 5 }}
+      initial={{ opacity: 0, scale: 0.75 }}
       animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.75 }}
-      transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
     >
       <Canvas
         camera={{ position: [0, 0, 3.2], fov: 42 }}
