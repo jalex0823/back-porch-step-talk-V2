@@ -2,6 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, RefreshCw } from 'lucide-react';
 
 export default function SloganModal({ slogan, onClose, onNew }) {
+  const title = slogan?.slogan ?? '';
+  const meaning = slogan?.meaning ?? '';
   return (
     <AnimatePresence>
       {slogan && (
@@ -67,16 +69,23 @@ export default function SloganModal({ slogan, onClose, onNew }) {
                 &ldquo;
               </span>
 
-              {/* Slogan text */}
-              <motion.p
-                key={slogan}
-                className="relative text-center text-base sm:text-lg font-medium leading-relaxed px-2"
+              {/* Slogan title + meaning */}
+              <motion.div
+                key={title}
+                className="relative flex flex-col items-center gap-2 px-2"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                style={{ fontFamily: "'Inter', sans-serif", color: 'rgba(225,230,240,0.92)' }}>
-                {slogan}
-              </motion.p>
+              >
+                <p className="text-center text-base sm:text-lg font-bold tracking-wide"
+                  style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.95)' }}>
+                  {title}
+                </p>
+                <p className="text-center text-sm leading-relaxed"
+                  style={{ fontFamily: "'Inter', sans-serif", color: 'rgba(210,220,230,0.78)' }}>
+                  {meaning}
+                </p>
+              </motion.div>
 
               {/* Another one button */}
               <button
