@@ -16,6 +16,7 @@ export default function App() {
   const [selectedCard, setSelectedCard] = useState(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [drawCount, setDrawCount] = useState(0);
+  const [homeSparkleKey, setHomeSparkleKey] = useState(0);
   const timeoutsRef = useRef([]);
 
   const clearTimeouts = () => {
@@ -77,6 +78,7 @@ export default function App() {
     setPhase('idle');
     setSelectedIndex(null);
     setSelectedCard(null);
+    setHomeSparkleKey(k => k + 1);
   }, [soundEnabled]);
 
   const drawAgain = useCallback(() => {
@@ -251,11 +253,19 @@ export default function App() {
               {showDraw && (
                 <motion.div
                   key="draw-view"
-                  className="flex flex-col items-center"
+                  className="relative flex flex-col items-center"
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, y: 15 }}
                   transition={{ duration: 0.8 }}
                 >
+                  {homeSparkleKey > 0 && (
+                    <ParticleReveal
+                      key={homeSparkleKey}
+                      accentColor="#3d9ecf"
+                      duration={1.2}
+                      sparkleOnly
+                    />
+                  )}
                   {/* Header with hash marks */}
                   <div className="flex items-center justify-center gap-3 mb-1">
                     <div className="flex gap-[3px]">

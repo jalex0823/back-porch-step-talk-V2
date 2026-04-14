@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 
-export default function ParticleReveal({ children, accentColor = '#3d9ecf', duration = 1.4 }) {
+export default function ParticleReveal({ children, accentColor = '#3d9ecf', duration = 1.4, sparkleOnly = false }) {
   const [showContent, setShowContent] = useState(false);
 
   const particles = useMemo(() => {
@@ -24,6 +24,36 @@ export default function ParticleReveal({ children, accentColor = '#3d9ecf', dura
     const timer = setTimeout(() => setShowContent(true), duration * 700);
     return () => clearTimeout(timer);
   }, [duration]);
+
+  if (sparkleOnly) {
+    return (
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 20 }}>
+        {particles.map((p) => (
+          <motion.div
+            key={p.id}
+            className="absolute rounded-full"
+            style={{
+              width: p.size, height: p.size,
+              left: '50%', top: '50%',
+              background: accentColor,
+              boxShadow: `0 0 ${p.size * 2}px ${accentColor}`,
+            }}
+            initial={{ x: 0, y: 0, opacity: 0, scale: 0.5 }}
+            animate={{ x: p.startX, y: p.startY, opacity: [0, p.opacity, p.opacity, 0], scale: [0.5, 1.2, 1, 0] }}
+            transition={{ duration: duration, delay: p.delay, ease: [0.22, 1, 0.36, 1], times: [0, 0.3, 0.6, 1] }}
+          />
+        ))}
+        <motion.div
+          className="absolute rounded-full"
+          style={{ left: '50%', top: '50%', width: 10, height: 10, marginLeft: -5, marginTop: -5,
+            background: `radial-gradient(circle, ${accentColor}, transparent 70%)` }}
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: [0, 30, 40], opacity: [0, 0.3, 0] }}
+          transition={{ duration: duration * 0.6, delay: 0.1, ease: 'easeOut' }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
