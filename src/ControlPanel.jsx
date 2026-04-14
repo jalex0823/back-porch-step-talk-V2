@@ -5,13 +5,12 @@ export default function ControlPanel({ onDraw, disabled, phase }) {
   const inProgress = phase !== 'idle' && phase !== 'reveal';
 
   return (
-    <div className="flex flex-col items-center w-full mt-6">
+    <div className="flex flex-col items-center w-full" style={{ minWidth: 300, maxWidth: 440 }}>
       <motion.button
         onClick={() => { if (!disabled && !inProgress) onDraw(); }}
         disabled={disabled || inProgress}
         className="relative py-3.5 sm:py-4 rounded-lg text-sm sm:text-base font-bold tracking-[0.18em] uppercase select-none outline-none disabled:cursor-not-allowed flex items-center justify-center gap-2 overflow-hidden"
         style={{
-          width: '420px',
           fontFamily: "'Orbitron', 'Inter', sans-serif",
           color: inProgress ? 'rgba(255,255,255,0.45)' : '#fff',
           background: inProgress
