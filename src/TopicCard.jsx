@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion';
-import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, CheckCircle2, Home } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, CheckCircle2, Home, Copy, Check, Hash, Keyboard } from 'lucide-react';
 
 const AAIcon = ({ size = 24, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={style}>
@@ -16,13 +17,22 @@ const stagger = (delay) => ({
   transition: { duration: 0.5, delay, ease: [0.34, 1.56, 0.64, 1] }, // BackEase-like overshoot
 });
 
-export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber }) {
+export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, cardNumber, totalCards }) {
   const {
     label, icon, color, accentColor, buttonColor, shadowColor, glowColor,
     cardTitle, cardSubtitle, summary, keyPoints, quote, tags, discussionQuestions,
     readings, actionItems,
   } = topic;
   const Icon = ICON_MAP[icon];
+  const [copiedIndex, setCopiedIndex] = useState(null);
+  const [showKeys, setShowKeys] = useState(false);
+
+  const copyQuestion = (text, i) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedIndex(i);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    });
+  };
 
   return (
     <div className="relative w-full">
@@ -118,8 +128,17 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
       </svg>
     </motion.div>
 
-    <div className="flex flex-col w-full max-h-[70vh] overflow-y-auto pr-1"
-      style={{ scrollbarWidth: 'thin', scrollbarColor: `${accentColor}44 transparent` }}>
+    {/* #2 Topic color tint overlay */}
+    <div className="pointer-events-none absolute inset-0 rounded-[14px] overflow-hidden" style={{ zIndex: 0 }}>
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: `radial-gradient(ellipse at 30% 0%, ${accentColor}18 0%, transparent 65%)`,
+        transition: 'background 0.8s ease',
+      }} />
+    </div>
+
+    <div className="relative flex flex-col w-full max-h-[70vh] overflow-y-auto pr-1"
+      style={{ scrollbarWidth: 'thin', scrollbarColor: `${accentColor}44 transparent`, zIndex: 1 }}>
 
       {/* Header row: compass widget with ball + title */}
       <div className="flex items-center gap-6 mb-2">
@@ -245,10 +264,23 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
               ))}
             </div>
           </div>
-          <p className="text-[0.6rem] tracking-[0.15em] uppercase mt-0.5"
-            style={{ fontFamily: "'Inter', sans-serif", color: 'rgba(200, 210, 220, 0.55)' }}>
-            {cardSubtitle}
-          </p>
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+            <p className="text-[0.6rem] tracking-[0.15em] uppercase"
+              style={{ fontFamily: "'Inter', sans-serif", color: 'rgba(200, 210, 220, 0.55)' }}>
+              {cardSubtitle}
+            </p>
+            {cardNumber > 0 && totalCards > 0 && (
+              <span className="text-[0.5rem] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-full"
+                style={{
+                  fontFamily: "'Orbitron', sans-serif",
+                  color: accentColor,
+                  background: `${accentColor}18`,
+                  border: `1px solid ${accentColor}33`,
+                }}>
+                {cardNumber} / {totalCards}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -258,34 +290,53 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
 
       {/* Summary */}
       <motion.div className="mb-3" {...stagger(0.1)}>
-        <p className="text-[0.6rem] tracking-[0.15em] uppercase mb-1"
-          style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.7 }}>
-          Summary
-        </p>
+        <div className="flex items-center gap-2 mb-1">
+          <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}55, transparent)` }} />
+          <p className="text-[0.6rem] tracking-[0.15em] uppercase"
+            style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
+            Summary
+          </p>
+          <div className="h-px flex-1" style={{ background: `linear-gradient(270deg, ${accentColor}55, transparent)` }} />
+        </div>
         <p className="text-xs sm:text-sm leading-relaxed"
           style={{ color: 'rgba(220, 225, 235, 0.85)', fontFamily: "'Inter', sans-serif" }}>
           {summary}
         </p>
       </motion.div>
 
-      {/* Quote block */}
-      <motion.div className="mb-3 px-3 py-2 rounded-lg" {...stagger(0.25)}
+      {/* #3 Rich quote block */}
+      <motion.div className="relative mb-3 px-4 py-3 rounded-lg overflow-hidden" {...stagger(0.25)}
         style={{
-          background: `linear-gradient(135deg, ${accentColor}12, ${accentColor}08)`,
-          borderLeft: `2px solid ${accentColor}66`,
+          background: `linear-gradient(135deg, ${accentColor}14, ${accentColor}06)`,
+          borderLeft: `3px solid ${accentColor}88`,
+          borderBottom: `1px solid ${accentColor}22`,
         }}>
-        <p className="text-xs italic leading-snug"
-          style={{ color: 'rgba(210, 215, 230, 0.75)', fontFamily: "'Inter', sans-serif" }}>
+        <span className="pointer-events-none absolute"
+          style={{
+            top: '-8px', left: '6px',
+            fontSize: '5rem', lineHeight: 1,
+            color: accentColor, opacity: 0.08,
+            fontFamily: 'Georgia, serif', fontWeight: 700,
+            userSelect: 'none',
+          }}>
+          &ldquo;
+        </span>
+        <p className="relative text-xs italic leading-relaxed"
+          style={{ color: 'rgba(220, 225, 235, 0.85)', fontFamily: "'Inter', sans-serif" }}>
           {quote}
         </p>
       </motion.div>
 
-      {/* Key Points */}
+      {/* #5 Key Points with ruled header */}
       <motion.div className="mb-3" {...stagger(0.4)}>
-        <p className="text-[0.6rem] tracking-[0.15em] uppercase mb-1.5"
-          style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.7 }}>
-          Key Points
-        </p>
+        <div className="flex items-center gap-2 mb-1.5">
+          <Hash size={10} style={{ color: accentColor, opacity: 0.7, flexShrink: 0 }} />
+          <p className="text-[0.6rem] tracking-[0.15em] uppercase"
+            style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
+            Key Points
+          </p>
+          <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
+        </div>
         <ul className="space-y-1">
           {keyPoints.map((point, i) => (
             <motion.li key={i} className="flex gap-2 items-start"
@@ -303,15 +354,19 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
         </ul>
       </motion.div>
 
-      {/* Discussion Questions */}
+      {/* #5 + #8 Discussion Questions with copy */}
       <motion.div className="mb-3" {...stagger(0.65)}>
-        <p className="text-[0.6rem] tracking-[0.15em] uppercase mb-1.5"
-          style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.7 }}>
-          Discussion Questions
-        </p>
+        <div className="flex items-center gap-2 mb-1.5">
+          <Hash size={10} style={{ color: accentColor, opacity: 0.7, flexShrink: 0 }} />
+          <p className="text-[0.6rem] tracking-[0.15em] uppercase"
+            style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
+            Discussion Questions
+          </p>
+          <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
+        </div>
         <ol className="space-y-1.5 list-none">
           {discussionQuestions.map((q, i) => (
-            <motion.li key={i} className="flex gap-2 items-start"
+            <motion.li key={i} className="group flex gap-2 items-start"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.35, delay: 0.7 + i * 0.08, ease: [0.34, 1.56, 0.64, 1] }}>
@@ -319,10 +374,17 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
                 style={{ background: `${accentColor}22`, color: accentColor, fontFamily: "'Orbitron', sans-serif" }}>
                 {i + 1}
               </span>
-              <span className="text-xs leading-snug"
+              <span className="flex-1 text-xs leading-snug"
                 style={{ color: 'rgba(210, 215, 225, 0.75)', fontFamily: "'Inter', sans-serif" }}>
                 {q}
               </span>
+              <button
+                onClick={() => copyQuestion(q, i)}
+                className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-150 p-0.5 rounded"
+                style={{ color: copiedIndex === i ? accentColor : 'rgba(200,210,220,0.4)', cursor: 'pointer', background: 'transparent', border: 'none' }}
+                title="Copy question">
+                {copiedIndex === i ? <Check size={11} /> : <Copy size={11} />}
+              </button>
             </motion.li>
           ))}
         </ol>
@@ -332,11 +394,12 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
       {readings && readings.length > 0 && (
         <motion.div className="mb-3" {...stagger(0.85)}>
           <div className="flex items-center gap-1.5 mb-1.5">
-            <BookMarked size={12} style={{ color: accentColor, opacity: 0.7 }} />
+            <BookMarked size={10} style={{ color: accentColor, opacity: 0.7, flexShrink: 0 }} />
             <p className="text-[0.6rem] tracking-[0.15em] uppercase"
-              style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.7 }}>
+              style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
               Suggested Readings
             </p>
+            <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
           </div>
           <ul className="space-y-1">
             {readings.map((r, i) => (
@@ -360,11 +423,12 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
       {actionItems && actionItems.length > 0 && (
         <motion.div className="mb-3" {...stagger(1.05)}>
           <div className="flex items-center gap-1.5 mb-1.5">
-            <CheckCircle2 size={12} style={{ color: accentColor, opacity: 0.7 }} />
+            <CheckCircle2 size={10} style={{ color: accentColor, opacity: 0.7, flexShrink: 0 }} />
             <p className="text-[0.6rem] tracking-[0.15em] uppercase"
-              style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.7 }}>
+              style={{ color: accentColor, fontFamily: "'Orbitron', sans-serif", opacity: 0.8 }}>
               Action Items
             </p>
+            <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}44, transparent)` }} />
           </div>
           <ul className="space-y-1">
             {actionItems.map((item, i) => (
@@ -390,7 +454,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
       <div className="w-full h-px mb-3 line-sweep"
         style={{ background: `linear-gradient(90deg, transparent, ${accentColor}33, transparent)` }} />
 
-      {/* Tags */}
+      {/* #4 Tags — glow border pills */}
       <motion.div className="flex flex-wrap gap-1.5 mb-4" {...stagger(1.2)}>
         {tags.map((tag, i) => (
           <motion.span key={i} className="px-2 py-0.5 rounded-full text-[0.55rem] tracking-wide uppercase"
@@ -398,14 +462,61 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber })
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3, delay: 0.95 + i * 0.06, ease: [0.34, 1.56, 0.64, 1] }}
             style={{
-              background: `${accentColor}15`,
+              background: `${accentColor}18`,
               color: accentColor,
-              border: `1px solid ${accentColor}30`,
+              border: `1px solid ${accentColor}55`,
+              boxShadow: `0 0 8px ${accentColor}22, inset 0 0 4px ${accentColor}11`,
               fontFamily: "'Inter', sans-serif",
+              textShadow: `0 0 8px ${accentColor}66`,
             }}>
             {tag}
           </motion.span>
         ))}
+      </motion.div>
+
+      {/* #9 Keyboard shortcut legend */}
+      <motion.div className="flex justify-end mb-2" {...stagger(1.25)}>
+        <div className="relative">
+          <button
+            onClick={() => setShowKeys(k => !k)}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.5rem] tracking-wide uppercase"
+            style={{
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+              color: 'rgba(200,210,220,0.35)', cursor: 'pointer', fontFamily: "'Orbitron', sans-serif",
+            }}>
+            <Keyboard size={9} />
+            Shortcuts
+          </button>
+          <AnimatePresence>
+            {showKeys && (
+              <motion.div
+                className="absolute bottom-7 right-0 rounded-lg px-3 py-2.5 z-50"
+                initial={{ opacity: 0, y: 6, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 6, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  background: 'rgba(30,34,42,0.97)', border: '1px solid rgba(255,255,255,0.1)',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.5)', minWidth: 190,
+                }}>
+                {[
+                  ['Space', 'Randomize'],
+                  ['1 – 6', 'Pick topic directly'],
+                  ['Esc', 'Return home'],
+                ].map(([key, desc]) => (
+                  <div key={key} className="flex items-center justify-between gap-4 mb-1 last:mb-0">
+                    <kbd className="px-1.5 py-0.5 rounded text-[0.5rem] font-bold"
+                      style={{ background: `${accentColor}22`, color: accentColor, border: `1px solid ${accentColor}44`,
+                        fontFamily: "'Orbitron', sans-serif" }}>
+                      {key}
+                    </kbd>
+                    <span className="text-[0.55rem]" style={{ color: 'rgba(200,210,220,0.6)', fontFamily: "'Inter', sans-serif" }}>{desc}</span>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </motion.div>
 
       {/* Session badge */}

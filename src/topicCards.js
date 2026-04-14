@@ -257,6 +257,10 @@ function getPoolForTopic(topicId) {
   }
 }
 
+export function getPoolSize(topicId) {
+  return getPoolForTopic(topicId).length;
+}
+
 export function getRandomCard(topicId) {
   const pool = getPoolForTopic(topicId);
   const idx = getFromBag(topicId, pool);

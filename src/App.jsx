@@ -6,7 +6,7 @@ import ParticleReveal from './ParticleReveal';
 import ControlPanel from './ControlPanel';
 import { TOPICS } from './topics';
 import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHomeSound, playAgainSound } from './useSound';
-import { getRandomCard } from './topicCards';
+import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
 
 export default function App() {
@@ -17,6 +17,8 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [drawCount, setDrawCount] = useState(0);
   const [homeSparkleKey, setHomeSparkleKey] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [cardNumber, setCardNumber] = useState(0);
   const timeoutsRef = useRef([]);
 
   const clearTimeouts = () => {
@@ -49,6 +51,7 @@ export default function App() {
         setSelectedCard(getRandomCard(TOPICS[pick].id));
         setPhase('reveal');
         setDrawCount(c => c + 1);
+        setCardNumber(c => c + 1);
         if (soundEnabled) playRevealSound();
       }, 6200);
       const t4 = setTimeout(() => setPhase('card'), 8800);
@@ -67,6 +70,7 @@ export default function App() {
     setSelectedCard(getRandomCard(TOPICS[index].id));
     if (soundEnabled) playSelectSound();
     setDrawCount(c => c + 1);
+    setCardNumber(c => c + 1);
     setPhase('reveal');
     const t = setTimeout(() => setPhase('card'), 2600);
     timeoutsRef.current.push(t);
@@ -396,6 +400,11 @@ export default function App() {
                         width: '380px', height: '380px',
                         border: '1px solid rgba(61, 158, 207, 0.12)',
                         borderRadius: '50%',
+                        transition: 'box-shadow 0.4s ease, border-color 0.4s ease',
+                        ...(hoveredIndex !== null && (phase === 'idle' || phase === 'card') ? {
+                          borderColor: `${TOPICS[hoveredIndex].glowColor}55`,
+                          boxShadow: `0 0 28px 4px ${TOPICS[hoveredIndex].glowColor}22`,
+                        } : {}),
                       }}
                     />
                     {/* Rotating tick marks — compass bezel */}
@@ -503,6 +512,8 @@ export default function App() {
                             key={topic.id}
                             className={`absolute ${phase === 'idle' || phase === 'card' ? 'cursor-pointer' : 'cursor-default'}`}
                             onClick={() => selectTopic(index)}
+                            onMouseEnter={() => (phase === 'idle' || phase === 'card') && setHoveredIndex(index)}
+                            onMouseLeave={() => setHoveredIndex(null)}
                             style={{
                               left: cx, top: cy,
                               width: `${ballSize}px`, height: `${ballSize}px`,
@@ -609,21 +620,34 @@ export default function App() {
               {phase === 'card' && selectedIndex !== null && (
                 <motion.div
                   key="card-view"
-                  initial={{ opacity: 1 }}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <ParticleReveal
-                    accentColor={TOPICS[selectedIndex].accentColor}
-                    duration={1.2}
-                  >
-                    <TopicCard
-                      topic={{ ...TOPICS[selectedIndex], ...(selectedCard || {}) }}
-                      onDrawAgain={drawAgain}
-                      onHome={resetDraw}
-                      sessionNumber={drawCount}
-                    />
-                  </ParticleReveal>
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={`card-${selectedIndex}-${drawCount}`}
+                      initial={{ opacity: 0, x: 20, filter: 'blur(6px)' }}
+                      animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, x: -20, filter: 'blur(6px)' }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      <ParticleReveal
+                        accentColor={TOPICS[selectedIndex].accentColor}
+                        duration={1.2}
+                      >
+                        <TopicCard
+                          topic={{ ...TOPICS[selectedIndex], ...(selectedCard || {}) }}
+                          onDrawAgain={drawAgain}
+                          onHome={resetDraw}
+                          sessionNumber={drawCount}
+                          cardNumber={cardNumber}
+                          totalCards={getPoolSize(TOPICS[selectedIndex].id)}
+                        />
+                      </ParticleReveal>
+                    </motion.div>
+                  </AnimatePresence>
                 </motion.div>
               )}
             </AnimatePresence>
