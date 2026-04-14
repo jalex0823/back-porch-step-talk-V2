@@ -273,11 +273,6 @@ export default function App() {
                   exit={{ opacity: 0, y: 15 }}
                   transition={{ duration: 0.8 }}
                 >
-                  {/* Iron Owl Sentinel — absolute bottom-right inside panel */}
-                  <div className="absolute pointer-events-none" style={{ right: 8, bottom: 60, width: 160, height: 210, zIndex: 6 }}>
-                    <OwlSentinel visible={phase === 'idle' || phase === 'card'} />
-                  </div>
-
                   {homeSparkleKey > 0 && (
                     <ParticleReveal
                       key={homeSparkleKey}
@@ -656,17 +651,22 @@ export default function App() {
                     )}
                   </AnimatePresence>
 
-                  {/* Control Panel — hidden during reveal transition */}
+                  {/* Control Panel + Owl row — hidden during reveal */}
                   <AnimatePresence>
                     {phase !== 'reveal' && (
                       <motion.div
                         key="control-panel"
+                        className="flex items-end justify-center gap-4 w-full"
+                        style={{ paddingLeft: '60px' }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
                       >
                         <ControlPanel onDraw={runDraw} disabled={false} phase={phase} />
+                        <div className="pointer-events-none flex-shrink-0" style={{ width: 110, height: 145, marginBottom: -8 }}>
+                          <OwlSentinel visible={phase === 'idle' || phase === 'card'} />
+                        </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
