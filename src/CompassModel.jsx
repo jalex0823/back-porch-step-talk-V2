@@ -46,8 +46,8 @@ export default function CompassModel({ visible }) {
       className="pointer-events-none"
       style={{
         position: 'absolute',
-        left: 240,
-        top: 240,
+        left: 258,
+        top: 260,
         width: 240,
         height: 240,
         marginLeft: -120,
