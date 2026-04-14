@@ -204,7 +204,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
     </div>
 
     <motion.div
-      className="relative flex flex-col w-full max-h-[70vh] overflow-y-auto pr-1"
+      className="relative flex flex-col w-full max-h-[78vh] overflow-y-auto pr-1"
       style={{ scrollbarWidth: 'thin', scrollbarColor: `${accentColor}44 transparent`, zIndex: 1 }}
       animate={glitching
         ? { x: [-2, 3, -1, 2, 0], y: [1, -1, 2, -1, 0], filter: ['blur(0px)', 'blur(0.6px)', 'blur(0px)'] }
@@ -214,21 +214,21 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
     >
 
       {/* Header row: compass widget with ball + title */}
-      <div className="flex items-center gap-6 mb-2">
+      <div className="flex items-center gap-4 mb-3">
         {/* Compass widget with spinning ball centered */}
         <motion.div
           className="flex-shrink-0 relative"
-          style={{ width: 120, height: 120 }}
+          style={{ width: 96, height: 96 }}
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
         >
           <svg viewBox="0 0 120 120" fill="none" style={{ width: '100%', height: '100%', position: 'absolute', inset: 0 }}>
-            <motion.circle cx="60" cy="60" r="57" stroke={glowColor} strokeWidth="1" opacity="0.55"
+            <motion.circle cx="60" cy="60" r="57" stroke={glowColor} strokeWidth="1" opacity="0.45"
               strokeDasharray="6 3" />
-            <motion.circle cx="60" cy="60" r="46" stroke={glowColor} strokeWidth="1" opacity="0.5"
+            <motion.circle cx="60" cy="60" r="46" stroke={glowColor} strokeWidth="1" opacity="0.4"
               strokeDasharray="3 5" />
-            <circle cx="60" cy="60" r="35" stroke={glowColor} strokeWidth="0.8" opacity="0.4" />
+            <circle cx="60" cy="60" r="35" stroke={glowColor} strokeWidth="0.8" opacity="0.35" />
             <motion.g style={{ transformOrigin: '60px 60px' }}
               animate={{ rotate: 360 }}
               transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}>
@@ -362,7 +362,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
         style={{ background: `linear-gradient(90deg, transparent, ${accentColor}55, transparent)` }} />
 
       {/* Summary */}
-      <motion.div className="mb-3" {...stagger(0.1)}>
+      <motion.div className="mb-4" {...stagger(0.1)}>
         <div className="flex items-center gap-2 mb-1">
           <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${accentColor}55, transparent)` }} />
           <p className="text-[0.6rem] tracking-[0.15em] uppercase"
@@ -378,7 +378,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       </motion.div>
 
       {/* #3 Rich quote block */}
-      <motion.div className="relative mb-3 px-4 py-3 rounded-lg overflow-hidden" {...stagger(0.25)}
+      <motion.div className="relative mb-4 px-4 py-4 rounded-lg overflow-hidden" {...stagger(0.25)}
         style={{
           background: `linear-gradient(135deg, ${accentColor}14, ${accentColor}06)`,
           borderLeft: `3px solid ${accentColor}88`,
