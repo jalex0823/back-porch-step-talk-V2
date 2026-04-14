@@ -8,6 +8,7 @@ import { TOPICS } from './topics';
 import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHomeSound, playAgainSound } from './useSound';
 import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
+import CompassModel from './CompassModel';
 
 export default function App() {
   // idle | energize | spin | shimmer | reveal | card
@@ -393,6 +394,9 @@ export default function App() {
                         </motion.div>
                       )}
                     </AnimatePresence>
+
+                    {/* GLB compass — centered, visible idle/card, fades on selection */}
+                    <CompassModel visible={phase === 'idle' || phase === 'card'} />
 
                     {/* Circular orbit path ring — pulsing glow (OrbButton-inspired) */}
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none orbit-ring-pulse"
