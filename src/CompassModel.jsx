@@ -54,11 +54,10 @@ export default function CompassModel({ visible, onClick }) {
         marginLeft: -120,
         marginTop: -120,
         zIndex: 1,
-        opacity: 0,
         cursor: visible ? 'pointer' : 'default',
       }}
       initial={{ opacity: 0, scale: 0.75 }}
-      animate={{ opacity: visible ? 0.52 : 0, scale: visible ? 1 : 0.75 }}
+      animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.75 }}
       whileTap={{ scale: 1.18, transition: { type: 'spring', stiffness: 420, damping: 14 } }}
       transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
     >
