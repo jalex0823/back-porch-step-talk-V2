@@ -103,10 +103,13 @@ export default function App() {
     timeoutsRef.current.push(t);
   }, [phase, soundEnabled]);
 
+  const [bgKey, setBgKey] = useState(0);
+
   const resetDraw = useCallback(() => {
     if (soundEnabled) playHomeSound();
     clearTimeouts();
     setPhase('idle');
+    setBgKey(k => k + 1);
     setSelectedIndex(null);
     setSelectedCard(null);
     setHomeSparkleKey(k => k + 1);
@@ -140,10 +143,16 @@ export default function App() {
   }, [phase, runDraw, selectTopic, resetDraw]);
 
   // Dev position controls
-  const [orbitOffsetX, setOrbitOffsetX] = useState(-340);
-  const [orbitOffsetY, setOrbitOffsetY] = useState(0);
-  const [compassX, setCompassX] = useState(295);
-  const [compassY, setCompassY] = useState(295);
+  const [orbitOffsetX, setOrbitOffsetX] = useState(-441);
+  const [orbitOffsetY, setOrbitOffsetY] = useState(-18);
+  const [orbitRadius, setOrbitRadius] = useState(202);
+  const [compassX, setCompassX] = useState(454);
+  const [compassY, setCompassY] = useState(366);
+  const [titleOffsetY, setTitleOffsetY] = useState(-18);
+  const [bottomOffsetY, setBottomOffsetY] = useState(21);
+  const [bottomOffsetX, setBottomOffsetX] = useState(148);
+  const [starOffsetX, setStarOffsetX] = useState(53);
+  const [starOffsetY, setStarOffsetY] = useState(47);
 
   // Mouse-following parallax
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -175,30 +184,53 @@ export default function App() {
         background: '#060a12',
       }}
     >
-      {/* BG image — smaller, shifted down-left */}
+      {/* Full dark overlay — blocks bg during non-idle phases */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
+        animate={{ opacity: phase === 'idle' ? 0 : 1 }}
+        transition={{ duration: 0.8, ease: 'easeInOut' }}
+        style={{ background: '#060a12', zIndex: 1 }}
+      />
+
+      {/* BG image — fade-in entrance only, fixed size/position */}
+      <motion.div
+        key={bgKey}
+        className="absolute inset-0 pointer-events-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: phase === 'idle' ? 0.75 : 0 }}
+        transition={{ duration: 1.8, ease: 'easeInOut' }}
         style={{
           backgroundImage: 'url(/bg.png)',
-          backgroundSize: '72%',
-          backgroundPosition: '46% 30%',
+          backgroundSize: '980px auto',
+          backgroundPosition: 'center 30%',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.75,
         }}
       />
-      {/* Neon glow pulse over bg */}
+      {/* Neon glow — wide soft bloom */}
       <motion.div
         className="absolute inset-0 pointer-events-none"
-        animate={{
-          opacity: [0.35, 0.65, 0.35],
-        }}
+        animate={{ opacity: phase === 'idle' ? [0.55, 0.9, 0.55] : 0 }}
         transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
         style={{
           backgroundImage: 'url(/bg.png)',
-          backgroundSize: '72%',
-          backgroundPosition: '46% 30%',
+          backgroundSize: '980px auto',
+          backgroundPosition: 'center 30%',
           backgroundRepeat: 'no-repeat',
-          filter: 'blur(6px) brightness(5) saturate(6) hue-rotate(185deg)',
+          filter: 'blur(18px) brightness(8) saturate(20) hue-rotate(175deg)',
+          mixBlendMode: 'screen',
+        }}
+      />
+      {/* Neon glow — sharp tight pulse (faster, offset phase) */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        animate={{ opacity: phase === 'idle' ? [0.0, 0.75, 0.0] : 0 }}
+        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.9 }}
+        style={{
+          backgroundImage: 'url(/bg.png)',
+          backgroundSize: '980px auto',
+          backgroundPosition: 'center 30%',
+          backgroundRepeat: 'no-repeat',
+          filter: 'blur(4px) brightness(14) saturate(30) hue-rotate(180deg)',
           mixBlendMode: 'screen',
         }}
       />
@@ -374,6 +406,14 @@ export default function App() {
             style={{ background: 'linear-gradient(180deg, rgba(190,195,205,0.3), rgba(140,145,155,0.1), rgba(190,195,205,0.25))' }}
           /></>}
 
+          {/* GLB Compass — anchored to glass panel, z-20 so it floats above content */}
+          <CompassModel
+            visible={phase === 'idle'}
+            onClick={pickSlogan}
+            offsetX={compassX}
+            offsetY={compassY}
+          />
+
           {/* Content area */}
           <div className="relative z-10 px-6 py-5 sm:px-8 sm:py-6 flex flex-col" style={{ minHeight: '800px' }}>
 
@@ -396,7 +436,8 @@ export default function App() {
                       sparkleOnly
                     />
                   )}
-                  {/* Header with hash marks */}
+                  {/* Header + subtitle group */}
+                  <div className="flex flex-col items-center w-full" style={{ transform: `translateY(${titleOffsetY}px)` }}>
                   <div className="flex items-center justify-center gap-3 mb-3">
                     <div className="flex gap-[3px]">
                       {[...Array(4)].map((_, i) => (
@@ -441,9 +482,10 @@ export default function App() {
                   >
                     AA Discussion Cards — choose a topic or tap <span style={{ color: '#2ba4b5', fontWeight: 600 }}>Randomizer</span> to draw one
                   </p>
+                  </div>{/* end header+subtitle group */}
 
                   {/* Orbital area — perfect circle */}
-                  <div className="relative mb-0" style={{ width: '560px', height: '560px', marginLeft: `calc(50% + ${orbitOffsetX}px)`, marginTop: orbitOffsetY }}>
+                  <div className="relative mb-0" style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
 
                     {/* Center "sun" glow — pulses during spin */}
                     <motion.div
@@ -494,8 +536,8 @@ export default function App() {
                             const t = i / 30;
                             const spiralAngle = t * Math.PI * 6;
                             const r = t * 170;
-                            const x = 240 + Math.cos(spiralAngle) * r;
-                            const y = 240 + Math.sin(spiralAngle) * r;
+                            const x = 240 + starOffsetX + Math.cos(spiralAngle) * r;
+                            const y = 240 + starOffsetY + Math.sin(spiralAngle) * r;
                             const size = 1.5 + t * 3;
                             const hue = (i * 12) % 360;
                             const baseOpacity = 0.8 - t * 0.3;
@@ -520,14 +562,6 @@ export default function App() {
                         </motion.div>
                       )}
                     </AnimatePresence>
-
-                    {/* GLB compass — centered, visible idle/card, fades on selection */}
-                    <CompassModel
-                      visible={phase === 'idle' || phase === 'card'}
-                      onClick={pickSlogan}
-                      offsetX={compassX}
-                      offsetY={compassY}
-                    />
 
                     {/* Circular orbit path ring — pulsing glow (OrbButton-inspired) */}
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none orbit-ring-pulse"
@@ -595,7 +629,7 @@ export default function App() {
                       {/* Comet trails — rendered at orbit level so they rotate with the container */}
                       {(phase === 'spin' || phase === 'shimmer') && TOPICS.map((topic, index) => {
                         const angle = (index / TOPICS.length) * 360 - 90;
-                        const radius = 215;
+                        const radius = orbitRadius;
                         const center = 280;
                         return [1, 2, 3, 4, 5, 6, 7, 8].map(t => {
                           const trailAngle = angle - t * 8; // offset behind by 8° each
@@ -611,8 +645,8 @@ export default function App() {
                               exit={{ opacity: 0 }}
                               transition={{ duration: 0.25, delay: t * 0.03 }}
                               style={{
-                                left: 280 + Math.cos(trailRad) * 215 - size / 2,
-                                top: 280 + Math.sin(trailRad) * 215 - size / 2,
+                                left: 280 + Math.cos(trailRad) * orbitRadius - size / 2,
+                                top: 280 + Math.sin(trailRad) * orbitRadius - size / 2,
                                 width: size,
                                 height: size,
                                 background: `radial-gradient(circle, ${topic.glowColor}cc, transparent 70%)`,
@@ -626,9 +660,9 @@ export default function App() {
 
                       {TOPICS.map((topic, index) => {
                         const angle = (index / TOPICS.length) * 360 - 90; // start from top
-                        const radius = 215; // match bg circle
+                        const radius = orbitRadius; // match bg circle
                         const rad = (angle * Math.PI) / 180;
-                        const ballSize = 105; // scaled up ball
+                        const ballSize = 90; // scaled up ball
                         const half = ballSize / 2;
                         const center = 280; // center of 560px area
                         const cx = center + Math.cos(rad) * radius - half;
@@ -710,7 +744,7 @@ export default function App() {
                   </div>
 
                   {/* Bottom area — hint + button with explicit spacing */}
-                  <div className="flex flex-col items-center w-full" style={{ gap: 32, paddingTop: 40, paddingBottom: 36 }}>
+                  <div className="flex flex-col items-center w-full" style={{ gap: 32, paddingTop: 16, paddingBottom: 36, transform: `translate(${bottomOffsetX}px, ${bottomOffsetY}px)`, position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, width: '560px', alignSelf: 'flex-start' }}>
 
                   {/* Compass hint — only during idle/card */}
                   <AnimatePresence>
@@ -735,42 +769,6 @@ export default function App() {
                     )}
                   </AnimatePresence>
 
-                  {/* Selected topic label during reveal */}
-                  <AnimatePresence>
-                    {phase === 'reveal' && selectedIndex !== null && (
-                      <motion.div
-                        className="text-center relative"
-                        initial={{ opacity: 0, y: 12, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                      >
-                        {/* Glow flash behind topic name */}
-                        <motion.div
-                          className="absolute inset-0 rounded-lg pointer-events-none"
-                          initial={{ opacity: 0, scale: 0.5 }}
-                          animate={{ opacity: [0, 0.6, 0], scale: [0.5, 1.5, 2] }}
-                          transition={{ duration: 1.2, ease: 'easeOut' }}
-                          style={{
-                            background: `radial-gradient(circle, ${TOPICS[selectedIndex].accentColor}44, transparent 70%)`,
-                            filter: 'blur(20px)',
-                          }}
-                        />
-                        <p className="text-[0.65rem] tracking-[0.2em] uppercase"
-                          style={{ fontFamily: "'Orbitron', sans-serif", color: TOPICS[selectedIndex].accentColor }}>
-                          Today&rsquo;s Topic
-                        </p>
-                        <p className="mt-0.5 text-base sm:text-lg font-bold tracking-[0.1em]"
-                          style={{
-                            fontFamily: "'Orbitron', sans-serif",
-                            color: '#fff',
-                            textShadow: `0 2px 10px rgba(0,0,0,0.4), 0 0 20px ${TOPICS[selectedIndex].accentColor}44`,
-                          }}>
-                          {TOPICS[selectedIndex].label}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
 
                   {/* Button row — centered */}
                   <AnimatePresence>
@@ -800,8 +798,8 @@ export default function App() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                  style={{ background: 'linear-gradient(145deg, rgba(100,110,125,0.72) 0%, rgba(70,78,92,0.68) 50%, rgba(95,105,118,0.72) 100%)', backdropFilter: 'blur(16px)' }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  style={{ background: 'rgba(8,14,24,0.96)', backdropFilter: 'blur(16px)' }}
                 />
                 <motion.div
                   key="card-view"
@@ -840,13 +838,26 @@ export default function App() {
             </AnimatePresence>
 
           {/* ===== DEV SLIDERS ===== */}
-          <div className="absolute top-80 left-1 z-50 flex flex-col p-1 rounded" style={{ background: 'rgba(4,20,28,0.55)', border: '1px solid rgba(43,164,181,0.35)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
-            <p style={{ color: '#2ba4b5' }}>DEV</p>
-            <label style={{ color: '#3bc4d6' }}>oX:{orbitOffsetX}<input type="range" min="-500" max="0" value={orbitOffsetX} onChange={e => setOrbitOffsetX(Number(e.target.value))} style={{ accentColor: '#2ba4b5', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#3bc4d6' }}>oY:{orbitOffsetY}<input type="range" min="-200" max="200" value={orbitOffsetY} onChange={e => setOrbitOffsetY(Number(e.target.value))} style={{ accentColor: '#2ba4b5', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#3bc4d6' }}>cX:{compassX}<input type="range" min="200" max="360" value={compassX} onChange={e => setCompassX(Number(e.target.value))} style={{ accentColor: '#2ba4b5', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#3bc4d6' }}>cY:{compassY}<input type="range" min="200" max="360" value={compassY} onChange={e => setCompassY(Number(e.target.value))} style={{ accentColor: '#2ba4b5', width: '100%', height: 6 }} /></label>
-          </div>
+          <AnimatePresence>
+          {phase === 'idle' && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, delay: 1.2 }}
+            className="absolute left-12 z-50 flex flex-col p-1 rounded" style={{ top: 248, background: 'rgba(4,20,28,0.55)', border: '1px solid rgba(255,255,255,0.4)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
+            <p style={{ color: '#fff' }}>DEV</p>
+            <label style={{ color: '#ffe066' }}>oX:{orbitOffsetX}<input type="range" min="-500" max="0" value={orbitOffsetX} onChange={e => setOrbitOffsetX(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#ffe066' }}>oY:{orbitOffsetY}<input type="range" min="-200" max="200" value={orbitOffsetY} onChange={e => setOrbitOffsetY(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#ffe066' }}>oR:{orbitRadius}<input type="range" min="100" max="300" value={orbitRadius} onChange={e => setOrbitRadius(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#4ade80' }}>cX:{compassX}<input type="range" min="100" max="600" value={compassX} onChange={e => setCompassX(Number(e.target.value))} style={{ accentColor: '#4ade80', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#4ade80' }}>cY:{compassY}<input type="range" min="100" max="600" value={compassY} onChange={e => setCompassY(Number(e.target.value))} style={{ accentColor: '#4ade80', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#38bdf8' }}>ttl:{titleOffsetY}<input type="range" min="-100" max="100" value={titleOffsetY} onChange={e => setTitleOffsetY(Number(e.target.value))} style={{ accentColor: '#38bdf8', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#f87171' }}>btmX:{bottomOffsetX}<input type="range" min="-300" max="300" value={bottomOffsetX} onChange={e => setBottomOffsetX(Number(e.target.value))} style={{ accentColor: '#f87171', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#f87171' }}>btmY:{bottomOffsetY}<input type="range" min="-100" max="300" value={bottomOffsetY} onChange={e => setBottomOffsetY(Number(e.target.value))} style={{ accentColor: '#f87171', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#c084fc' }}>sX:{starOffsetX}<input type="range" min="-200" max="200" value={starOffsetX} onChange={e => setStarOffsetX(Number(e.target.value))} style={{ accentColor: '#c084fc', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#c084fc' }}>sY:{starOffsetY}<input type="range" min="-200" max="200" value={starOffsetY} onChange={e => setStarOffsetY(Number(e.target.value))} style={{ accentColor: '#c084fc', width: '100%', height: 6 }} /></label>
+          </motion.div>
+          )}
+          </AnimatePresence>
 
           </div>
         </motion.div>

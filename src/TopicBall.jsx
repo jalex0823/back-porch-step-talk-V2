@@ -247,25 +247,27 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
       />
 
       {/* Icon + Label */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-1"
-        style={{ opacity: dimmed ? 0.2 : 0.95, transition: 'opacity 0.6s ease' }}>
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5"
+        style={{ opacity: dimmed ? 0.2 : 0.95, transition: 'opacity 0.6s ease', padding: '6px' }}>
         {Icon && (
           <Icon
-            size={24}
+            size={18}
             strokeWidth={1.6}
             style={{
               color: '#fff',
               filter: `drop-shadow(0 0 6px ${glowColor})`,
+              flexShrink: 0,
             }}
           />
         )}
         <span
-          className="text-center font-bold tracking-wide leading-tight px-1"
+          className="text-center font-bold tracking-wide leading-tight w-full"
           style={{
             fontFamily: "'Orbitron', 'Inter', sans-serif",
-            fontSize: label.length > 12 ? '0.5rem' : label.length > 8 ? '0.55rem' : '0.62rem',
+            fontSize: label.length > 12 ? '0.42rem' : label.length > 8 ? '0.46rem' : '0.52rem',
             color: '#fff',
             textShadow: `0 0 8px ${glowColor}, 0 1px 2px rgba(0,0,0,0.5)`,
+            textAlign: 'center',
           }}
         >
           {label}

@@ -24,7 +24,7 @@ function Model() {
     if (!groupRef.current) return;
     groupRef.current.rotation.x = -0.68;
     groupRef.current.rotation.y = 0;
-    groupRef.current.rotation.z -= delta * 0.025; // slow counter-clockwise
+    groupRef.current.rotation.z -= delta * 0.0524; // match orbit 120s per rotation, counter-clockwise
     groupRef.current.position.set(0, 0, 0);
   });
 
@@ -53,10 +53,10 @@ export default function CompassModel({ visible, onClick, offsetX = 295, offsetY 
         zIndex: 1,
         cursor: visible ? 'pointer' : 'default',
       }}
-      initial={{ opacity: 0, scale: 0.75 }}
-      animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.75 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: visible ? 1 : 0 }}
       whileTap={{ scale: 0.97 }}
-      transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: visible ? 1.8 : 0.3, ease: [0.22, 1, 0.36, 1] }}
     >
       {/* Hover tooltip */}
       <motion.div
