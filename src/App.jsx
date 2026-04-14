@@ -433,10 +433,18 @@ export default function App() {
                     <motion.div
                       className="absolute inset-0"
                       initial={{ rotate: 0 }}
-                      animate={phase === 'spin' ? { rotate: 360 } : { rotate: 0 }}
+                      animate={
+                        phase === 'spin'
+                          ? { rotate: 360 }
+                          : phase === 'idle' || phase === 'card'
+                          ? { rotate: 360 }
+                          : { rotate: 0 }
+                      }
                       transition={
                         phase === 'spin'
                           ? { duration: 4.5, ease: [0.12, 0.6, 0.08, 1] }
+                          : phase === 'idle' || phase === 'card'
+                          ? { duration: 120, repeat: Infinity, ease: 'linear' }
                           : { duration: 0 }
                       }
                     >
@@ -504,8 +512,13 @@ export default function App() {
                               top: targetY,
                               scale: isRevealed ? fillScale : isNotSelected ? 0.15 : 1,
                               opacity: isNotSelected ? 0 : 1,
+                              rotateY: isRevealed ? [0, 25, -20, 12, -8, 0] : 0,
                               // Counter-rotate to keep balls upright
-                              rotate: phase === 'spin' ? -360 : 0,
+                              rotate: phase === 'spin'
+                                ? -360
+                                : phase === 'idle' || phase === 'card'
+                                ? -360
+                                : 0,
                             }}
                             transition={
                               phase === 'spin'
@@ -516,10 +529,16 @@ export default function App() {
                                     },
                                     default: { duration: 0.6 },
                                   }
+                                : phase === 'idle' || phase === 'card'
+                                ? {
+                                    rotate: { duration: 120, repeat: Infinity, ease: 'linear' },
+                                    default: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+                                  }
                                 : isRevealed
                                 ? {
                                     rotate: { duration: 0 },
                                     default: { duration: 1.4, ease: [0.22, 1, 0.36, 1] },
+                                    rotateY: { duration: 0.6, ease: [0.34, 1.56, 0.64, 1] },
                                   }
                                 : isNotSelected
                                 ? {
