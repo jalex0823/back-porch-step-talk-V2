@@ -216,7 +216,7 @@ export default function App() {
           style={{
             transform: 'rotateY(-2deg) rotateX(1deg)',
             width: 'min(860px, 96vw)',
-            minHeight: '740px',
+            minHeight: '800px',
           }}
           whileHover={{ rotateY: 0, rotateX: 0 }}
           transition={{ duration: 0.6 }}
@@ -588,6 +588,28 @@ export default function App() {
                       })}
                     </motion.div>
                   </div>
+
+                  {/* Compass hint — only during idle/card */}
+                  <AnimatePresence>
+                    {(phase === 'idle' || phase === 'card') && (
+                      <motion.p
+                        key="compass-hint"
+                        className="text-center mb-2"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8, delay: 1.2 }}
+                        style={{
+                          fontFamily: "'Inter', sans-serif",
+                          fontSize: '0.62rem',
+                          color: 'rgba(61,158,207,0.45)',
+                          letterSpacing: '0.08em',
+                        }}
+                      >
+                        ✦ Tap the compass for a random AA slogan ✦
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
 
                   {/* Selected topic label during reveal */}
                   <AnimatePresence>
