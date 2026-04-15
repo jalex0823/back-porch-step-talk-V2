@@ -864,8 +864,8 @@ export default function App() {
           <AnimatePresence>
           {phase === 'idle' && (
           <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, delay: 1.2 }}
+            initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
+            transition={{ duration: 0.5, delay: 1.2, ease: [0.22,1,0.36,1] }}
             className="absolute left-12 z-50 flex flex-col p-1 rounded" style={{ top: 236, background: 'rgba(4,20,28,0.55)', border: '2px solid rgba(255,255,255,0.55)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
             <p style={{ color: '#fff' }}>DEV</p>
             <label style={{ color: '#ffe066' }}>oX:{orbitOffsetX}<input type="range" min="-500" max="0" value={orbitOffsetX} onChange={e => setOrbitOffsetX(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
@@ -896,8 +896,8 @@ export default function App() {
           <AnimatePresence>
           {phase === 'idle' && (
           <motion.div
-            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.5, delay: 1.2, ease: [0.22,1,0.36,1] }}
+            initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }}
+            transition={{ duration: 0.5, delay: 1.4, ease: [0.22,1,0.36,1] }}
             className="absolute z-50 rounded-lg"
             style={{ top: owlY - 240, left: owlX, background: 'linear-gradient(160deg,rgba(8,18,30,0.92),rgba(4,12,22,0.96))', border: '2px solid rgba(255,255,255,0.55)', width: owlSize, fontFamily: "'Orbitron',monospace", overflow: 'hidden' }}>
             {/* Header */}
