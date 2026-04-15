@@ -866,7 +866,7 @@ export default function App() {
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.4, delay: 1.2 }}
-            className="absolute left-12 z-50 flex flex-col p-1 rounded" style={{ top: 236, background: 'rgba(4,20,28,0.55)', border: '1px solid rgba(255,255,255,0.4)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
+            className="absolute left-12 z-50 flex flex-col p-1 rounded" style={{ top: 236, background: 'rgba(4,20,28,0.55)', border: '2px solid rgba(255,255,255,0.55)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
             <p style={{ color: '#fff' }}>DEV</p>
             <label style={{ color: '#ffe066' }}>oX:{orbitOffsetX}<input type="range" min="-500" max="0" value={orbitOffsetX} onChange={e => setOrbitOffsetX(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
             <label style={{ color: '#ffe066' }}>oY:{orbitOffsetY}<input type="range" min="-200" max="200" value={orbitOffsetY} onChange={e => setOrbitOffsetY(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
@@ -899,7 +899,7 @@ export default function App() {
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.4, delay: 1.2 }}
             className="absolute z-50 flex flex-col p-1 rounded"
-            style={{ top: 48, right: -10, background: 'rgba(4,20,28,0.55)', border: '1px solid rgba(255,255,255,0.4)', width: 155, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
+            style={{ top: 90, right: 40, background: 'rgba(4,20,28,0.55)', border: '2px solid rgba(255,255,255,0.55)', width: 155, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
             <p style={{ color: '#fff' }}>OWL</p>
             <label style={{ color: '#fb923c' }}>X:{owlX}<input type="range" min="0" max="920" value={owlX} onChange={e => setOwlX(Number(e.target.value))} style={{ accentColor: '#fb923c', width: '100%', height: 6 }} /></label>
             <label style={{ color: '#fb923c' }}>Y:{owlY}<input type="range" min="0" max="800" value={owlY} onChange={e => setOwlY(Number(e.target.value))} style={{ accentColor: '#fb923c', width: '100%', height: 6 }} /></label>

@@ -50,7 +50,7 @@ export default function CompassModel({ visible, onClick, offsetX = 295, offsetY 
         height: 240,
         marginLeft: -120,
         marginTop: -120,
-        zIndex: 1,
+        zIndex: 20,
         cursor: visible ? 'pointer' : 'default',
       }}
       initial={{ opacity: 0 }}
