@@ -154,6 +154,11 @@ export default function App() {
   const [starOffsetX, setStarOffsetX] = useState(53);
   const [starOffsetY, setStarOffsetY] = useState(47);
   const orbitBounced = useRef(false);
+  const [owlX, setOwlX] = useState(681);
+  const [owlY, setOwlY] = useState(261);
+  const [owlZ, setOwlZ] = useState(8);
+  const [owlRotY, setOwlRotY] = useState(-45);
+  const [owlSize, setOwlSize] = useState(212);
   const [devConfirmed, setDevConfirmed] = useState(false);
   const handleDevSet = () => {
     const code = `oX:${orbitOffsetX} oY:${orbitOffsetY} oR:${orbitRadius} cX:${compassX} cY:${compassY} ttl:${titleOffsetY} btmX:${bottomOffsetX} btmY:${bottomOffsetY} sX:${starOffsetX} sY:${starOffsetY}`;
@@ -421,6 +426,11 @@ export default function App() {
             offsetX={compassX}
             offsetY={compassY}
           />
+
+          {/* Owl Sentinel — absolutely positioned, independent of layout */}
+          <div style={{ position: 'absolute', left: owlX, top: owlY, width: owlSize, height: owlSize, zIndex: 2, pointerEvents: 'none' }}>
+            <OwlSentinel visible={phase === 'idle'} phase={phase} rotationZ={owlZ} rotationY={owlRotY} />
+          </div>
 
           {/* Content area */}
           <div className="relative z-10 px-6 py-5 sm:px-8 sm:py-6 flex flex-col" style={{ minHeight: '800px' }}>
@@ -881,6 +891,25 @@ export default function App() {
           </AnimatePresence>
 
           </div>
+
+          {/* ===== OWL SLIDERS — right side ===== */}
+          <AnimatePresence>
+          {phase === 'idle' && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, delay: 1.2 }}
+            className="absolute z-50 flex flex-col p-1 rounded"
+            style={{ top: 48, right: -10, background: 'rgba(4,20,28,0.55)', border: '1px solid rgba(255,255,255,0.4)', width: 155, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
+            <p style={{ color: '#fff' }}>OWL</p>
+            <label style={{ color: '#fb923c' }}>X:{owlX}<input type="range" min="0" max="920" value={owlX} onChange={e => setOwlX(Number(e.target.value))} style={{ accentColor: '#fb923c', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#fb923c' }}>Y:{owlY}<input type="range" min="0" max="800" value={owlY} onChange={e => setOwlY(Number(e.target.value))} style={{ accentColor: '#fb923c', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#fbbf24' }}>Yrot:{owlRotY}°<input type="range" min="-180" max="180" step="1" value={owlRotY} onChange={e => setOwlRotY(Number(e.target.value))} style={{ accentColor: '#fbbf24', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#e879f9' }}>Zrot:{owlZ}°<input type="range" min="-180" max="180" step="1" value={owlZ} onChange={e => setOwlZ(Number(e.target.value))} style={{ accentColor: '#e879f9', width: '100%', height: 6 }} /></label>
+            <label style={{ color: '#fb923c' }}>S:{owlSize}<input type="range" min="80" max="400" value={owlSize} onChange={e => setOwlSize(Number(e.target.value))} style={{ accentColor: '#fb923c', width: '100%', height: 6 }} /></label>
+          </motion.div>
+          )}
+          </AnimatePresence>
+
         </motion.div>
 
       {/* Panel shadow on "floor" */}
@@ -914,7 +943,7 @@ export default function App() {
         className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full"
         style={{
           background: 'rgba(60, 55, 48, 0.6)',
-          border: '1px solid rgba(160, 155, 145, 0.2)',
+          borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(160, 155, 145, 0.2)',
           cursor: 'pointer',
           backdropFilter: 'blur(8px)',
         }}

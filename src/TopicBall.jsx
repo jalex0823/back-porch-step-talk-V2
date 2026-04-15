@@ -54,7 +54,7 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
         isIdle
           ? {
               scale: [1, 1.06, 1],
-              opacity: [0.85, 1, 0.85],
+              opacity: [0.97, 1, 0.97],
             }
           : isEnergize
           ? {
@@ -196,11 +196,11 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
         className="absolute inset-0 rounded-full"
         style={{
           background: `radial-gradient(circle at 42% 35%,
-            ${glowColor}55 0%,
-            ${color}99 20%,
-            ${color}dd 50%,
-            ${color}bb 75%,
-            rgba(0,0,0,0.35) 100%)`,
+            ${glowColor}77 0%,
+            ${color}cc 20%,
+            ${color}f0 50%,
+            ${color}dd 75%,
+            rgba(0,0,0,0.25) 100%)`,
           boxShadow: `0 6px 24px rgba(0,0,0,0.6), inset 0 2px 6px rgba(255,255,255,0.08), inset 0 -4px 12px rgba(0,0,0,0.5), inset 0 0 20px 6px ${shadowColor}`,
           border: `1px solid ${glowColor}55`,
         }}

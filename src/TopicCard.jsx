@@ -736,10 +736,12 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
           className="relative py-2.5 px-3 rounded-lg text-xs font-bold tracking-[0.12em] uppercase flex items-center gap-1.5 overflow-hidden"
           style={{
             fontFamily: "'Orbitron', 'Inter', sans-serif",
-            color: cardCopied ? accentColor : 'rgba(200,210,220,0.55)',
-            background: cardCopied ? `${accentColor}18` : 'rgba(255,255,255,0.04)',
-            border: cardCopied ? `1px solid ${accentColor}44` : '1px solid rgba(255,255,255,0.08)',
+            color: cardCopied ? accentColor : '#fff',
+            background: cardCopied ? `${accentColor}18` : 'linear-gradient(160deg, rgba(90,95,108,0.95) 0%, rgba(60,65,75,0.9) 50%, rgba(40,44,52,1) 100%)',
+            border: cardCopied ? `1px solid ${accentColor}44` : '1px solid rgba(255,255,255,0.1)',
             cursor: 'pointer',
+            textShadow: '0 1px 2px rgba(0,0,0,0.4)',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.35), inset 0 -2px 6px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.06)',
             transition: 'all 0.3s ease',
           }}
           whileHover={{ scale: 1.03 }}
