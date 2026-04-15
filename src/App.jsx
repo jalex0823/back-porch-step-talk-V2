@@ -10,7 +10,7 @@ import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
 import CompassModel from './CompassModel';
 import OwlSentinel from './OwlSentinel';
-import { AA_SLOGANS } from './slogans';
+import { RECOVERY_SLOGANS } from './slogans';
 import HudControlPanel from './HudControlPanel';
 import { Copy, Check } from 'lucide-react';
 
@@ -45,7 +45,7 @@ export default function App() {
   const timeoutsRef = useRef([]);
 
   const pickSlogan = useCallback(() => {
-    const next = AA_SLOGANS[Math.floor(Math.random() * AA_SLOGANS.length)];
+    const next = RECOVERY_SLOGANS[Math.floor(Math.random() * RECOVERY_SLOGANS.length)];
     setActiveSlogan(next);
   }, []);
 
@@ -360,7 +360,7 @@ export default function App() {
                     {/* Label with rules */}
                     <div className="flex items-center gap-3 w-full">
                       <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.35))' }} />
-                      <p className="text-[0.55rem] tracking-[0.25em] uppercase" style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.7)', whiteSpace: 'nowrap' }}>AA Slogan</p>
+                      <p className="text-[0.55rem] tracking-[0.25em] uppercase" style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.7)', whiteSpace: 'nowrap' }}>Recovery Wisdom</p>
                       <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg, transparent, rgba(61,158,207,0.35))' }} />
                     </div>
                     {/* Big quote mark */}
@@ -500,7 +500,7 @@ export default function App() {
                       lineHeight: '1.5',
                     }}
                   >
-                    AA Discussion Cards — choose a topic or tap <span style={{ color: '#2ba4b5', fontWeight: 600 }}>Randomizer</span> to draw one
+                    Recovery Discussion Cards — choose a topic or tap <span style={{ color: '#2ba4b5', fontWeight: 600 }}>Randomizer</span> to draw one
                   </p>
                   </div>{/* end header+subtitle group */}
 
@@ -787,7 +787,7 @@ export default function App() {
                           marginTop: '-12px',
                         }}
                       >
-                        ✦ Tap the compass for a random AA slogan ✦
+                        ✦ Tap the compass for a recovery wisdom quote ✦
                       </motion.p>
                     )}
                   </AnimatePresence>
@@ -955,6 +955,20 @@ export default function App() {
         </svg>
       </motion.button>
 
+
+      {/* Legal disclaimer — bottom center */}
+      <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none z-10">
+        <p style={{
+          fontFamily: "'Inter', sans-serif",
+          fontSize: '0.5rem',
+          color: 'rgba(200,210,220,0.18)',
+          letterSpacing: '0.06em',
+          textAlign: 'center',
+          padding: '0 16px',
+        }}>
+          This app is an independent recovery discussion tool. It is not affiliated with, endorsed by, or approved by Alcoholics Anonymous World Services, Inc. All content is original and for educational use only.
+        </p>
+      </div>
 
       {/* Session counter — bottom left */}
       {drawCount > 0 && (

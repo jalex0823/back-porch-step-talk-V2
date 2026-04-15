@@ -78,7 +78,7 @@ export default function SloganModal({ slogan, onClose, onNew }) {
                 <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.3))' }} />
                 <p className="text-[0.55rem] tracking-[0.25em] uppercase"
                   style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.7)' }}>
-                  AA Slogan
+                  Recovery Wisdom
                 </p>
                 <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg, transparent, rgba(61,158,207,0.3))' }} />
               </div>

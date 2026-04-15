@@ -83,7 +83,7 @@ export default function CompassModel({ visible, onClick, offsetX = 295, offsetY 
           padding: '3px 8px',
           textTransform: 'uppercase',
         }}>
-          ✦ AA Slogan
+          ✦ Recovery Wisdom
         </span>
       </motion.div>
       <Canvas

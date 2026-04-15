@@ -1,4 +1,4 @@
-export const AA_SLOGANS = [
+export const RECOVERY_SLOGANS = [
   { slogan: "One Day at a Time", meaning: "Focus on the present moment rather than worrying about the future; maintain sobriety by taking life step by step." },
   { slogan: "Easy Does It", meaning: "Encourage patience and moderation; avoid rushing or forcing outcomes, especially during stressful situations." },
   { slogan: "Let Go and Let God", meaning: "Release control over things beyond your power and trust a higher power to guide recovery." },
