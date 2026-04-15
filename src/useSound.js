@@ -199,6 +199,50 @@ export function playHomeSound() {
   src.start(0);
 }
 
+/* ── PARTICLE REVEAL: space_doors.mp3 ── */
+let spaceDoorsBuffer = null;
+if (audioCtx) {
+  fetch('/space_doors.mp3')
+    .then(r => r.arrayBuffer())
+    .then(buf => audioCtx.decodeAudioData(buf))
+    .then(decoded => { spaceDoorsBuffer = decoded; })
+    .catch(() => {});
+}
+
+export function playSpaceDoorsSound() {
+  if (!audioCtx || !spaceDoorsBuffer) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const src = audioCtx.createBufferSource();
+  src.buffer = spaceDoorsBuffer;
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.65, audioCtx.currentTime);
+  src.connect(g);
+  g.connect(audioCtx.destination);
+  src.start(0);
+}
+
+/* ── CARD TRANSITION: chromeos-battery-charging-sound.mp3 ── */
+let cardBuffer = null;
+if (audioCtx) {
+  fetch('/chromeos-battery-charging-sound.mp3')
+    .then(r => r.arrayBuffer())
+    .then(buf => audioCtx.decodeAudioData(buf))
+    .then(decoded => { cardBuffer = decoded; })
+    .catch(() => {});
+}
+
+export function playCardSound() {
+  if (!audioCtx || !cardBuffer) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const src = audioCtx.createBufferSource();
+  src.buffer = cardBuffer;
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.6, audioCtx.currentTime);
+  src.connect(g);
+  g.connect(audioCtx.destination);
+  src.start(0);
+}
+
 /* ── AGAIN: CrossEffect.mp3 sound ── */
 let againBuffer = null;
 if (audioCtx) {

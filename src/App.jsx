@@ -5,12 +5,13 @@ import TopicCard from './TopicCard';
 import ParticleReveal from './ParticleReveal';
 import ControlPanel from './ControlPanel';
 import { TOPICS } from './topics';
-import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHomeSound, playAgainSound } from './useSound';
+import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHomeSound, playAgainSound, playCardSound, playSpaceDoorsSound } from './useSound';
 import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
 import CompassModel from './CompassModel';
 import OwlSentinel from './OwlSentinel';
 import { AA_SLOGANS } from './slogans';
+import HudControlPanel from './HudControlPanel';
 import { Copy, Check } from 'lucide-react';
 
 function SloganCopyBtn({ slogan }) {
@@ -80,8 +81,9 @@ export default function App() {
         setDrawCount(c => c + 1);
         setCardNumber(c => c + 1);
         if (soundEnabled) playRevealSound();
+        if (soundEnabled) playSpaceDoorsSound();
       }, 6200);
-      const t4 = setTimeout(() => setPhase('card'), 8800);
+      const t4 = setTimeout(() => { setPhase('card'); if (soundEnabled) playCardSound(); }, 8800);
 
       timeoutsRef.current.push(t1, t2, t3, t4);
     }, phase === 'idle' ? 0 : 150);
@@ -99,7 +101,7 @@ export default function App() {
     setDrawCount(c => c + 1);
     setCardNumber(c => c + 1);
     setPhase('reveal');
-    const t = setTimeout(() => setPhase('card'), 2600);
+    const t = setTimeout(() => { setPhase('card'); if (soundEnabled) playCardSound(); }, 2600);
     timeoutsRef.current.push(t);
   }, [phase, soundEnabled]);
 
@@ -860,73 +862,30 @@ export default function App() {
               )}
             </AnimatePresence>
 
-          {/* ===== DEV SLIDERS ===== */}
-          <AnimatePresence>
-          {phase === 'idle' && (
-          <motion.div
-            initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.5, delay: 1.2, ease: [0.22,1,0.36,1] }}
-            className="absolute left-12 z-50 flex flex-col p-1 rounded" style={{ top: 236, background: 'rgba(4,20,28,0.55)', border: '2px solid rgba(255,255,255,0.55)', width: 130, fontSize: '0.42rem', fontFamily: 'monospace', opacity: 0.75, gap: 2 }}>
-            <p style={{ color: '#fff' }}>DEV</p>
-            <label style={{ color: '#ffe066' }}>oX:{orbitOffsetX}<input type="range" min="-500" max="0" value={orbitOffsetX} onChange={e => setOrbitOffsetX(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#ffe066' }}>oY:{orbitOffsetY}<input type="range" min="-200" max="200" value={orbitOffsetY} onChange={e => setOrbitOffsetY(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#ffe066' }}>oR:{orbitRadius}<input type="range" min="100" max="300" value={orbitRadius} onChange={e => setOrbitRadius(Number(e.target.value))} style={{ accentColor: '#ffe066', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#4ade80' }}>cX:{compassX}<input type="range" min="100" max="600" value={compassX} onChange={e => setCompassX(Number(e.target.value))} style={{ accentColor: '#4ade80', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#4ade80' }}>cY:{compassY}<input type="range" min="100" max="600" value={compassY} onChange={e => setCompassY(Number(e.target.value))} style={{ accentColor: '#4ade80', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#38bdf8' }}>ttl:{titleOffsetY}<input type="range" min="-100" max="100" value={titleOffsetY} onChange={e => setTitleOffsetY(Number(e.target.value))} style={{ accentColor: '#38bdf8', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#f87171' }}>btmX:{bottomOffsetX}<input type="range" min="-300" max="300" value={bottomOffsetX} onChange={e => setBottomOffsetX(Number(e.target.value))} style={{ accentColor: '#f87171', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#f87171' }}>btmY:{bottomOffsetY}<input type="range" min="-100" max="300" value={bottomOffsetY} onChange={e => setBottomOffsetY(Number(e.target.value))} style={{ accentColor: '#f87171', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#c084fc' }}>sX:{starOffsetX}<input type="range" min="-200" max="200" value={starOffsetX} onChange={e => setStarOffsetX(Number(e.target.value))} style={{ accentColor: '#c084fc', width: '100%', height: 6 }} /></label>
-            <label style={{ color: '#c084fc' }}>sY:{starOffsetY}<input type="range" min="-200" max="200" value={starOffsetY} onChange={e => setStarOffsetY(Number(e.target.value))} style={{ accentColor: '#c084fc', width: '100%', height: 6 }} /></label>
-            <motion.button
-              onClick={handleDevSet}
-              animate={{ background: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.25)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.5)' }}
-              transition={{ duration: 0.3 }}
-              style={{ marginTop: 4, width: '100%', borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(43,164,181,0.5)', borderRadius: 3, padding: '2px 0', fontFamily: 'monospace', fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#fff' : '#2ba4b5', letterSpacing: '0.1em' }}
-            >
-              {devConfirmed ? '✓ LOCKED' : 'SET DEFAULT'}
-            </motion.button>
-          </motion.div>
-          )}
-          </AnimatePresence>
-
           </div>
 
-          {/* ===== OWL SLIDERS — right side HUD panel ===== */}
+          {/* ===== UNIFIED HUD CONTROL PANEL ===== */}
           <AnimatePresence>
           {phase === 'idle' && (
-          <motion.div
-            initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }}
-            transition={{ duration: 0.5, delay: 1.4, ease: [0.22,1,0.36,1] }}
-            className="absolute z-50 rounded-lg"
-            style={{ top: owlY - 240, left: owlX, background: 'linear-gradient(160deg,rgba(8,18,30,0.92),rgba(4,12,22,0.96))', border: '2px solid rgba(255,255,255,0.55)', width: owlSize, fontFamily: "'Orbitron',monospace", overflow: 'hidden' }}>
-            {/* Header */}
-            <div style={{ background: 'rgba(251,146,60,0.15)', borderBottom: '1px solid rgba(251,146,60,0.3)', padding: '1px 5px', display: 'flex', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.38rem', color: '#fb923c', letterSpacing: '0.18em', fontWeight: 700 }}>◈ OWL</span>
-            </div>
-            {/* Sliders */}
-            <div style={{ padding: '1px 5px', display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {[
-                { label: 'POS X', val: owlX, min: 0, max: 920, set: setOwlX, color: '#fb923c', pct: owlX/920 },
-                { label: 'POS Y', val: owlY, min: 0, max: 800, set: setOwlY, color: '#fb923c', pct: owlY/800 },
-                { label: 'ROT Y', val: owlRotY, min: -180, max: 180, set: setOwlRotY, color: '#fbbf24', pct: (owlRotY+180)/360 },
-                { label: 'ROT Z', val: owlZ, min: -180, max: 180, set: setOwlZ, color: '#e879f9', pct: (owlZ+180)/360 },
-                { label: 'SIZE',  val: owlSize, min: 80, max: 400, set: setOwlSize, color: '#34d399', pct: (owlSize-80)/320 },
-              ].map(({ label, val, min, max, set, color, pct }) => (
-                <div key={label}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '0.28rem', color: 'rgba(200,210,220,0.5)', letterSpacing: '0.1em' }}>{label}</span>
-                    <span style={{ fontSize: '0.28rem', color, fontWeight: 700 }}>{val}</span>
-                  </div>
-                  <div style={{ position: 'relative', height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct*100}%`, background: `linear-gradient(90deg,${color}88,${color})`, borderRadius: 3, transition: 'width 0.05s' }} />
-                  </div>
-                  <input type="range" min={min} max={max} value={val} onChange={e => set(Number(e.target.value))}
-                    style={{ width: '100%', height: 6, opacity: 0, position: 'relative', top: -6, marginBottom: -6, cursor: 'pointer' }} />
-                </div>
-              ))}
-            </div>
-          </motion.div>
+          <HudControlPanel
+            key={bgKey}
+            orbitOffsetX={orbitOffsetX} setOrbitOffsetX={setOrbitOffsetX}
+            orbitOffsetY={orbitOffsetY} setOrbitOffsetY={setOrbitOffsetY}
+            orbitRadius={orbitRadius} setOrbitRadius={setOrbitRadius}
+            compassX={compassX} setCompassX={setCompassX}
+            compassY={compassY} setCompassY={setCompassY}
+            titleOffsetY={titleOffsetY} setTitleOffsetY={setTitleOffsetY}
+            bottomOffsetX={bottomOffsetX} setBottomOffsetX={setBottomOffsetX}
+            bottomOffsetY={bottomOffsetY} setBottomOffsetY={setBottomOffsetY}
+            starOffsetX={starOffsetX} setStarOffsetX={setStarOffsetX}
+            starOffsetY={starOffsetY} setStarOffsetY={setStarOffsetY}
+            owlX={owlX} setOwlX={setOwlX}
+            owlY={owlY} setOwlY={setOwlY}
+            owlRotY={owlRotY} setOwlRotY={setOwlRotY}
+            owlZ={owlZ} setOwlZ={setOwlZ}
+            owlSize={owlSize} setOwlSize={setOwlSize}
+            devConfirmed={devConfirmed} handleDevSet={handleDevSet}
+          />
           )}
           </AnimatePresence>
 
