@@ -147,9 +147,9 @@ export default function App() {
   // Dev position controls
   const [orbitOffsetX, setOrbitOffsetX] = useState(-441);
   const [orbitOffsetY, setOrbitOffsetY] = useState(-18);
-  const [orbitRadius, setOrbitRadius] = useState(202);
-  const [compassX, setCompassX] = useState(454);
-  const [compassY, setCompassY] = useState(366);
+  const [orbitRadius, setOrbitRadius] = useState(203);
+  const [compassX, setCompassX] = useState(489);
+  const [compassY, setCompassY] = useState(402);
   const [titleOffsetY, setTitleOffsetY] = useState(-18);
   const [bottomOffsetY, setBottomOffsetY] = useState(21);
   const [bottomOffsetX, setBottomOffsetX] = useState(148);
@@ -470,8 +470,8 @@ export default function App() {
                       className="text-xl sm:text-2xl md:text-3xl font-bold tracking-[0.12em] uppercase"
                       style={{
                         fontFamily: "'Orbitron', 'Inter', sans-serif",
-                        color: 'rgba(255,255,255,0.55)',
-                        textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                        color: 'rgba(255,255,255,0.97)',
+                        textShadow: '0 0 18px rgba(255,255,255,0.35), 0 0 40px rgba(61,158,207,0.25), 0 2px 10px rgba(0,0,0,0.6)',
                       }}
                     >
                       Step Talk
@@ -592,13 +592,11 @@ export default function App() {
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none orbit-ring-pulse"
                       style={{
                         width: '380px', height: '380px',
-                        border: '1px solid rgba(61, 158, 207, 0.12)',
+                        borderWidth: 1, borderStyle: 'solid',
+                        borderColor: hoveredIndex !== null && (phase === 'idle' || phase === 'card') ? `${TOPICS[hoveredIndex].glowColor}55` : 'rgba(61,158,207,0.12)',
                         borderRadius: '50%',
                         transition: 'box-shadow 0.4s ease, border-color 0.4s ease',
-                        ...(hoveredIndex !== null && (phase === 'idle' || phase === 'card') ? {
-                          borderColor: `${TOPICS[hoveredIndex].glowColor}55`,
-                          boxShadow: `0 0 28px 4px ${TOPICS[hoveredIndex].glowColor}22`,
-                        } : {}),
+                        boxShadow: hoveredIndex !== null && (phase === 'idle' || phase === 'card') ? `0 0 28px 4px ${TOPICS[hoveredIndex].glowColor}22` : 'none',
                       }}
                     />
                     {/* Rotating tick marks — compass bezel */}

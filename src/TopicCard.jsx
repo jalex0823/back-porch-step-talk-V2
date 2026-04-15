@@ -186,7 +186,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
           </motion.g>
           {/* Scanning horizontal line */}
           <motion.line
-            x1="22" x2="158" strokeWidth="0.8" strokeLinecap="round" opacity="0.35"
+            x1="22" y1="22" x2="158" y2="22" strokeWidth="0.8" strokeLinecap="round" opacity="0.35"
             animate={{ y1: [22, 158, 22], y2: [22, 158, 22], stroke: [glowColor, '#3d9ecf', '#c08030', '#5ab56a', glowColor] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           />
@@ -208,10 +208,9 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
             transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }} />
           {/* Data readout lines — bottom */}
           {[0, 1, 2, 3, 4].map(i => (
-            <motion.rect key={`d${i}`} x={30 + i * 26} y="164" rx="0.5"
+            <motion.rect key={`d${i}`} x={30 + i * 26} y="164" rx="0.5" width="8" height="2"
               animate={{ width: [8, 14 + Math.random() * 8, 8], opacity: [0.15, 0.4, 0.15], fill: [glowColor, accentColor, '#3d9ecf', glowColor] }}
               transition={{ duration: 1.5 + i * 0.3, repeat: Infinity, ease: 'easeInOut', delay: i * 0.2 }}
-              style={{ height: 2 }}
             />
           ))}
         </svg>
