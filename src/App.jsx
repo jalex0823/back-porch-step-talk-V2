@@ -214,13 +214,13 @@ export default function App() {
 
   // Dev position controls — load from localStorage or use hardcoded defaults
   const D = (() => { try { return JSON.parse(localStorage.getItem('hudDefaults') || '{}'); } catch { return {}; } })();
-  const [orbitOffsetX, setOrbitOffsetX] = useState(D.orbitOffsetX ?? -442);
-  const [orbitOffsetY, setOrbitOffsetY] = useState(D.orbitOffsetY ?? -60);
+  const [orbitOffsetX, setOrbitOffsetX] = useState(D.orbitOffsetX ?? -441);
+  const [orbitOffsetY, setOrbitOffsetY] = useState(D.orbitOffsetY ?? -66);
   const [orbitRadius, setOrbitRadius] = useState(D.orbitRadius ?? 203);
   const [compassX, setCompassX] = useState(D.compassX ?? 472);
   const [compassY, setCompassY] = useState(D.compassY ?? 464);
   const [titleOffsetY, setTitleOffsetY] = useState(D.titleOffsetY ?? -57);
-  const [bottomOffsetY, setBottomOffsetY] = useState(D.bottomOffsetY ?? -23);
+  const [bottomOffsetY, setBottomOffsetY] = useState(D.bottomOffsetY ?? -51);
   const [bottomOffsetX, setBottomOffsetX] = useState(D.bottomOffsetX ?? 151);
   const [starOffsetX, setStarOffsetX] = useState(D.starOffsetX ?? 51);
   const [starOffsetY, setStarOffsetY] = useState(D.starOffsetY ?? 90);
@@ -230,8 +230,8 @@ export default function App() {
   const [owlZ, setOwlZ] = useState(D.owlZ ?? 0);
   const [owlRotY, setOwlRotY] = useState(D.owlRotY ?? -45);
   const [owlSize, setOwlSize] = useState(D.owlSize ?? 212);
-  const [celebWidgetX, setCelebWidgetX] = useState(D.celebWidgetX ?? 0);
-  const [celebWidgetY, setCelebWidgetY] = useState(D.celebWidgetY ?? 0);
+  const [celebWidgetX, setCelebWidgetX] = useState(D.celebWidgetX ?? 14);
+  const [celebWidgetY, setCelebWidgetY] = useState(D.celebWidgetY ?? 9);
   const [devConfirmed, setDevConfirmed] = useState(false);
   const handleDevSet = () => {
     const vals = { orbitOffsetX, orbitOffsetY, orbitRadius, compassX, compassY, titleOffsetY, bottomOffsetX, bottomOffsetY, starOffsetX, starOffsetY, owlX, owlY, owlZ, owlRotY, owlSize, celebWidgetX, celebWidgetY };
