@@ -83,15 +83,19 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
         ctx.arc(cx, cy, 55, 0, TWO_PI);
         ctx.fill();
 
-        // Spread bolts in ALL directions — not aimed at balls
-        // 16 root directions for full 360° coverage
-        const ROOTS = 16;
+        // Sporadic bolts — each frame randomise count, angle, length, opacity, depth
+        const ROOTS = 10 + Math.floor(R() * 10); // 10–19 bolts, different every frame
         for (let i = 0; i < ROOTS; i++) {
-          const angle = (i / ROOTS) * TWO_PI + (R() - 0.5) * 0.3;
-          const color = topics[i % n].glowColor;
-          const len = orbitRadius * (0.55 + R() * 0.4);
-          const depth = frame % 4 === 0 ? 8 : 7;
-          bolt(ctx, cx, cy, angle, len, depth, color, 0.85);
+          // Fully random angle — no even spacing
+          const angle = R() * TWO_PI;
+          const color = topics[Math.floor(R() * n)].glowColor;
+          // Wild length variation — some short stubs, some reach full radius
+          const len = orbitRadius * (0.15 + R() * R() * 0.85);
+          // Each bolt gets its own random opacity — flicker effect
+          const alpha = 0.3 + R() * 0.7;
+          // Depth varies 4–8 so some are thin stubs, some are full trees
+          const depth = 4 + Math.floor(R() * 5);
+          bolt(ctx, cx, cy, angle, len, depth, color, alpha);
         }
 
         ctx.restore();
