@@ -63,8 +63,8 @@ export default function CompassModel({ visible, onClick, offsetX = 295, offsetY 
       }}
       whileTap={{ scale: 0.97 }}
       transition={{
-        opacity: { duration: visible ? 0.6 : 0.3, delay: visible && !isReturn ? 1.6 : 0, ease: [0.22, 1, 0.36, 1] },
-        scale:   { type: 'spring', stiffness: 260, damping: 18, delay: visible && !isReturn ? 1.6 : 0 },
+        opacity: { duration: visible ? 0.9 : 0.3, delay: visible ? (isReturn ? 0.8 : 2.8) : 0, ease: [0.22, 1, 0.36, 1] },
+        scale:   { type: 'spring', stiffness: 200, damping: 20, delay: visible ? (isReturn ? 0.8 : 2.8) : 0 },
       }}
     >
       {/* Hover tooltip */}
