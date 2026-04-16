@@ -142,7 +142,7 @@ export default function CelebrationTrigger({ onTrigger, phase, size = 54, color 
           fontSize: '0.38rem',
           letterSpacing: '0.1em',
           textTransform: 'uppercase',
-          color: hovered ? `${color}ee` : `${color}66`,
+          color: hovered ? `${color}ff` : `${color}cc`,
           transition: 'color 0.3s ease',
           maxWidth: 60,
         }}
