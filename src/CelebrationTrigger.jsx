@@ -9,7 +9,7 @@ const TOOLTIP_LINES = [
   'Spark Some Joy',
 ];
 
-export default function CelebrationTrigger({ onTrigger, phase }) {
+export default function CelebrationTrigger({ onTrigger, phase, size = 54, color = '#3abf8a' }) {
   const [hovered, setHovered] = useState(false);
   const [fired, setFired] = useState(false);
   const [tooltipIdx] = useState(() => Math.floor(Math.random() * TOOLTIP_LINES.length));
@@ -36,9 +36,17 @@ export default function CelebrationTrigger({ onTrigger, phase }) {
   return (
     <motion.div
       className="flex flex-col items-center gap-2"
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: canFire ? 1 : 0.3, x: 0 }}
-      transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, scale: 0.7 }}
+      animate={
+        canFire
+          ? { opacity: 1, scale: 1, x: 0 }
+          : { opacity: 0, scale: 0.8, x: 0 }
+      }
+      transition={
+        canFire
+          ? { type: 'spring', stiffness: 260, damping: 18, delay: 0.15 }
+          : { duration: 0.35, ease: 'easeIn' }
+      }
       style={{ pointerEvents: canFire ? 'auto' : 'none' }}
     >
       {/* Tooltip */}
@@ -53,9 +61,9 @@ export default function CelebrationTrigger({ onTrigger, phase }) {
             style={{
               fontFamily: "'Orbitron', sans-serif",
               background: 'rgba(10,16,28,0.92)',
-              border: '1px solid rgba(58,191,138,0.4)',
-              color: '#3abf8a',
-              boxShadow: '0 0 12px rgba(58,191,138,0.2)',
+              border: `1px solid ${color}66`,
+              color: color,
+              boxShadow: `0 0 12px ${color}33`,
             }}
           >
             {TOOLTIP_LINES[tooltipIdx]}
@@ -70,15 +78,15 @@ export default function CelebrationTrigger({ onTrigger, phase }) {
         onMouseLeave={() => setHovered(false)}
         className="relative flex items-center justify-center rounded-full cursor-pointer"
         style={{
-          width: 54,
-          height: 54,
+          width: size,
+          height: size,
           background: fired
-            ? 'radial-gradient(circle, rgba(58,191,138,0.35) 0%, rgba(10,16,28,0.9) 70%)'
-            : 'radial-gradient(circle, rgba(58,191,138,0.12) 0%, rgba(10,16,28,0.85) 70%)',
-          border: `1.5px solid ${fired ? 'rgba(58,191,138,0.8)' : 'rgba(58,191,138,0.35)'}`,
+            ? `radial-gradient(circle, ${color}44 0%, rgba(10,16,28,0.9) 70%)`
+            : `radial-gradient(circle, ${color}18 0%, rgba(10,16,28,0.85) 70%)`,
+          border: `1.5px solid ${fired ? `${color}cc` : `${color}55`}`,
           boxShadow: hovered || fired
-            ? '0 0 24px rgba(58,191,138,0.4), inset 0 0 12px rgba(58,191,138,0.1)'
-            : '0 0 10px rgba(58,191,138,0.15)',
+            ? `0 0 28px ${color}55, inset 0 0 14px ${color}18`
+            : `0 0 10px ${color}25`,
           transition: 'background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease',
         }}
         whileHover={{ scale: 1.1 }}
@@ -91,7 +99,7 @@ export default function CelebrationTrigger({ onTrigger, phase }) {
           initial={{ opacity: 0.5, scale: 1 }}
           animate={{ opacity: 0, scale: 2.2 }}
           transition={{ duration: 1.8, ease: 'easeOut' }}
-          style={{ border: '1px solid rgba(58,191,138,0.4)' }}
+          style={{ border: `1px solid ${color}66` }}
         />
 
         {/* Fired burst ring */}
@@ -104,19 +112,19 @@ export default function CelebrationTrigger({ onTrigger, phase }) {
               animate={{ opacity: 0, scale: 2.8 }}
               exit={{}}
               transition={{ duration: 0.6, ease: 'easeOut' }}
-              style={{ border: '2px solid rgba(58,191,138,0.7)' }}
+              style={{ border: `2px solid ${color}bb` }}
             />
           )}
         </AnimatePresence>
 
         {/* Icon — medal / star */}
         <motion.svg
-          width="24" height="24" viewBox="0 0 24 24"
+          width={size * 0.48} height={size * 0.48} viewBox="0 0 24 24"
           fill="none" stroke="currentColor" strokeWidth="1.6"
           strokeLinecap="round" strokeLinejoin="round"
           animate={{ rotate: fired ? [0, -15, 15, -10, 0] : 0 }}
           transition={{ duration: 0.5 }}
-          style={{ color: fired ? '#3abf8a' : hovered ? '#5ad4a4' : '#3abf8a99', filter: fired ? 'drop-shadow(0 0 6px #3abf8a)' : 'none' }}
+          style={{ color: '#ffffff', filter: fired ? 'drop-shadow(0 0 6px #ffffff)' : 'none' }}
         >
           {/* Medal ribbon top */}
           <path d="M12 2l1.5 4.5H18l-3.75 2.75 1.5 4.5L12 11l-3.75 2.75 1.5-4.5L6 6.5h4.5z" />
@@ -134,7 +142,7 @@ export default function CelebrationTrigger({ onTrigger, phase }) {
           fontSize: '0.38rem',
           letterSpacing: '0.1em',
           textTransform: 'uppercase',
-          color: hovered ? 'rgba(58,191,138,0.9)' : 'rgba(58,191,138,0.45)',
+          color: hovered ? `${color}ee` : `${color}66`,
           transition: 'color 0.3s ease',
           maxWidth: 60,
         }}

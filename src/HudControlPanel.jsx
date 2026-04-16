@@ -23,6 +23,7 @@ export default function HudControlPanel({
   titleOffsetY, setTitleOffsetY, bottomOffsetX, setBottomOffsetX, bottomOffsetY, setBottomOffsetY,
   starOffsetX, setStarOffsetX, starOffsetY, setStarOffsetY,
   owlX, setOwlX, owlY, setOwlY, owlRotY, setOwlRotY, owlZ, setOwlZ, owlSize, setOwlSize,
+  celebWidgetX, setCelebWidgetX, celebWidgetY, setCelebWidgetY,
   devConfirmed, handleDevSet,
 }) {
   const [tab, setTab] = useState('system');
@@ -43,6 +44,11 @@ export default function HudControlPanel({
     { label: 'BTM Y',    val: bottomOffsetY,min: -100, max: 300,  set: setBottomOffsetY,color: '#f87171', pct: (bottomOffsetY + 100) / 400 },
     { label: 'STAR X',   val: starOffsetX,  min: -200, max: 200,  set: setStarOffsetX,  color: '#c084fc', pct: (starOffsetX + 200) / 400 },
     { label: 'STAR Y',   val: starOffsetY,  min: -200, max: 200,  set: setStarOffsetY,  color: '#c084fc', pct: (starOffsetY + 200) / 400 },
+  ];
+
+  const celebSliders = [
+    { label: 'POS X', val: celebWidgetX, min: -200, max: 200, set: setCelebWidgetX, color: '#f9a8d4', pct: (celebWidgetX + 200) / 400 },
+    { label: 'POS Y', val: celebWidgetY, min: -300, max: 300, set: setCelebWidgetY, color: '#f9a8d4', pct: (celebWidgetY + 300) / 600 },
   ];
 
   const owlSliders = [
@@ -91,7 +97,7 @@ export default function HudControlPanel({
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
           {/* Tabs */}
           <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-            {[{ id: 'system', label: '⚙ SYSTEM' }, { id: 'owl', label: '◈ OWL' }].map(t => (
+            {[{ id: 'system', label: '⚙ SYSTEM' }, { id: 'owl', label: '◈ OWL' }, { id: 'celeb', label: '🎖 CELEB' }].map(t => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 style={{
                   flex: 1, padding: '4px 0', background: tab === t.id ? 'rgba(255,255,255,0.06)' : 'transparent',
@@ -127,6 +133,21 @@ export default function HudControlPanel({
                 <motion.div key="owl" initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.2 }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
                     {owlSliders.map(s => <HudSlider key={s.label} {...s} />)}
+                  </div>
+                  <motion.button
+                    onClick={handleDevSet}
+                    animate={{ background: devConfirmed ? 'rgba(22,163,74,0.4)' : 'rgba(43,164,181,0.12)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.4)' }}
+                    transition={{ duration: 0.3 }}
+                    style={{ marginTop: 6, width: '100%', borderWidth: 1, borderStyle: 'solid', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#4ade80' : 'rgba(43,164,181,0.85)', letterSpacing: '0.18em', background: 'transparent' }}
+                  >
+                    {devConfirmed ? '✓  DEFAULTS LOCKED' : '⊙  SET AS DEFAULT'}
+                  </motion.button>
+                </motion.div>
+              )}
+              {tab === 'celeb' && (
+                <motion.div key="celeb" initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.2 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
+                    {celebSliders.map(s => <HudSlider key={s.label} {...s} />)}
                   </div>
                   <motion.button
                     onClick={handleDevSet}

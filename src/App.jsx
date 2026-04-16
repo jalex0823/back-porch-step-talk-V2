@@ -230,9 +230,11 @@ export default function App() {
   const [owlZ, setOwlZ] = useState(D.owlZ ?? 0);
   const [owlRotY, setOwlRotY] = useState(D.owlRotY ?? -45);
   const [owlSize, setOwlSize] = useState(D.owlSize ?? 212);
+  const [celebWidgetX, setCelebWidgetX] = useState(D.celebWidgetX ?? 0);
+  const [celebWidgetY, setCelebWidgetY] = useState(D.celebWidgetY ?? 0);
   const [devConfirmed, setDevConfirmed] = useState(false);
   const handleDevSet = () => {
-    const vals = { orbitOffsetX, orbitOffsetY, orbitRadius, compassX, compassY, titleOffsetY, bottomOffsetX, bottomOffsetY, starOffsetX, starOffsetY, owlX, owlY, owlZ, owlRotY, owlSize };
+    const vals = { orbitOffsetX, orbitOffsetY, orbitRadius, compassX, compassY, titleOffsetY, bottomOffsetX, bottomOffsetY, starOffsetX, starOffsetY, owlX, owlY, owlZ, owlRotY, owlSize, celebWidgetX, celebWidgetY };
     localStorage.setItem('hudDefaults', JSON.stringify(vals));
     setDevConfirmed(true);
     setTimeout(() => setDevConfirmed(false), 2000);
@@ -590,8 +592,8 @@ export default function App() {
                     style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
 
                     {/* Celebration Trigger widget — floats left of orbit, does not affect orbit layout */}
-                    <div style={{ position: 'absolute', left: -88, top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}>
-                      <CelebrationTrigger onTrigger={triggerCelebration} phase={phase} />
+                    <div style={{ position: 'absolute', left: -68 + celebWidgetX, top: `calc(50% + ${celebWidgetY}px)`, transform: 'translateY(-50%)', zIndex: 10 }}>
+                      <CelebrationTrigger onTrigger={triggerCelebration} phase={phase} size={70} color="#ffffff" />
                     </div>
 
                     {/* Center "sun" glow — pulses during spin */}
@@ -953,30 +955,32 @@ export default function App() {
 
           </div>
 
-          {/* ===== UNIFIED HUD CONTROL PANEL ===== */}
-          <AnimatePresence>
-          {phase === 'idle' && (
-          <HudControlPanel
-            key={bgKey}
-            orbitOffsetX={orbitOffsetX} setOrbitOffsetX={setOrbitOffsetX}
-            orbitOffsetY={orbitOffsetY} setOrbitOffsetY={setOrbitOffsetY}
-            orbitRadius={orbitRadius} setOrbitRadius={setOrbitRadius}
-            compassX={compassX} setCompassX={setCompassX}
-            compassY={compassY} setCompassY={setCompassY}
-            titleOffsetY={titleOffsetY} setTitleOffsetY={setTitleOffsetY}
-            bottomOffsetX={bottomOffsetX} setBottomOffsetX={setBottomOffsetX}
-            bottomOffsetY={bottomOffsetY} setBottomOffsetY={setBottomOffsetY}
-            starOffsetX={starOffsetX} setStarOffsetX={setStarOffsetX}
-            starOffsetY={starOffsetY} setStarOffsetY={setStarOffsetY}
-            owlX={owlX} setOwlX={setOwlX}
-            owlY={owlY} setOwlY={setOwlY}
-            owlRotY={owlRotY} setOwlRotY={setOwlRotY}
-            owlZ={owlZ} setOwlZ={setOwlZ}
-            owlSize={owlSize} setOwlSize={setOwlSize}
-            devConfirmed={devConfirmed} handleDevSet={handleDevSet}
-          />
-          )}
-          </AnimatePresence>
+        {/* ===== UNIFIED HUD CONTROL PANEL ===== */}
+        <AnimatePresence>
+        {phase === 'idle' && (
+        <HudControlPanel
+          key={bgKey}
+          orbitOffsetX={orbitOffsetX} setOrbitOffsetX={setOrbitOffsetX}
+          orbitOffsetY={orbitOffsetY} setOrbitOffsetY={setOrbitOffsetY}
+          orbitRadius={orbitRadius} setOrbitRadius={setOrbitRadius}
+          compassX={compassX} setCompassX={setCompassX}
+          compassY={compassY} setCompassY={setCompassY}
+          titleOffsetY={titleOffsetY} setTitleOffsetY={setTitleOffsetY}
+          bottomOffsetX={bottomOffsetX} setBottomOffsetX={setBottomOffsetX}
+          bottomOffsetY={bottomOffsetY} setBottomOffsetY={setBottomOffsetY}
+          starOffsetX={starOffsetX} setStarOffsetX={setStarOffsetX}
+          starOffsetY={starOffsetY} setStarOffsetY={setStarOffsetY}
+          owlX={owlX} setOwlX={setOwlX}
+          owlY={owlY} setOwlY={setOwlY}
+          owlRotY={owlRotY} setOwlRotY={setOwlRotY}
+          owlZ={owlZ} setOwlZ={setOwlZ}
+          owlSize={owlSize} setOwlSize={setOwlSize}
+          celebWidgetX={celebWidgetX} setCelebWidgetX={setCelebWidgetX}
+          celebWidgetY={celebWidgetY} setCelebWidgetY={setCelebWidgetY}
+          devConfirmed={devConfirmed} handleDevSet={handleDevSet}
+        />
+        )}
+        </AnimatePresence>
 
         </motion.div>
 
