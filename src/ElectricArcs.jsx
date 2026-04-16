@@ -2,50 +2,102 @@ import { useRef, useEffect } from 'react';
 
 const TWO_PI = Math.PI * 2;
 
-// Recursive midpoint displacement — more aggressive roughness for Tesla-coil look
 function displace(pts, roughness, depth) {
   if (depth === 0) return pts;
   const out = [];
   for (let i = 0; i < pts.length - 1; i++) {
     const a = pts[i], b = pts[i + 1];
-    const mx = (a.x + b.x) / 2 + (Math.random() - 0.5) * roughness;
-    const my = (a.y + b.y) / 2 + (Math.random() - 0.5) * roughness;
-    out.push(a, { x: mx, y: my });
+    out.push(a, {
+      x: (a.x + b.x) / 2 + (Math.random() - 0.5) * roughness,
+      y: (a.y + b.y) / 2 + (Math.random() - 0.5) * roughness,
+    });
   }
   out.push(pts[pts.length - 1]);
-  return displace(out, roughness * 0.58, depth - 1);
+  return displace(out, roughness * 0.55, depth - 1);
 }
 
-// Draw one crackling strand with heavy glow
-function strand(ctx, x1, y1, x2, y2, color, alpha, width, blur, roughness = 55) {
-  const pts = displace([{ x: x1, y: y1 }, { x: x2, y: y2 }], roughness, 6);
+// Draw a lightning bolt from center outward — white-hot at origin, neon at tip
+function bolt(ctx, cx, cy, tx, ty, glowColor, alpha, life) {
+  const pts = displace([{ x: cx, y: cy }, { x: tx, y: ty }], 40, 6);
+
+  // Outer wide neon glow
   ctx.save();
-  ctx.globalAlpha = Math.min(alpha, 1);
-  ctx.lineWidth = width;
+  ctx.globalAlpha = Math.min(alpha * 0.5, 0.55);
+  ctx.lineWidth = 10;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.strokeStyle = color;
-  ctx.shadowColor = color;
-  ctx.shadowBlur = blur;
+  ctx.strokeStyle = glowColor;
+  ctx.shadowColor = glowColor;
+  ctx.shadowBlur = 28;
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
   ctx.stroke();
   ctx.restore();
+
+  // Mid bright neon
+  ctx.save();
+  ctx.globalAlpha = Math.min(alpha * 0.75, 0.8);
+  ctx.lineWidth = 3.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = glowColor;
+  ctx.shadowColor = glowColor;
+  ctx.shadowBlur = 14;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.stroke();
+  ctx.restore();
+
+  // White-hot core filament
+  ctx.save();
+  ctx.globalAlpha = Math.min(alpha, 1);
+  ctx.lineWidth = 1.2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#ffffff';
+  ctx.shadowColor = '#ffffff';
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.stroke();
+  ctx.restore();
+
+  // Branch tendrils at random mid-points
+  if (life > 0.4 && Math.random() < 0.6) {
+    const mi = Math.floor(pts.length * (0.4 + Math.random() * 0.3));
+    const bx = pts[mi].x + (Math.random() - 0.5) * 55;
+    const by = pts[mi].y + (Math.random() - 0.5) * 55;
+    const bpts = displace([pts[mi], { x: bx, y: by }], 22, 4);
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.55;
+    ctx.lineWidth = 1.0;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#ffffff';
+    ctx.shadowColor = glowColor;
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(bpts[0].x, bpts[0].y);
+    for (let i = 1; i < bpts.length; i++) ctx.lineTo(bpts[i].x, bpts[i].y);
+    ctx.stroke();
+    ctx.restore();
+  }
 }
 
-// Corona discharge ball at endpoints
-function corona(ctx, x, y, color, alpha, radius) {
+// Central corona burst — radial gradient from center
+function centerBurst(ctx, cx, cy, radius, alpha) {
   ctx.save();
   ctx.globalAlpha = alpha;
-  const g = ctx.createRadialGradient(x, y, 0, x, y, radius);
-  g.addColorStop(0, '#ffffff');
-  g.addColorStop(0.15, color);
-  g.addColorStop(0.5, color.replace(')', ',0.4)').replace('rgb', 'rgba'));
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+  g.addColorStop(0, 'rgba(255,255,255,0.95)');
+  g.addColorStop(0.1, 'rgba(200,230,255,0.7)');
+  g.addColorStop(0.4, 'rgba(120,160,255,0.2)');
   g.addColorStop(1, 'transparent');
   ctx.fillStyle = g;
   ctx.beginPath();
-  ctx.arc(x, y, radius, 0, TWO_PI);
+  ctx.arc(cx, cy, radius, 0, TWO_PI);
   ctx.fill();
   ctx.restore();
 }
@@ -53,7 +105,7 @@ function corona(ctx, x, y, color, alpha, radius) {
 export default function ElectricArcs({ topics, orbitRadius, active }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
-  const arcPoolRef = useRef([]);
+  const boltPoolRef = useRef([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -62,34 +114,32 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const SIZE = 560;
     const cx = SIZE / 2, cy = SIZE / 2;
     const n = topics.length;
-    const halfN = Math.floor(n / 2);
-    const SPEED = TWO_PI / (5 * 60); // match ~5s spin duration
+    const SPEED = TWO_PI / (5 * 60);
     let angleBase = -Math.PI / 2;
-    let lastHalfRotation = Math.floor((angleBase / Math.PI));
+    let lastHalf = Math.floor(angleBase / Math.PI);
 
-    const spawnBurst = (iA, iB, intensity) => {
-      const baseA = angleBase + (iA / n) * TWO_PI;
-      const baseB = angleBase + (iB / n) * TWO_PI;
-      const jitter = s => (Math.random() - 0.5) * s;
-      const strandCount = 5;
-      const x1 = cx + Math.cos(baseA) * orbitRadius;
-      const y1 = cy + Math.sin(baseA) * orbitRadius;
-      const x2 = cx + Math.cos(baseB) * orbitRadius;
-      const y2 = cy + Math.sin(baseB) * orbitRadius;
-      for (let k = 0; k < strandCount; k++) {
-        arcPoolRef.current.push({
-          x1: x1 + jitter(14), y1: y1 + jitter(14),
-          x2: x2 + jitter(14), y2: y2 + jitter(14),
-          colorA: topics[iA].glowColor,
-          colorB: topics[iB].glowColor,
-          coreColor: k % 2 === 0 ? '#c8aaff' : '#aaeeff',
-          life: 1.0,
-          decay: 0.01 + Math.random() * 0.012,
-          intensity,
-          branchDepth: 2,
-          retraceTimer: 0,
-          retracePeriod: 2 + Math.floor(Math.random() * 3),
-        });
+    const spawnAllBolts = () => {
+      for (let i = 0; i < n; i++) {
+        const angle = angleBase + (i / n) * TWO_PI;
+        const tx = cx + Math.cos(angle) * orbitRadius;
+        const ty = cy + Math.sin(angle) * orbitRadius;
+        // Stagger each bolt slightly so they don't all appear same frame
+        const delay = i * 55;
+        setTimeout(() => {
+          // 2–3 strands per ball for thickness
+          const strands = 2 + Math.floor(Math.random() * 2);
+          for (let s = 0; s < strands; s++) {
+            boltPoolRef.current.push({
+              tx: tx + (Math.random() - 0.5) * 16,
+              ty: ty + (Math.random() - 0.5) * 16,
+              glowColor: topics[i].glowColor,
+              life: 1.0,
+              decay: 0.018 + Math.random() * 0.018,
+              retraceTimer: 0,
+              retracePeriod: 2 + Math.floor(Math.random() * 2),
+            });
+          }
+        }, delay);
       }
     };
 
@@ -98,67 +148,28 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
 
       if (active) {
         angleBase += SPEED;
-        // Detect each half-rotation so we get 2 bursts per full spin
         const currentHalf = Math.floor(angleBase / Math.PI);
-        if (currentHalf !== lastHalfRotation) {
-          lastHalfRotation = currentHalf;
-          for (let p = 0; p < halfN; p++) {
-            setTimeout(() => spawnBurst(p, p + halfN, 0.8 + Math.random() * 0.2), p * 80);
-          }
+        if (currentHalf !== lastHalf) {
+          lastHalf = currentHalf;
+          spawnAllBolts();
         }
       } else {
-        arcPoolRef.current = [];
+        boltPoolRef.current = [];
       }
 
-      arcPoolRef.current = arcPoolRef.current.filter(a => a.life > 0);
+      boltPoolRef.current = boltPoolRef.current.filter(b => b.life > 0);
 
-      for (const arc of arcPoolRef.current) {
-        const a = arc.life;
-        const b = arc.intensity;
-        arc.retraceTimer++;
+      // Center burst glow scales with how many active bolts
+      if (boltPoolRef.current.length > 0) {
+        const maxLife = Math.max(...boltPoolRef.current.map(b => b.life));
+        centerBurst(ctx, cx, cy, 48 + maxLife * 28, maxLife * 0.85);
+      }
 
-        // Re-randomise path each retracePeriod so bolt crackles/flickers
-        const jitterScale = arc.retraceTimer >= arc.retracePeriod ? 1 : 0;
-        if (jitterScale) arc.retraceTimer = 0;
-
-        // ── Outer fat colored corona glow ──
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorB, Math.min(a * 0.7 * b, 0.8), 18 + b * 14, 32, 70);
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorA, Math.min(a * 0.65 * b, 0.75), 13 + b * 11, 26, 65);
-
-        // ── Mid violet/cyan glow ──
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.coreColor, Math.min(a * 0.85, 0.9), 6 + b * 4, 18, 52);
-
-        // ── Hot white-blue core ──
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, '#aaddff', Math.min(a * 0.95, 1), 2.5 + b * 1.2, 10, 48);
-
-        // ── Bright white centre filament ──
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, '#ffffff', 1, 1.2, 5, 44);
-
-        // ── Branches / tendrils ──
-        if (arc.branchDepth >= 1) {
-          const bx = arc.x1 + (arc.x2 - arc.x1) * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 60;
-          const by = arc.y1 + (arc.y2 - arc.y1) * (0.3 + Math.random() * 0.4) + (Math.random() - 0.5) * 60;
-          strand(ctx, arc.x1, arc.y1, bx, by, arc.coreColor, a * 0.5, 2.5, 12, 55);
-          strand(ctx, arc.x1, arc.y1, bx, by, '#ffffff', a * 0.7, 0.7, 3, 40);
-          strand(ctx, arc.x2, arc.y2, bx, by, arc.colorA, a * 0.4, 2.0, 10, 50);
-          strand(ctx, arc.x2, arc.y2, bx, by, '#ffffff', a * 0.6, 0.6, 3, 35);
-        }
-        if (arc.branchDepth >= 2 && a > 0.5) {
-          const bx2 = arc.x1 + (arc.x2 - arc.x1) * (0.5 + Math.random() * 0.3) + (Math.random() - 0.5) * 80;
-          const by2 = arc.y1 + (arc.y2 - arc.y1) * (0.5 + Math.random() * 0.3) + (Math.random() - 0.5) * 80;
-          strand(ctx, arc.x1, arc.y1, bx2, by2, '#c8aaff', a * 0.35, 1.5, 10, 60);
-          strand(ctx, arc.x2, arc.y2, bx2, by2, '#aaeeff', a * 0.3, 1.2, 8, 45);
-        }
-
-        // ── Corona discharge balls at endpoints ──
-        const coronaR = 10 + b * 14 * a;
-        corona(ctx, arc.x1, arc.y1, arc.colorA, a * 0.75, coronaR);
-        corona(ctx, arc.x2, arc.y2, arc.colorB, a * 0.75, coronaR);
-        // Pinpoint white hot centre of corona
-        corona(ctx, arc.x1, arc.y1, '#ffffff', a * 0.9, 4);
-        corona(ctx, arc.x2, arc.y2, '#ffffff', a * 0.9, 4);
-
-        arc.life -= arc.decay;
+      for (const b of boltPoolRef.current) {
+        b.retraceTimer++;
+        if (b.retraceTimer >= b.retracePeriod) b.retraceTimer = 0;
+        bolt(ctx, cx, cy, b.tx, b.ty, b.glowColor, b.life, b.life);
+        b.life -= b.decay;
       }
 
       rafRef.current = requestAnimationFrame(loop);
@@ -174,7 +185,7 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
       width={560}
       height={560}
       className="absolute inset-0 pointer-events-none"
-      style={{ zIndex: 30 }}
+      style={{ zIndex: 4 }}
     />
   );
 }
