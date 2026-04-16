@@ -2,95 +2,66 @@ import { useRef, useEffect } from 'react';
 
 const TWO_PI = Math.PI * 2;
 
-function displace(pts, roughness, depth) {
-  if (depth === 0) return pts;
-  const out = [];
-  for (let i = 0; i < pts.length - 1; i++) {
-    const a = pts[i], b = pts[i + 1];
-    out.push(a, {
-      x: (a.x + b.x) / 2 + (Math.random() - 0.5) * roughness,
-      y: (a.y + b.y) / 2 + (Math.random() - 0.5) * roughness,
-    });
-  }
-  out.push(pts[pts.length - 1]);
-  return displace(out, roughness * 0.52, depth - 1);
-}
+// Recursive fractal branch — builds a tree of thin crackling segments
+function drawBranch(ctx, x1, y1, angle, length, depth, alpha, glowColor) {
+  if (depth === 0 || length < 3) return;
 
-// One massive Tesla blast: thick white at origin → neon at tip, drawn with a gradient stroke simulation
-function teslaBolt(ctx, cx, cy, tx, ty, glowColor, alpha) {
-  const pts = displace([{ x: cx, y: cy }, { x: tx, y: ty }], 36, 7);
+  // Jag the path
+  const jag = (Math.random() - 0.5) * 0.55;
+  const x2 = x1 + Math.cos(angle + jag) * length;
+  const y2 = y1 + Math.sin(angle + jag) * length;
 
-  // Layer 1 — massive outer neon aura
+  // Glow pass
   ctx.save();
-  ctx.globalAlpha = alpha * 0.45;
-  ctx.lineWidth = 22;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
+  ctx.globalAlpha = alpha * 0.55;
+  ctx.lineWidth = Math.max(0.4, depth * 0.55);
   ctx.strokeStyle = glowColor;
   ctx.shadowColor = glowColor;
-  ctx.shadowBlur = 40;
+  ctx.shadowBlur = 10 + depth * 3;
+  ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
   ctx.stroke();
   ctx.restore();
 
-  // Layer 2 — mid neon body
-  ctx.save();
-  ctx.globalAlpha = alpha * 0.7;
-  ctx.lineWidth = 8;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = glowColor;
-  ctx.shadowColor = glowColor;
-  ctx.shadowBlur = 20;
-  ctx.beginPath();
-  ctx.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-  ctx.stroke();
-  ctx.restore();
-
-  // Layer 3 — bright white-blue inner core
+  // White core
   ctx.save();
   ctx.globalAlpha = alpha * 0.9;
-  ctx.lineWidth = 3;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = '#cceeff';
+  ctx.lineWidth = Math.max(0.3, depth * 0.3);
+  ctx.strokeStyle = depth > 3 ? '#ffffff' : glowColor;
   ctx.shadowColor = '#ffffff';
-  ctx.shadowBlur = 12;
+  ctx.shadowBlur = 5;
+  ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
   ctx.stroke();
   ctx.restore();
 
-  // Layer 4 — pure white hot filament
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.lineWidth = 1.4;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-  ctx.strokeStyle = '#ffffff';
-  ctx.shadowColor = '#ffffff';
-  ctx.shadowBlur = 8;
-  ctx.beginPath();
-  ctx.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
-  ctx.stroke();
-  ctx.restore();
+  // Continue main trunk
+  drawBranch(ctx, x2, y2, angle + (Math.random() - 0.5) * 0.3, length * (0.7 + Math.random() * 0.15), depth - 1, alpha * 0.92, glowColor);
+
+  // Spawn side branches randomly
+  if (depth >= 2 && Math.random() < 0.55) {
+    const branchAngle = angle + (Math.random() < 0.5 ? 1 : -1) * (0.4 + Math.random() * 0.5);
+    drawBranch(ctx, x2, y2, branchAngle, length * (0.45 + Math.random() * 0.25), depth - 2, alpha * 0.65, glowColor);
+  }
+  if (depth >= 3 && Math.random() < 0.3) {
+    const branchAngle = angle + (Math.random() < 0.5 ? 1 : -1) * (0.6 + Math.random() * 0.4);
+    drawBranch(ctx, x2, y2, branchAngle, length * (0.35 + Math.random() * 0.2), depth - 3, alpha * 0.45, glowColor);
+  }
 }
 
-// Radial white burst at center origin
+// Origin flare at center
 function originFlare(ctx, cx, cy, radius, alpha) {
   ctx.save();
   ctx.globalAlpha = alpha;
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-  g.addColorStop(0,   'rgba(255,255,255,1)');
-  g.addColorStop(0.08,'rgba(220,240,255,0.9)');
-  g.addColorStop(0.25,'rgba(140,200,255,0.4)');
-  g.addColorStop(0.6, 'rgba(80,140,255,0.1)');
-  g.addColorStop(1,   'transparent');
+  g.addColorStop(0,    'rgba(255,255,255,1)');
+  g.addColorStop(0.1,  'rgba(200,220,255,0.85)');
+  g.addColorStop(0.35, 'rgba(120,160,255,0.3)');
+  g.addColorStop(1,    'transparent');
   ctx.fillStyle = g;
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, TWO_PI);
@@ -110,7 +81,6 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const SIZE = 560;
     const cx = SIZE / 2, cy = SIZE / 2;
     const n = topics.length;
-    const BALL_R = 45; // ball radius — bolt reaches into the orb
     const SPEED = TWO_PI / (5 * 60);
     let angleBase = -Math.PI / 2;
     let lastHalf = Math.floor(angleBase / Math.PI);
@@ -118,18 +88,16 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const spawnAllBolts = () => {
       for (let i = 0; i < n; i++) {
         const angle = angleBase + (i / n) * TWO_PI;
-        // Extend past ball center so tip overlaps into the orb
-        const reach = orbitRadius + BALL_R;
-        const tx = cx + Math.cos(angle) * reach;
-        const ty = cy + Math.sin(angle) * reach;
         setTimeout(() => {
           boltPoolRef.current.push({
-            tx, ty,
+            angle,                        // direction from center
+            length: orbitRadius + 48,     // reach into the orb
             glowColor: topics[i].glowColor,
             life: 1.0,
-            decay: 0.022 + Math.random() * 0.014,
+            decay: 0.02 + Math.random() * 0.015,
+            seed: Math.random(),          // unique shape per spawn
           });
-        }, i * 45);
+        }, i * 50);
       }
     };
 
@@ -151,11 +119,12 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
 
       if (boltPoolRef.current.length > 0) {
         const peak = Math.max(...boltPoolRef.current.map(b => b.life));
-        originFlare(ctx, cx, cy, 55 + peak * 35, peak * 0.9);
+        originFlare(ctx, cx, cy, 44 + peak * 28, peak * 0.8);
       }
 
       for (const b of boltPoolRef.current) {
-        teslaBolt(ctx, cx, cy, b.tx, b.ty, b.glowColor, b.life);
+        // Each frame re-randomises the fractal for crackle flicker
+        drawBranch(ctx, cx, cy, b.angle, b.length, 7, b.life, b.glowColor);
         b.life -= b.decay;
       }
 
