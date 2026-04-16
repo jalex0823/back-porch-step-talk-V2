@@ -216,17 +216,6 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
         </svg>
       </motion.div>
 
-    {/* Scroll hint chevron at bottom */}
-    <motion.div className="absolute bottom-[56px] left-1/2 -translate-x-1/2 pointer-events-none z-10"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1, y: [0, 3, 0] }}
-      transition={{ opacity: { delay: 1.5, duration: 0.5 }, y: { duration: 1.5, repeat: Infinity, ease: 'easeInOut' } }}
-    >
-      <svg width="20" height="10" viewBox="0 0 20 10" fill="none">
-        <path d="M2 2 L10 8 L18 2" stroke={accentColor} strokeWidth="1.5" strokeLinecap="round" opacity="0.3" />
-      </svg>
-    </motion.div>
-
     {/* #2 Topic color tint overlay */}
     <div className="pointer-events-none absolute inset-0 rounded-[14px] overflow-hidden" style={{ zIndex: 0 }}>
       <div style={{
@@ -644,7 +633,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
 
       {/* Session badge */}
       {sessionNumber > 0 && (
-        <motion.div className="flex justify-end mb-2" {...stagger(1.3)}>
+        <motion.div className="flex justify-end mb-1" {...stagger(1.3)}>
           <span className="text-[0.5rem] tracking-[0.12em] uppercase px-2 py-0.5 rounded-full"
             style={{
               fontFamily: "'Orbitron', sans-serif",
@@ -658,7 +647,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       )}
 
       {/* Select Again button */}
-      <motion.div className="flex gap-2 flex-shrink-0 flex-wrap"
+      <motion.div className="flex gap-2 flex-shrink-0 flex-wrap pb-1"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 1.4, ease: [0.34, 1.56, 0.64, 1] }}

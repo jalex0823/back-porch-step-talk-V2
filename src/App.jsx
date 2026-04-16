@@ -150,15 +150,15 @@ export default function App() {
   // Dev position controls — load from localStorage or use hardcoded defaults
   const D = (() => { try { return JSON.parse(localStorage.getItem('hudDefaults') || '{}'); } catch { return {}; } })();
   const [orbitOffsetX, setOrbitOffsetX] = useState(D.orbitOffsetX ?? -442);
-  const [orbitOffsetY, setOrbitOffsetY] = useState(D.orbitOffsetY ?? -62);
+  const [orbitOffsetY, setOrbitOffsetY] = useState(D.orbitOffsetY ?? -60);
   const [orbitRadius, setOrbitRadius] = useState(D.orbitRadius ?? 203);
   const [compassX, setCompassX] = useState(D.compassX ?? 472);
   const [compassY, setCompassY] = useState(D.compassY ?? 464);
   const [titleOffsetY, setTitleOffsetY] = useState(D.titleOffsetY ?? -57);
   const [bottomOffsetY, setBottomOffsetY] = useState(D.bottomOffsetY ?? -23);
   const [bottomOffsetX, setBottomOffsetX] = useState(D.bottomOffsetX ?? 151);
-  const [starOffsetX, setStarOffsetX] = useState(D.starOffsetX ?? 62);
-  const [starOffsetY, setStarOffsetY] = useState(D.starOffsetY ?? -33);
+  const [starOffsetX, setStarOffsetX] = useState(D.starOffsetX ?? 51);
+  const [starOffsetY, setStarOffsetY] = useState(D.starOffsetY ?? 90);
   const orbitBounced = useRef(false);
   const [owlX, setOwlX] = useState(D.owlX ?? 696);
   const [owlY, setOwlY] = useState(D.owlY ?? 336);
@@ -439,7 +439,7 @@ export default function App() {
           </div>
 
           {/* Content area */}
-          <div className="relative z-10 px-6 pt-10 pb-5 sm:px-8 sm:pt-12 sm:pb-6 flex flex-col" style={{ minHeight: '800px' }}>
+          <div className="relative z-10 px-6 pt-10 pb-2 sm:px-8 sm:pt-12 sm:pb-3 flex flex-col" style={{ minHeight: '800px' }}>
 
             <AnimatePresence mode="wait">
               {/* ===== DRAW VIEW ===== */}
