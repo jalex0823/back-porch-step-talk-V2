@@ -58,7 +58,7 @@ export default function CompassModel({ visible, onClick, offsetX = 295, offsetY 
       }}
       initial={{ opacity: 0, scale: 0.72 }}
       animate={{
-        opacity: visible ? 1 : 0,
+        opacity: visible ? 0.72 : 0,
         scale: visible ? 1 : 0.85,
       }}
       whileTap={{ scale: 0.97 }}
