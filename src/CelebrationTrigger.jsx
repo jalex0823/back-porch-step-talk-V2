@@ -83,10 +83,10 @@ export default function CelebrationTrigger({ onTrigger, phase, size = 54, color 
           background: fired
             ? `radial-gradient(circle, ${color}44 0%, rgba(10,16,28,0.9) 70%)`
             : `radial-gradient(circle, ${color}18 0%, rgba(10,16,28,0.85) 70%)`,
-          border: `1.5px solid ${fired ? `${color}cc` : `${color}55`}`,
+          border: `3px solid ${fired ? `${color}ff` : hovered ? `${color}cc` : `${color}99`}`,
           boxShadow: hovered || fired
-            ? `0 0 28px ${color}55, inset 0 0 14px ${color}18`
-            : `0 0 10px ${color}25`,
+            ? `0 0 28px ${color}66, 0 0 6px ${color}44, inset 0 0 14px ${color}22`
+            : `0 0 12px ${color}44, 0 0 3px ${color}33`,
           transition: 'background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease',
         }}
         whileHover={{ scale: 1.1 }}
