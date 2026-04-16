@@ -242,6 +242,15 @@ export default function App() {
     setDevConfirmed(true);
     setTimeout(() => setDevConfirmed(false), 2000);
   };
+  const handleResetDefaults = () => {
+    localStorage.removeItem('hudDefaults');
+    setOrbitOffsetX(-441); setOrbitOffsetY(-66); setOrbitRadius(203);
+    setCompassX(472); setCompassY(464); setTitleOffsetY(-57);
+    setBottomOffsetX(151); setBottomOffsetY(-51);
+    setStarOffsetX(51); setStarOffsetY(90);
+    setOwlX(696); setOwlY(336); setOwlZ(0); setOwlRotY(-45); setOwlSize(212);
+    setCelebWidgetX(14); setCelebWidgetY(9);
+  };
 
   // Mouse-following parallax
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -997,7 +1006,7 @@ export default function App() {
           owlSize={owlSize} setOwlSize={setOwlSize}
           celebWidgetX={celebWidgetX} setCelebWidgetX={setCelebWidgetX}
           celebWidgetY={celebWidgetY} setCelebWidgetY={setCelebWidgetY}
-          devConfirmed={devConfirmed} handleDevSet={handleDevSet}
+          devConfirmed={devConfirmed} handleDevSet={handleDevSet} handleResetDefaults={handleResetDefaults}
         />
         )}
         </AnimatePresence>

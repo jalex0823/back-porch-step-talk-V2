@@ -24,7 +24,7 @@ export default function HudControlPanel({
   starOffsetX, setStarOffsetX, starOffsetY, setStarOffsetY,
   owlX, setOwlX, owlY, setOwlY, owlRotY, setOwlRotY, owlZ, setOwlZ, owlSize, setOwlSize,
   celebWidgetX, setCelebWidgetX, celebWidgetY, setCelebWidgetY,
-  devConfirmed, handleDevSet,
+  devConfirmed, handleDevSet, handleResetDefaults,
 }) {
   const [tab, setTab] = useState('system');
   const [collapsed, setCollapsed] = useState(true);
@@ -119,14 +119,22 @@ export default function HudControlPanel({
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
                     {sysSliders.map(s => <HudSlider key={s.label} {...s} />)}
                   </div>
-                  <motion.button
-                    onClick={handleDevSet}
-                    animate={{ background: devConfirmed ? 'rgba(22,163,74,0.4)' : 'rgba(43,164,181,0.12)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.4)' }}
-                    transition={{ duration: 0.3 }}
-                    style={{ marginTop: 6, width: '100%', borderWidth: 1, borderStyle: 'solid', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#4ade80' : 'rgba(43,164,181,0.85)', letterSpacing: '0.18em', background: 'transparent' }}
-                  >
-                    {devConfirmed ? '✓  DEFAULTS LOCKED' : '⊙  SET AS DEFAULT'}
-                  </motion.button>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                    <motion.button
+                      onClick={handleDevSet}
+                      animate={{ background: devConfirmed ? 'rgba(22,163,74,0.4)' : 'rgba(43,164,181,0.12)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.4)' }}
+                      transition={{ duration: 0.3 }}
+                      style={{ flex: 1, borderWidth: 1, borderStyle: 'solid', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#4ade80' : 'rgba(43,164,181,0.85)', letterSpacing: '0.18em', background: 'transparent' }}
+                    >
+                      {devConfirmed ? '✓ LOCKED' : '⊙ SET DEFAULT'}
+                    </motion.button>
+                    <button
+                      onClick={handleResetDefaults}
+                      style={{ flex: 1, borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(248,113,113,0.4)', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: 'rgba(248,113,113,0.85)', letterSpacing: '0.18em', background: 'rgba(248,113,113,0.08)' }}
+                    >
+                      ↺ RESET
+                    </button>
+                  </div>
                 </motion.div>
               )}
               {tab === 'owl' && (
@@ -134,14 +142,17 @@ export default function HudControlPanel({
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
                     {owlSliders.map(s => <HudSlider key={s.label} {...s} />)}
                   </div>
-                  <motion.button
-                    onClick={handleDevSet}
-                    animate={{ background: devConfirmed ? 'rgba(22,163,74,0.4)' : 'rgba(43,164,181,0.12)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.4)' }}
-                    transition={{ duration: 0.3 }}
-                    style={{ marginTop: 6, width: '100%', borderWidth: 1, borderStyle: 'solid', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#4ade80' : 'rgba(43,164,181,0.85)', letterSpacing: '0.18em', background: 'transparent' }}
-                  >
-                    {devConfirmed ? '✓  DEFAULTS LOCKED' : '⊙  SET AS DEFAULT'}
-                  </motion.button>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                    <motion.button
+                      onClick={handleDevSet}
+                      animate={{ background: devConfirmed ? 'rgba(22,163,74,0.4)' : 'rgba(43,164,181,0.12)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.4)' }}
+                      transition={{ duration: 0.3 }}
+                      style={{ flex: 1, borderWidth: 1, borderStyle: 'solid', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#4ade80' : 'rgba(43,164,181,0.85)', letterSpacing: '0.18em', background: 'transparent' }}
+                    >
+                      {devConfirmed ? '✓ LOCKED' : '⊙ SET DEFAULT'}
+                    </motion.button>
+                    <button onClick={handleResetDefaults} style={{ flex: 1, borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(248,113,113,0.4)', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: 'rgba(248,113,113,0.85)', letterSpacing: '0.18em', background: 'rgba(248,113,113,0.08)' }}>↺ RESET</button>
+                  </div>
                 </motion.div>
               )}
               {tab === 'celeb' && (
@@ -149,14 +160,17 @@ export default function HudControlPanel({
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
                     {celebSliders.map(s => <HudSlider key={s.label} {...s} />)}
                   </div>
-                  <motion.button
-                    onClick={handleDevSet}
-                    animate={{ background: devConfirmed ? 'rgba(22,163,74,0.4)' : 'rgba(43,164,181,0.12)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.4)' }}
-                    transition={{ duration: 0.3 }}
-                    style={{ marginTop: 6, width: '100%', borderWidth: 1, borderStyle: 'solid', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#4ade80' : 'rgba(43,164,181,0.85)', letterSpacing: '0.18em', background: 'transparent' }}
-                  >
-                    {devConfirmed ? '✓  DEFAULTS LOCKED' : '⊙  SET AS DEFAULT'}
-                  </motion.button>
+                  <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+                    <motion.button
+                      onClick={handleDevSet}
+                      animate={{ background: devConfirmed ? 'rgba(22,163,74,0.4)' : 'rgba(43,164,181,0.12)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.4)' }}
+                      transition={{ duration: 0.3 }}
+                      style={{ flex: 1, borderWidth: 1, borderStyle: 'solid', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#4ade80' : 'rgba(43,164,181,0.85)', letterSpacing: '0.18em', background: 'transparent' }}
+                    >
+                      {devConfirmed ? '✓ LOCKED' : '⊙ SET DEFAULT'}
+                    </motion.button>
+                    <button onClick={handleResetDefaults} style={{ flex: 1, borderWidth: 1, borderStyle: 'solid', borderColor: 'rgba(248,113,113,0.4)', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: 'rgba(248,113,113,0.85)', letterSpacing: '0.18em', background: 'rgba(248,113,113,0.08)' }}>↺ RESET</button>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
