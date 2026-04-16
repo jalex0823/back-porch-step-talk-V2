@@ -15,7 +15,7 @@ import HudControlPanel from './HudControlPanel';
 import CelebrationOverlay from './CelebrationOverlay';
 import CelebrationTrigger from './CelebrationTrigger';
 import CometTrails from './CometTrails';
-import ElectricArcs from './ElectricArcs';
+import LightningBurst from './LightningBurst';
 import DrawHistory from './DrawHistory';
 import { Copy, Check } from 'lucide-react';
 
@@ -615,8 +615,8 @@ export default function App() {
                       active={phase === 'idle' || phase === 'card'}
                     />
 
-                    {/* Electric arcs — behind compass during spin/energize */}
-                    <ElectricArcs
+                    {/* Lightning burst — fractal SVG bolts from center during spin/energize */}
+                    <LightningBurst
                       topics={TOPICS}
                       orbitRadius={orbitRadius}
                       active={phase === 'spin' || phase === 'energize'}
