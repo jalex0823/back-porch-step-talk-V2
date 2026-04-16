@@ -42,13 +42,17 @@ function buildBolt(cx, cy, angle, length, depth, rng, glowColor, paths = []) {
   buildBolt(ex, ey, angle + (rng() - 0.5) * 0.28, length * (0.62 + rng() * 0.18), depth - 1, rng, glowColor, paths);
 
   // Side branches
-  if (depth >= 2 && rng() < 0.6) {
-    const ba = angle + (rng() < 0.5 ? 1 : -1) * (0.45 + rng() * 0.55);
-    buildBolt(ex, ey, ba, length * (0.38 + rng() * 0.22), depth - 2, rng, glowColor, paths);
+  if (depth >= 2 && rng() < 0.75) {
+    const ba = angle + (rng() < 0.5 ? 1 : -1) * (0.4 + rng() * 0.5);
+    buildBolt(ex, ey, ba, length * (0.42 + rng() * 0.22), depth - 2, rng, glowColor, paths);
   }
-  if (depth >= 3 && rng() < 0.35) {
-    const ba2 = angle + (rng() < 0.5 ? 1 : -1) * (0.65 + rng() * 0.4);
-    buildBolt(ex, ey, ba2, length * (0.28 + rng() * 0.18), depth - 3, rng, glowColor, paths);
+  if (depth >= 2 && rng() < 0.45) {
+    const ba2 = angle + (rng() < 0.5 ? 1 : -1) * (0.6 + rng() * 0.45);
+    buildBolt(ex, ey, ba2, length * (0.32 + rng() * 0.2), depth - 2, rng, glowColor, paths);
+  }
+  if (depth >= 3 && rng() < 0.4) {
+    const ba3 = angle + (rng() < 0.5 ? 1 : -1) * (0.7 + rng() * 0.4);
+    buildBolt(ex, ey, ba3, length * (0.25 + rng() * 0.18), depth - 3, rng, glowColor, paths);
   }
 
   return paths;
@@ -56,7 +60,7 @@ function buildBolt(cx, cy, angle, length, depth, rng, glowColor, paths = []) {
 
 function BoltSVG({ cx, cy, angle, length, glowColor, filterId }) {
   const rng = makeRng(Math.random() * 99999);
-  const paths = buildBolt(cx, cy, angle, length, 6, rng, glowColor);
+  const paths = buildBolt(cx, cy, angle, length, 8, rng, glowColor);
 
   return (
     <>
@@ -119,11 +123,12 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
         const snapshot = topics.map((t, i) => ({
           angle: angleRef.current + (i / topics.length) * TWO_PI,
           glowColor: t.glowColor,
+          seed: Math.random() * 99999,
           key: `${id}-${i}`,
         }));
         setBursts(snapshot);
-        // Auto-clear after 900ms
-        setTimeout(() => setBursts([]), 900);
+        // Auto-clear after 1100ms
+        setTimeout(() => setBursts([]), 1100);
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -148,46 +153,50 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
           transition={{ duration: 0.08 }}
         >
           <defs>
-            {/* Per-color glow filters */}
-            {bursts.map(b => (
-              <filter key={b.key} id={`glow-${b.key}`} x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            ))}
+            {/* Clip to orbit circle so bolts stay inside */}
+            <clipPath id="orbit-clip">
+              <circle cx={cx} cy={cy} r={orbitRadius - 4} />
+            </clipPath>
+            {/* Glow filter */}
+            <filter id="bolt-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <radialGradient id="flare" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.9" />
+              <stop offset="15%"  stopColor="#aaddff" stopOpacity="0.5" />
+              <stop offset="50%"  stopColor="#6699ff" stopOpacity="0.12" />
+              <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+            </radialGradient>
           </defs>
 
           {/* Origin flare */}
-          <radialGradient id="flare" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.9" />
-            <stop offset="15%"  stopColor="#aaddff" stopOpacity="0.5" />
-            <stop offset="50%"  stopColor="#6699ff" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#000000" stopOpacity="0" />
-          </radialGradient>
           <circle cx={cx} cy={cy} r={52} fill="url(#flare)" />
 
-          {bursts.map((b, i) => (
-            <motion.g
-              key={b.key}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.06, delay: i * 0.045 }}
-            >
-              <BoltSVG
-                cx={cx}
-                cy={cy}
-                angle={b.angle}
-                length={orbitRadius + 48}
-                glowColor={b.glowColor}
-                filterId={`glow-${b.key}`}
-              />
-            </motion.g>
-          ))}
+          <g clipPath="url(#orbit-clip)">
+            {bursts.map((b, i) => (
+              <motion.g
+                key={b.key}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.06, delay: i * 0.04 }}
+              >
+                <BoltSVG
+                  cx={cx}
+                  cy={cy}
+                  angle={b.angle}
+                  length={orbitRadius - 8}
+                  glowColor={b.glowColor}
+                  filterId="bolt-glow"
+                />
+              </motion.g>
+            ))}
+          </g>
         </motion.svg>
       )}
     </AnimatePresence>
