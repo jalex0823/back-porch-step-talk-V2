@@ -199,6 +199,28 @@ export function playHomeSound() {
   src.start(0);
 }
 
+/* ── BONG: bmw-bong.mp3 — orbit appear on load and return to home ── */
+let bongBuffer = null;
+if (audioCtx) {
+  fetch('/bmw-bong.mp3')
+    .then(r => r.arrayBuffer())
+    .then(buf => audioCtx.decodeAudioData(buf))
+    .then(decoded => { bongBuffer = decoded; })
+    .catch(() => {});
+}
+
+export function playBongSound() {
+  if (!audioCtx || !bongBuffer) return;
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const src = audioCtx.createBufferSource();
+  src.buffer = bongBuffer;
+  const g = audioCtx.createGain();
+  g.gain.setValueAtTime(0.7, audioCtx.currentTime);
+  src.connect(g);
+  g.connect(audioCtx.destination);
+  src.start(0);
+}
+
 /* ── PARTICLE REVEAL: space_doors.mp3 ── */
 let spaceDoorsBuffer = null;
 if (audioCtx) {

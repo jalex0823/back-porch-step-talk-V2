@@ -5,7 +5,7 @@ import TopicCard from './TopicCard';
 import ParticleReveal from './ParticleReveal';
 import ControlPanel from './ControlPanel';
 import { TOPICS } from './topics';
-import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHomeSound, playAgainSound, playCardSound, playSpaceDoorsSound } from './useSound';
+import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHomeSound, playAgainSound, playCardSound, playSpaceDoorsSound, playBongSound } from './useSound';
 import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
 import CompassModel from './CompassModel';
@@ -56,6 +56,16 @@ export default function App() {
 
   // Cleanup all timeouts on unmount
   useEffect(() => () => clearTimeouts(), []);
+
+  const orbitBongFired = useRef(false);
+  const soundEnabledRef = useRef(soundEnabled);
+  useEffect(() => { soundEnabledRef.current = soundEnabled; }, [soundEnabled]);
+
+  const handleOrbitAnimationComplete = useCallback(() => {
+    if (orbitBongFired.current) return;
+    orbitBongFired.current = true;
+    if (soundEnabledRef.current) playBongSound();
+  }, []);
 
   const runDraw = useCallback(() => {
     if (phase !== 'idle' && phase !== 'reveal' && phase !== 'card') return;
@@ -108,7 +118,7 @@ export default function App() {
   const [bgKey, setBgKey] = useState(0);
 
   const resetDraw = useCallback(() => {
-    if (soundEnabled) playHomeSound();
+    if (soundEnabled) playBongSound();
     clearTimeouts();
     setPhase('idle');
     setBgKey(k => k + 1);
@@ -510,6 +520,7 @@ export default function App() {
                     initial={{ scale: 0.7, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: 'spring', stiffness: 180, damping: 12, mass: 1, delay: 0.2 }}
+                    onAnimationComplete={handleOrbitAnimationComplete}
                     style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
 
                     {/* Center "sun" glow — pulses during spin */}
