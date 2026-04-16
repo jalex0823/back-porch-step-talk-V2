@@ -13,88 +13,84 @@ function displace(pts, roughness, depth) {
     });
   }
   out.push(pts[pts.length - 1]);
-  return displace(out, roughness * 0.55, depth - 1);
+  return displace(out, roughness * 0.52, depth - 1);
 }
 
-// Draw a lightning bolt from center outward — white-hot at origin, neon at tip
-function bolt(ctx, cx, cy, tx, ty, glowColor, alpha, life) {
-  const pts = displace([{ x: cx, y: cy }, { x: tx, y: ty }], 40, 6);
+// One massive Tesla blast: thick white at origin → neon at tip, drawn with a gradient stroke simulation
+function teslaBolt(ctx, cx, cy, tx, ty, glowColor, alpha) {
+  const pts = displace([{ x: cx, y: cy }, { x: tx, y: ty }], 36, 7);
 
-  // Outer wide neon glow
+  // Layer 1 — massive outer neon aura
   ctx.save();
-  ctx.globalAlpha = Math.min(alpha * 0.5, 0.55);
-  ctx.lineWidth = 10;
+  ctx.globalAlpha = alpha * 0.45;
+  ctx.lineWidth = 22;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.strokeStyle = glowColor;
   ctx.shadowColor = glowColor;
-  ctx.shadowBlur = 28;
+  ctx.shadowBlur = 40;
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
   ctx.stroke();
   ctx.restore();
 
-  // Mid bright neon
+  // Layer 2 — mid neon body
   ctx.save();
-  ctx.globalAlpha = Math.min(alpha * 0.75, 0.8);
-  ctx.lineWidth = 3.5;
+  ctx.globalAlpha = alpha * 0.7;
+  ctx.lineWidth = 8;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.strokeStyle = glowColor;
   ctx.shadowColor = glowColor;
-  ctx.shadowBlur = 14;
+  ctx.shadowBlur = 20;
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
   ctx.stroke();
   ctx.restore();
 
-  // White-hot core filament
+  // Layer 3 — bright white-blue inner core
   ctx.save();
-  ctx.globalAlpha = Math.min(alpha, 1);
-  ctx.lineWidth = 1.2;
+  ctx.globalAlpha = alpha * 0.9;
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#cceeff';
+  ctx.shadowColor = '#ffffff';
+  ctx.shadowBlur = 12;
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.stroke();
+  ctx.restore();
+
+  // Layer 4 — pure white hot filament
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.lineWidth = 1.4;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   ctx.strokeStyle = '#ffffff';
   ctx.shadowColor = '#ffffff';
-  ctx.shadowBlur = 6;
+  ctx.shadowBlur = 8;
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
   ctx.stroke();
   ctx.restore();
-
-  // Branch tendrils at random mid-points
-  if (life > 0.4 && Math.random() < 0.6) {
-    const mi = Math.floor(pts.length * (0.4 + Math.random() * 0.3));
-    const bx = pts[mi].x + (Math.random() - 0.5) * 55;
-    const by = pts[mi].y + (Math.random() - 0.5) * 55;
-    const bpts = displace([pts[mi], { x: bx, y: by }], 22, 4);
-    ctx.save();
-    ctx.globalAlpha = alpha * 0.55;
-    ctx.lineWidth = 1.0;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#ffffff';
-    ctx.shadowColor = glowColor;
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(bpts[0].x, bpts[0].y);
-    for (let i = 1; i < bpts.length; i++) ctx.lineTo(bpts[i].x, bpts[i].y);
-    ctx.stroke();
-    ctx.restore();
-  }
 }
 
-// Central corona burst — radial gradient from center
-function centerBurst(ctx, cx, cy, radius, alpha) {
+// Radial white burst at center origin
+function originFlare(ctx, cx, cy, radius, alpha) {
   ctx.save();
   ctx.globalAlpha = alpha;
   const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-  g.addColorStop(0, 'rgba(255,255,255,0.95)');
-  g.addColorStop(0.1, 'rgba(200,230,255,0.7)');
-  g.addColorStop(0.4, 'rgba(120,160,255,0.2)');
-  g.addColorStop(1, 'transparent');
+  g.addColorStop(0,   'rgba(255,255,255,1)');
+  g.addColorStop(0.08,'rgba(220,240,255,0.9)');
+  g.addColorStop(0.25,'rgba(140,200,255,0.4)');
+  g.addColorStop(0.6, 'rgba(80,140,255,0.1)');
+  g.addColorStop(1,   'transparent');
   ctx.fillStyle = g;
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, TWO_PI);
@@ -123,23 +119,14 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
         const angle = angleBase + (i / n) * TWO_PI;
         const tx = cx + Math.cos(angle) * orbitRadius;
         const ty = cy + Math.sin(angle) * orbitRadius;
-        // Stagger each bolt slightly so they don't all appear same frame
-        const delay = i * 55;
         setTimeout(() => {
-          // 2–3 strands per ball for thickness
-          const strands = 2 + Math.floor(Math.random() * 2);
-          for (let s = 0; s < strands; s++) {
-            boltPoolRef.current.push({
-              tx: tx + (Math.random() - 0.5) * 16,
-              ty: ty + (Math.random() - 0.5) * 16,
-              glowColor: topics[i].glowColor,
-              life: 1.0,
-              decay: 0.018 + Math.random() * 0.018,
-              retraceTimer: 0,
-              retracePeriod: 2 + Math.floor(Math.random() * 2),
-            });
-          }
-        }, delay);
+          boltPoolRef.current.push({
+            tx, ty,
+            glowColor: topics[i].glowColor,
+            life: 1.0,
+            decay: 0.022 + Math.random() * 0.014,
+          });
+        }, i * 45);
       }
     };
 
@@ -159,16 +146,13 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
 
       boltPoolRef.current = boltPoolRef.current.filter(b => b.life > 0);
 
-      // Center burst glow scales with how many active bolts
       if (boltPoolRef.current.length > 0) {
-        const maxLife = Math.max(...boltPoolRef.current.map(b => b.life));
-        centerBurst(ctx, cx, cy, 48 + maxLife * 28, maxLife * 0.85);
+        const peak = Math.max(...boltPoolRef.current.map(b => b.life));
+        originFlare(ctx, cx, cy, 55 + peak * 35, peak * 0.9);
       }
 
       for (const b of boltPoolRef.current) {
-        b.retraceTimer++;
-        if (b.retraceTimer >= b.retracePeriod) b.retraceTimer = 0;
-        bolt(ctx, cx, cy, b.tx, b.ty, b.glowColor, b.life, b.life);
+        teslaBolt(ctx, cx, cy, b.tx, b.ty, b.glowColor, b.life);
         b.life -= b.decay;
       }
 
