@@ -66,53 +66,48 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const SPEED = TWO_PI / (120 * 60);
     let angleBase = -Math.PI / 2;
     const pairCooldown = new Array(halfN).fill(0);
-    const HORIZ_TOLERANCE = 0.28;
+    let frameCount = 0;
 
     const spawnBurst = (iA, iB, intensity) => {
       const baseA = angleBase + (iA / n) * TWO_PI;
       const baseB = angleBase + (iB / n) * TWO_PI;
       const jitter = s => (Math.random() - 0.5) * s;
-      // Number of simultaneous strands scales with intensity
-      const strandCount = intensity > 0.9 ? 6 : intensity > 0.7 ? 4 : 2;
+      const strandCount = intensity > 0.85 ? 5 : intensity > 0.6 ? 3 : 2;
       const x1 = cx + Math.cos(baseA) * orbitRadius;
       const y1 = cy + Math.sin(baseA) * orbitRadius;
       const x2 = cx + Math.cos(baseB) * orbitRadius;
       const y2 = cy + Math.sin(baseB) * orbitRadius;
-
       for (let k = 0; k < strandCount; k++) {
-        // Each strand gets its own jagged path via jitter on endpoints
         arcPoolRef.current.push({
-          x1: x1 + jitter(10), y1: y1 + jitter(10),
-          x2: x2 + jitter(10), y2: y2 + jitter(10),
+          x1: x1 + jitter(14), y1: y1 + jitter(14),
+          x2: x2 + jitter(14), y2: y2 + jitter(14),
           colorA: topics[iA].glowColor,
           colorB: topics[iB].glowColor,
-          // Alternate violet/cyan science-fiction core
           coreColor: k % 2 === 0 ? '#c8aaff' : '#aaeeff',
           life: 1.0,
-          maxLife: 1.0,
-          decay: 0.012 + Math.random() * 0.016,
+          decay: 0.015 + Math.random() * 0.02,
           intensity,
-          branchDepth: intensity > 0.75 ? 2 : 1,
+          branchDepth: intensity > 0.7 ? 2 : 1,
           retraceTimer: 0,
-          retracePeriod: 2 + Math.floor(Math.random() * 3), // re-randomise path every N frames
+          retracePeriod: 2 + Math.floor(Math.random() * 3),
         });
       }
     };
 
     const loop = () => {
       ctx.clearRect(0, 0, SIZE, SIZE);
+      frameCount++;
 
       if (active) {
         angleBase += SPEED;
+        // Fire arcs between ALL opposite pairs on a rolling stagger — no alignment gate
         for (let p = 0; p < halfN; p++) {
           if (pairCooldown[p] > 0) { pairCooldown[p]--; continue; }
-          const angleA = (angleBase + (p / n) * TWO_PI) % TWO_PI;
-          const norm = ((angleA + Math.PI) % TWO_PI) - Math.PI;
-          const dist = Math.min(Math.abs(norm), Math.abs(Math.abs(norm) - Math.PI));
-          if (dist < HORIZ_TOLERANCE) {
-            const intensity = 1 - dist / HORIZ_TOLERANCE;
+          // Stagger pairs so they don't all fire at once
+          if (frameCount % Math.max(1, Math.floor(8 / halfN)) === p % Math.max(1, Math.floor(8 / halfN))) {
+            const intensity = 0.6 + Math.random() * 0.4;
             spawnBurst(p, p + halfN, intensity);
-            pairCooldown[p] = intensity > 0.85 ? 6 : 14;
+            pairCooldown[p] = 10 + Math.floor(Math.random() * 8);
           }
         }
       } else {
