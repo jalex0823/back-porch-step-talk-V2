@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle } from 'lucide-react';
+import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, Sparkles } from 'lucide-react';
 
 const AAIcon = ({ size = 24, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={style}>
@@ -9,7 +9,7 @@ const AAIcon = ({ size = 24, style }) => (
   </svg>
 );
 
-const ICON_MAP = { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, AAIcon };
+const ICON_MAP = { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, AAIcon, BookMarked, Sparkles };
 
 export default function TopicBall({ topic, index, phase, isSelected }) {
   const { label, icon, color, glowColor, shadowColor } = topic;

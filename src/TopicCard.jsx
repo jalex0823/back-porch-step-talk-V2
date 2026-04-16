@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, CheckCircle2, Home, Check, Hash, Keyboard } from 'lucide-react';
+import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, Sparkles, CheckCircle2, Home, Check, Hash, Keyboard } from 'lucide-react';
 
 const AAIcon = ({ size = 24, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={style}>
@@ -9,7 +9,7 @@ const AAIcon = ({ size = 24, style }) => (
   </svg>
 );
 
-const ICON_MAP = { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, AAIcon };
+const ICON_MAP = { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, AAIcon, BookMarked, Sparkles };
 
 const stagger = (delay) => ({
   initial: { opacity: 0, x: -18 },
@@ -611,7 +611,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
                 }}>
                 {[
                   ['Space', 'Randomize'],
-                  ['1 – 6', 'Pick topic directly'],
+                  ['1 – 8', 'Pick topic directly'],
                   ['N', 'Next card'],
                   ['C', 'Copy full card'],
                   ['Esc', 'Return home'],

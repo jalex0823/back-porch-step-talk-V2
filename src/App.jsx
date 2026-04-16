@@ -135,7 +135,7 @@ export default function App() {
         e.preventDefault();
         runDraw();
       }
-      if (e.key >= '1' && e.key <= '6' && (phase === 'idle' || phase === 'card')) {
+      if (e.key >= '1' && e.key <= '8' && (phase === 'idle' || phase === 'card')) {
         const idx = parseInt(e.key) - 1;
         if (idx < TOPICS.length) selectTopic(idx);
       }
