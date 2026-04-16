@@ -51,6 +51,7 @@ function bolt(ctx, x1, y1, angle, length, depth, color, alpha) {
 export default function LightningBurst({ topics, orbitRadius, active }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
+  const poolRef = useRef([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -59,46 +60,89 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
     const SIZE = 560;
     const cx = SIZE / 2, cy = SIZE / 2;
     const n = topics.length;
-    let frame = 0;
+
+    // Spawn a new bolt entry
+    const spawnBolt = () => ({
+      angle: R() * TWO_PI,
+      len: orbitRadius * (0.15 + R() * R() * 0.85),
+      color: topics[Math.floor(R() * n)].glowColor,
+      depth: 4 + Math.floor(R() * 5),
+      // Life: 0→1→0 fade cycle
+      life: 0,
+      maxLife: 0.6 + R() * 0.8,        // how bright it gets
+      fadeIn: 0.018 + R() * 0.022,      // speed of fade in
+      fadeOut: 0.010 + R() * 0.016,     // speed of fade out
+      phase: 'in',                       // 'in' | 'hold' | 'out'
+      holdFrames: 3 + Math.floor(R() * 8), // frames to hold at peak
+      holdCount: 0,
+      // Slow path drift — retrace slightly each frame
+      angleVel: (R() - 0.5) * 0.008,
+    });
+
+    // Seed the pool
+    if (!active) {
+      poolRef.current = [];
+    } else if (poolRef.current.length === 0) {
+      poolRef.current = Array.from({ length: 14 }, spawnBolt);
+      // Stagger starting life so they don't all appear at once
+      poolRef.current.forEach((b, i) => { b.life = R() * b.maxLife * 0.5; });
+    }
+
+    const TARGET_COUNT = 14;
 
     const loop = () => {
       ctx.clearRect(0, 0, SIZE, SIZE);
-      frame++;
 
       if (active) {
+        // Maintain pool size — add replacements for dead bolts
+        while (poolRef.current.length < TARGET_COUNT) {
+          poolRef.current.push(spawnBolt());
+        }
+
         // Clip to orbit circle
         ctx.save();
         ctx.beginPath();
         ctx.arc(cx, cy, orbitRadius, 0, TWO_PI);
         ctx.clip();
 
-        // Central white corona
+        // Central corona — intensity proportional to average life
+        const avgLife = poolRef.current.reduce((s, b) => s + b.life, 0) / poolRef.current.length;
         const flare = ctx.createRadialGradient(cx, cy, 0, cx, cy, 55);
-        flare.addColorStop(0,    'rgba(255,255,255,0.9)');
-        flare.addColorStop(0.12, 'rgba(200,225,255,0.5)');
-        flare.addColorStop(0.4,  'rgba(120,160,255,0.12)');
+        flare.addColorStop(0,    `rgba(255,255,255,${(avgLife * 0.9).toFixed(2)})`);
+        flare.addColorStop(0.12, `rgba(200,225,255,${(avgLife * 0.5).toFixed(2)})`);
+        flare.addColorStop(0.4,  `rgba(120,160,255,${(avgLife * 0.12).toFixed(2)})`);
         flare.addColorStop(1,    'transparent');
         ctx.fillStyle = flare;
         ctx.beginPath();
         ctx.arc(cx, cy, 55, 0, TWO_PI);
         ctx.fill();
 
-        // Sporadic bolts — each frame randomise count, angle, length, opacity, depth
-        const ROOTS = 10 + Math.floor(R() * 10); // 10–19 bolts, different every frame
-        for (let i = 0; i < ROOTS; i++) {
-          // Fully random angle — no even spacing
-          const angle = R() * TWO_PI;
-          const color = topics[Math.floor(R() * n)].glowColor;
-          // Wild length variation — some short stubs, some reach full radius
-          const len = orbitRadius * (0.15 + R() * R() * 0.85);
-          // Each bolt gets its own random opacity — flicker effect
-          const alpha = 0.3 + R() * 0.7;
-          // Depth varies 4–8 so some are thin stubs, some are full trees
-          const depth = 4 + Math.floor(R() * 5);
-          bolt(ctx, cx, cy, angle, len, depth, color, alpha);
-        }
+        // Draw and update each bolt
+        poolRef.current = poolRef.current.filter(b => {
+          bolt(ctx, cx, cy, b.angle, b.len, b.depth, b.color, b.life);
+
+          // Drift angle slowly for organic wavering
+          b.angle += b.angleVel;
+
+          // Lifecycle
+          if (b.phase === 'in') {
+            b.life = Math.min(b.life + b.fadeIn, b.maxLife);
+            if (b.life >= b.maxLife) b.phase = 'hold';
+          } else if (b.phase === 'hold') {
+            // Tiny flicker at peak — ±5% variation
+            b.life = b.maxLife * (0.92 + R() * 0.12);
+            b.holdCount++;
+            if (b.holdCount >= b.holdFrames) b.phase = 'out';
+          } else {
+            b.life -= b.fadeOut;
+          }
+
+          return b.life > 0;
+        });
 
         ctx.restore();
+      } else {
+        poolRef.current = [];
       }
 
       rafRef.current = requestAnimationFrame(loop);
