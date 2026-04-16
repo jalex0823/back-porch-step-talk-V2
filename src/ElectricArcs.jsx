@@ -142,7 +142,7 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
       width={560}
       height={560}
       className="absolute inset-0 pointer-events-none"
-      style={{ zIndex: 3, mixBlendMode: 'screen' }}
+      style={{ zIndex: 30, mixBlendMode: 'screen' }}
     />
   );
 }

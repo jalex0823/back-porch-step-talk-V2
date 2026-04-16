@@ -601,7 +601,7 @@ export default function App() {
                     initial={{ scale: 0.7, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: 'spring', stiffness: 180, damping: 12, mass: 1, delay: 0.2 }}
-                    style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
+                    style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY, overflow: 'visible' }}>
 
                     {/* Celebration Trigger widget — floats left of orbit, does not affect orbit layout */}
                     <div style={{ position: 'absolute', left: -68 + celebWidgetX, top: `calc(50% + ${celebWidgetY}px)`, transform: 'translateY(-50%)', zIndex: 10 }}>

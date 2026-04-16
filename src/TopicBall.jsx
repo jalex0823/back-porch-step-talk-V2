@@ -39,7 +39,7 @@ function OrbSparks({ glowColor, active }) {
 
   if (!active) return null;
   return (
-    <div className="absolute inset-0 rounded-full pointer-events-none overflow-hidden" style={{ zIndex: 5 }}>
+    <div className="absolute pointer-events-none" style={{ inset: '-30px', zIndex: 20, borderRadius: '50%' }}>
       <AnimatePresence>
         {sparks.map(sp => (
           <motion.div
