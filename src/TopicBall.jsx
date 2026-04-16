@@ -11,6 +11,58 @@ const AAIcon = ({ size = 24, style }) => (
 
 const ICON_MAP = { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, AAIcon, BookMarked, Sparkles };
 
+function OrbSparks({ glowColor, active }) {
+  const [sparks, setSparks] = useState([]);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (!active) { setSparks([]); return; }
+    const spawn = () => {
+      const id = Math.random();
+      const angle = Math.random() * Math.PI * 2;
+      const r = 28 + Math.random() * 22;
+      setSparks(s => [
+        ...s.slice(-6),
+        {
+          id,
+          x: 50 + Math.cos(angle) * r,
+          y: 50 + Math.sin(angle) * r,
+          size: 1.5 + Math.random() * 2.5,
+          dur: 0.4 + Math.random() * 0.5,
+        },
+      ]);
+      timerRef.current = setTimeout(spawn, 180 + Math.random() * 320);
+    };
+    timerRef.current = setTimeout(spawn, Math.random() * 200);
+    return () => clearTimeout(timerRef.current);
+  }, [active]);
+
+  if (!active) return null;
+  return (
+    <div className="absolute inset-0 rounded-full pointer-events-none overflow-hidden" style={{ zIndex: 5 }}>
+      <AnimatePresence>
+        {sparks.map(sp => (
+          <motion.div
+            key={sp.id}
+            className="absolute rounded-full"
+            style={{
+              width: sp.size, height: sp.size,
+              left: `${sp.x}%`, top: `${sp.y}%`,
+              background: '#ffffff',
+              boxShadow: `0 0 ${sp.size * 3}px ${glowColor}, 0 0 ${sp.size}px #fff`,
+              transform: 'translate(-50%,-50%)',
+            }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: [0, 1, 0.8, 0], scale: [0, 1.4, 0.8, 0] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: sp.dur, ease: 'easeOut' }}
+          />
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function TopicBall({ topic, index, phase, isSelected }) {
   const { label, icon, color, glowColor, shadowColor } = topic;
   const Icon = ICON_MAP[icon];
@@ -230,18 +282,18 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
         }}
       />
 
-      {/* ── Machined steel outer housing ring ── */}
+      {/* ── Machined silver outer housing ring ── */}
       <div className="absolute rounded-full pointer-events-none" style={{
         inset: -3,
         background: `conic-gradient(from 120deg,
-          rgba(55,65,80,0.9) 0deg,
-          rgba(90,100,118,0.95) 60deg,
-          rgba(130,140,158,0.9) 110deg,
-          rgba(75,85,100,0.9) 160deg,
-          rgba(42,50,64,0.95) 220deg,
-          rgba(100,112,130,0.9) 280deg,
-          rgba(55,65,80,0.9) 360deg)`,
-        boxShadow: `0 4px 16px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.07)`,
+          rgba(110,122,140,0.95) 0deg,
+          rgba(180,192,210,1) 55deg,
+          rgba(220,230,242,1) 100deg,
+          rgba(160,172,188,0.95) 150deg,
+          rgba(80,92,108,0.95) 210deg,
+          rgba(190,202,218,0.98) 270deg,
+          rgba(110,122,140,0.95) 360deg)`,
+        boxShadow: `0 4px 18px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.18)`,
       }} />
 
       {/* ── Dark glass orb body ── */}
@@ -333,8 +385,11 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
       }} />
       {/* ── Steel rim inner edge highlight ── */}
       <div className="absolute inset-0 rounded-full pointer-events-none" style={{
-        boxShadow: `inset 0 0 0 1.5px rgba(255,255,255,0.11), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.5)`,
+        boxShadow: `inset 0 0 0 1.5px rgba(255,255,255,0.14), inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.5)`,
       }} />
+
+      {/* ── Random sparks during spin/energize/celebrate ── */}
+      <OrbSparks glowColor={glowColor} active={isSpin || isEnergize || isCelebrate} />
 
       {/* Icon + Label */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5"
