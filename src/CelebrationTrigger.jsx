@@ -39,12 +39,12 @@ export default function CelebrationTrigger({ onTrigger, phase, size = 54, color 
       initial={{ opacity: 0, scale: 0.7 }}
       animate={
         canFire
-          ? { opacity: 1, scale: 1, x: 0 }
-          : { opacity: 0, scale: 0.8, x: 0 }
+          ? { opacity: 1, scale: 1, x: 0, y: [0, -7, 0, -4, 0] }
+          : { opacity: 0, scale: 0.8, x: 0, y: 0 }
       }
       transition={
         canFire
-          ? { type: 'spring', stiffness: 260, damping: 18, delay: 0.15 }
+          ? { opacity: { duration: 0.4, delay: 0.15 }, scale: { type: 'spring', stiffness: 260, damping: 18, delay: 0.15 }, y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 } }
           : { duration: 0.35, ease: 'easeIn' }
       }
       style={{ pointerEvents: canFire ? 'auto' : 'none' }}
