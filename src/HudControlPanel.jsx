@@ -128,6 +128,14 @@ export default function HudControlPanel({
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
                     {owlSliders.map(s => <HudSlider key={s.label} {...s} />)}
                   </div>
+                  <motion.button
+                    onClick={handleDevSet}
+                    animate={{ background: devConfirmed ? 'rgba(22,163,74,0.4)' : 'rgba(43,164,181,0.12)', borderColor: devConfirmed ? '#16a34a' : 'rgba(43,164,181,0.4)' }}
+                    transition={{ duration: 0.3 }}
+                    style={{ marginTop: 6, width: '100%', borderWidth: 1, borderStyle: 'solid', borderRadius: 5, padding: '3px 0', fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', cursor: 'pointer', color: devConfirmed ? '#4ade80' : 'rgba(43,164,181,0.85)', letterSpacing: '0.18em', background: 'transparent' }}
+                  >
+                    {devConfirmed ? '✓  DEFAULTS LOCKED' : '⊙  SET AS DEFAULT'}
+                  </motion.button>
                 </motion.div>
               )}
             </AnimatePresence>

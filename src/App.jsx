@@ -5,7 +5,7 @@ import TopicCard from './TopicCard';
 import ParticleReveal from './ParticleReveal';
 import ControlPanel from './ControlPanel';
 import { TOPICS } from './topics';
-import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHomeSound, playAgainSound, playCardSound, playSpaceDoorsSound, playBongSound } from './useSound';
+import { playDrawSound, playSpinSound, playRevealSound, playSelectSound, playHomeSound, playAgainSound, playCardSound, playSpaceDoorsSound } from './useSound';
 import { getRandomCard, getPoolSize } from './topicCards';
 import SideWidgets from './SideWidgets';
 import CompassModel from './CompassModel';
@@ -56,16 +56,6 @@ export default function App() {
 
   // Cleanup all timeouts on unmount
   useEffect(() => () => clearTimeouts(), []);
-
-  const orbitBongFired = useRef(false);
-  const soundEnabledRef = useRef(soundEnabled);
-  useEffect(() => { soundEnabledRef.current = soundEnabled; }, [soundEnabled]);
-
-  const handleOrbitAnimationComplete = useCallback(() => {
-    if (orbitBongFired.current) return;
-    orbitBongFired.current = true;
-    if (soundEnabledRef.current) playBongSound();
-  }, []);
 
   const runDraw = useCallback(() => {
     if (phase !== 'idle' && phase !== 'reveal' && phase !== 'card') return;
@@ -118,7 +108,7 @@ export default function App() {
   const [bgKey, setBgKey] = useState(0);
 
   const resetDraw = useCallback(() => {
-    if (soundEnabled) playBongSound();
+    if (soundEnabled) playHomeSound();
     clearTimeouts();
     setPhase('idle');
     setBgKey(k => k + 1);
@@ -154,27 +144,28 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, [phase, runDraw, selectTopic, resetDraw]);
 
-  // Dev position controls
-  const [orbitOffsetX, setOrbitOffsetX] = useState(-441);
-  const [orbitOffsetY, setOrbitOffsetY] = useState(-18);
-  const [orbitRadius, setOrbitRadius] = useState(203);
-  const [compassX, setCompassX] = useState(489);
-  const [compassY, setCompassY] = useState(402);
-  const [titleOffsetY, setTitleOffsetY] = useState(-18);
-  const [bottomOffsetY, setBottomOffsetY] = useState(21);
-  const [bottomOffsetX, setBottomOffsetX] = useState(148);
-  const [starOffsetX, setStarOffsetX] = useState(53);
-  const [starOffsetY, setStarOffsetY] = useState(47);
+  // Dev position controls — load from localStorage or use hardcoded defaults
+  const D = (() => { try { return JSON.parse(localStorage.getItem('hudDefaults') || '{}'); } catch { return {}; } })();
+  const [orbitOffsetX, setOrbitOffsetX] = useState(D.orbitOffsetX ?? -440);
+  const [orbitOffsetY, setOrbitOffsetY] = useState(D.orbitOffsetY ?? -56);
+  const [orbitRadius, setOrbitRadius] = useState(D.orbitRadius ?? 203);
+  const [compassX, setCompassX] = useState(D.compassX ?? 458);
+  const [compassY, setCompassY] = useState(D.compassY ?? 450);
+  const [titleOffsetY, setTitleOffsetY] = useState(D.titleOffsetY ?? -18);
+  const [bottomOffsetY, setBottomOffsetY] = useState(D.bottomOffsetY ?? -23);
+  const [bottomOffsetX, setBottomOffsetX] = useState(D.bottomOffsetX ?? 148);
+  const [starOffsetX, setStarOffsetX] = useState(D.starOffsetX ?? 69);
+  const [starOffsetY, setStarOffsetY] = useState(D.starOffsetY ?? 1);
   const orbitBounced = useRef(false);
-  const [owlX, setOwlX] = useState(681);
-  const [owlY, setOwlY] = useState(261);
-  const [owlZ, setOwlZ] = useState(8);
-  const [owlRotY, setOwlRotY] = useState(-45);
-  const [owlSize, setOwlSize] = useState(212);
+  const [owlX, setOwlX] = useState(D.owlX ?? 696);
+  const [owlY, setOwlY] = useState(D.owlY ?? 336);
+  const [owlZ, setOwlZ] = useState(D.owlZ ?? 0);
+  const [owlRotY, setOwlRotY] = useState(D.owlRotY ?? -45);
+  const [owlSize, setOwlSize] = useState(D.owlSize ?? 212);
   const [devConfirmed, setDevConfirmed] = useState(false);
   const handleDevSet = () => {
-    const code = `oX:${orbitOffsetX} oY:${orbitOffsetY} oR:${orbitRadius} cX:${compassX} cY:${compassY} ttl:${titleOffsetY} btmX:${bottomOffsetX} btmY:${bottomOffsetY} sX:${starOffsetX} sY:${starOffsetY}`;
-    navigator.clipboard.writeText(code).catch(() => {});
+    const vals = { orbitOffsetX, orbitOffsetY, orbitRadius, compassX, compassY, titleOffsetY, bottomOffsetX, bottomOffsetY, starOffsetX, starOffsetY, owlX, owlY, owlZ, owlRotY, owlSize };
+    localStorage.setItem('hudDefaults', JSON.stringify(vals));
     setDevConfirmed(true);
     setTimeout(() => setDevConfirmed(false), 2000);
   };
@@ -370,7 +361,7 @@ export default function App() {
                     {/* Label with rules */}
                     <div className="flex items-center gap-3 w-full">
                       <div className="h-px flex-1" style={{ background: 'linear-gradient(90deg, transparent, rgba(61,158,207,0.35))' }} />
-                      <p className="text-[0.55rem] tracking-[0.25em] uppercase" style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.7)', whiteSpace: 'nowrap' }}>Recovery Wisdom</p>
+                      <p className="text-[0.55rem] tracking-[0.25em] uppercase" style={{ fontFamily: "'Orbitron', sans-serif", color: 'rgba(61,158,207,0.7)', whiteSpace: 'nowrap' }}>AA Slogan</p>
                       <div className="h-px flex-1" style={{ background: 'linear-gradient(270deg, transparent, rgba(61,158,207,0.35))' }} />
                     </div>
                     {/* Big quote mark */}
@@ -445,7 +436,7 @@ export default function App() {
           </div>
 
           {/* Content area */}
-          <div className="relative z-10 px-6 py-5 sm:px-8 sm:py-6 flex flex-col" style={{ minHeight: '800px' }}>
+          <div className="relative z-10 px-6 pt-10 pb-5 sm:px-8 sm:pt-12 sm:pb-6 flex flex-col" style={{ minHeight: '800px' }}>
 
             <AnimatePresence mode="wait">
               {/* ===== DRAW VIEW ===== */}
@@ -467,7 +458,7 @@ export default function App() {
                     />
                   )}
                   {/* Header + subtitle group */}
-                  <div className="flex flex-col items-center w-full" style={{ transform: `translateY(${titleOffsetY}px)` }}>
+                  <div className="flex flex-col items-center w-full" style={{ transform: `translateY(${titleOffsetY}px)`, paddingTop: '96px' }}>
                   <div className="flex items-center justify-center gap-3 mb-3">
                     <div className="flex gap-[3px]">
                       {[...Array(4)].map((_, i) => (
@@ -510,7 +501,7 @@ export default function App() {
                       lineHeight: '1.5',
                     }}
                   >
-                    Recovery Discussion Cards — choose a topic or tap <span style={{ color: '#2ba4b5', fontWeight: 600 }}>Randomizer</span> to draw one
+                    AA Discussion Cards — choose a topic or tap <span style={{ color: '#2ba4b5', fontWeight: 600 }}>Randomizer</span> to draw one
                   </p>
                   </div>{/* end header+subtitle group */}
 
@@ -520,7 +511,6 @@ export default function App() {
                     initial={{ scale: 0.7, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: 'spring', stiffness: 180, damping: 12, mass: 1, delay: 0.2 }}
-                    onAnimationComplete={handleOrbitAnimationComplete}
                     style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
 
                     {/* Center "sun" glow — pulses during spin */}
@@ -798,7 +788,7 @@ export default function App() {
                           marginTop: '-12px',
                         }}
                       >
-                        ✦ Tap the compass for a recovery wisdom quote ✦
+                        ✦ Tap the compass for a random AA slogan ✦
                       </motion.p>
                     )}
                   </AnimatePresence>
@@ -966,20 +956,6 @@ export default function App() {
         </svg>
       </motion.button>
 
-
-      {/* Legal disclaimer — bottom center */}
-      <div className="absolute bottom-2 left-0 right-0 flex justify-center pointer-events-none z-10">
-        <p style={{
-          fontFamily: "'Inter', sans-serif",
-          fontSize: '0.5rem',
-          color: 'rgba(200,210,220,0.18)',
-          letterSpacing: '0.06em',
-          textAlign: 'center',
-          padding: '0 16px',
-        }}>
-          This app is an independent recovery discussion tool. It is not affiliated with, endorsed by, or approved by Alcoholics Anonymous World Services, Inc. All content is original and for educational use only.
-        </p>
-      </div>
 
       {/* Session counter — bottom left */}
       {drawCount > 0 && (

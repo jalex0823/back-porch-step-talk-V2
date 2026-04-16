@@ -29,7 +29,6 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
   const [glitching, setGlitching] = useState(false);
   const [cardCopied, setCardCopied] = useState(false);
   const glitchTimer = useRef(null);
-  const scrollRef = useRef(null);
 
   const copyFullCard = () => {
     const lines = [
@@ -54,10 +53,6 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       setTimeout(() => setCardCopied(false), 2000);
     });
   };
-
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
-  }, [cardNumber]);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -242,8 +237,6 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
     </div>
 
     <motion.div
-      key={cardNumber}
-      ref={scrollRef}
       className="relative flex flex-col w-full max-h-[78vh] overflow-y-auto pr-1"
       style={{ scrollbarWidth: 'thin', scrollbarColor: `${accentColor}44 transparent`, zIndex: 1 }}
       animate={glitching
