@@ -39,7 +39,7 @@ export default function CelebrationTrigger({ onTrigger, phase, size = 54, color 
       initial={{ opacity: 0, scale: 0.7 }}
       animate={
         canFire
-          ? { opacity: 1, scale: 1, x: 0, y: [0, -7, 0, -4, 0] }
+          ? { opacity: 1, scale: 1, x: 0, y: [0, -3, 0, -2, 0] }
           : { opacity: 0, scale: 0.8, x: 0, y: 0 }
       }
       transition={
