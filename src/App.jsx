@@ -615,13 +615,6 @@ export default function App() {
                       active={phase === 'idle' || phase === 'card'}
                     />
 
-                    {/* Lightning burst — fractal SVG bolts from center during spin/energize */}
-                    <LightningBurst
-                      topics={TOPICS}
-                      orbitRadius={orbitRadius}
-                      active={phase === 'spin' || phase === 'shimmer'}
-                    />
-
                     {/* Center "sun" glow — pulses during spin */}
                     <motion.div
                       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
@@ -759,6 +752,13 @@ export default function App() {
                           : { duration: 0 }
                       }
                     >
+                      {/* Lightning burst — rotates with the orbit container */}
+                      <LightningBurst
+                        topics={TOPICS}
+                        orbitRadius={orbitRadius}
+                        active={phase === 'spin' || phase === 'shimmer'}
+                      />
+
                       {/* Comet trails — rendered at orbit level so they rotate with the container */}
                       {(phase === 'spin' || phase === 'shimmer') && TOPICS.map((topic, index) => {
                         const angle = (index / TOPICS.length) * 360 - 90;
