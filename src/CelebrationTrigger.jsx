@@ -44,7 +44,7 @@ export default function CelebrationTrigger({ onTrigger, phase, size = 54, color 
       }
       transition={
         canFire
-          ? { opacity: { duration: 0.4, delay: 0.15 }, scale: { type: 'spring', stiffness: 260, damping: 18, delay: 0.15 }, y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 } }
+          ? { opacity: { duration: 0.4, delay: 0.15 }, scale: { type: 'spring', stiffness: 260, damping: 18, delay: 0.15 }, y: { duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 } }
           : { duration: 0.35, ease: 'easeIn' }
       }
       style={{ pointerEvents: canFire ? 'auto' : 'none' }}
