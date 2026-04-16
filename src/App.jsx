@@ -74,16 +74,7 @@ export default function App() {
     setSelectedCard(null);
     setPhase('idle');
 
-    // Determine if this spin triggers a celebration
-    spinCountRef.current += 1;
-    const currentSpin = spinCountRef.current;
-    const spinsSinceLast = currentSpin - lastCelebratedRef.current;
-    const eligible = spinCountRef.current >= 3 && spinsSinceLast >= 3;
-    const willCelebrate = eligible && Math.random() < 0.22;
-    if (willCelebrate) {
-      lastCelebratedRef.current = currentSpin;
-      setCelebrateMsgIndex(Math.floor(Math.random() * 6));
-    }
+    const willCelebrate = false;
 
     const t0 = setTimeout(() => {
       if (soundEnabled) playDrawSound();
@@ -129,7 +120,7 @@ export default function App() {
       const t4 = setTimeout(() => { setPhase('card'); if (soundEnabled) playCardSound(); }, willCelebrate ? 6200 + 3000 + 300 + 1400 + 2600 : 10200);
 
       const extras = [t1, t2, t3, t3b, t4];
-      if (t3cel) extras.push(t3cel);
+      if (t3cel) extras.push(t3cel); // t3cel is always null since willCelebrate=false
       timeoutsRef.current.push(...extras);
     }, phase === 'idle' ? 0 : 150);
 
