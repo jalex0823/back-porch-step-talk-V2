@@ -50,30 +50,34 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const SPEED = TWO_PI / (120 * 60);
     let angleBase = -Math.PI / 2;
 
-    const spawnArc = () => {
-      const pairIdx = Math.floor(Math.random() * halfN);
-      const iA = pairIdx;
-      const iB = pairIdx + halfN;
+    // Track previous y positions to detect horizontal crossing
+    const prevY = new Array(n).fill(null);
+    // Cooldown per pair so we don't flood
+    const pairCooldown = new Array(halfN).fill(0);
+
+    const spawnBurst = (iA, iB, intensity) => {
       const baseA = angleBase + (iA / n) * TWO_PI;
       const baseB = angleBase + (iB / n) * TWO_PI;
-      const jitter = () => (Math.random() - 0.5) * 14;
-      const x1 = cx + Math.cos(baseA) * orbitRadius + jitter();
-      const y1 = cy + Math.sin(baseA) * orbitRadius + jitter();
-      const x2 = cx + Math.cos(baseB) * orbitRadius + jitter();
-      const y2 = cy + Math.sin(baseB) * orbitRadius + jitter();
-      const colorA = topics[iA].glowColor;
-      const colorB = topics[iB].glowColor;
-      arcPoolRef.current.push({
-        x1, y1, x2, y2,
-        colorA, colorB,
-        life: 1.0,
-        decay: 0.04 + Math.random() * 0.05,
-        branches: Math.random() < 0.4,
-      });
+      const jitter = (scale) => (Math.random() - 0.5) * scale;
+      const count = intensity > 0.85 ? 4 : intensity > 0.6 ? 2 : 1;
+      for (let k = 0; k < count; k++) {
+        const x1 = cx + Math.cos(baseA) * orbitRadius + jitter(12);
+        const y1 = cy + Math.sin(baseA) * orbitRadius + jitter(12);
+        const x2 = cx + Math.cos(baseB) * orbitRadius + jitter(12);
+        const y2 = cy + Math.sin(baseB) * orbitRadius + jitter(12);
+        arcPoolRef.current.push({
+          x1, y1, x2, y2,
+          colorA: topics[iA].glowColor,
+          colorB: topics[iB].glowColor,
+          life: 0.7 + intensity * 0.3,
+          decay: 0.025 + Math.random() * 0.03,
+          branches: intensity > 0.7 && Math.random() < 0.6,
+          intensity,
+        });
+      }
     };
 
-    let spawnTimer = 0;
-    const SPAWN_INTERVAL = 22;
+    const HORIZ_TOLERANCE = 0.18; // radians — ~10 degrees from horizontal
 
     const loop = () => {
       ctx.clearRect(0, 0, SIZE, SIZE);
@@ -81,11 +85,24 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
 
       if (active) {
         angleBase += SPEED;
-        spawnTimer++;
-        if (spawnTimer >= SPAWN_INTERVAL) {
-          spawnArc();
-          if (Math.random() < 0.35) spawnArc();
-          spawnTimer = 0;
+
+        // Check each opposite pair for horizontal alignment
+        for (let pairIdx = 0; pairIdx < halfN; pairIdx++) {
+          if (pairCooldown[pairIdx] > 0) { pairCooldown[pairIdx]--; continue; }
+
+          const iA = pairIdx;
+          const angleA = (angleBase + (iA / n) * TWO_PI) % TWO_PI;
+          // Normalize to [-PI, PI]
+          const norm = ((angleA + Math.PI) % TWO_PI) - Math.PI;
+          // How close to horizontal (0 or ±PI)?
+          const distToHoriz = Math.min(Math.abs(norm), Math.abs(Math.abs(norm) - Math.PI));
+
+          if (distToHoriz < HORIZ_TOLERANCE) {
+            const intensity = 1 - distToHoriz / HORIZ_TOLERANCE;
+            spawnBurst(iA, pairIdx + halfN, intensity);
+            // Bigger cooldown when near-perfect alignment to avoid spam
+            pairCooldown[pairIdx] = intensity > 0.8 ? 8 : 18;
+          }
         }
       } else {
         arcPoolRef.current = [];
@@ -95,17 +112,19 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
 
       for (const arc of arcPoolRef.current) {
         const a = arc.life;
+        const boost = arc.intensity || 1;
         // Core bright arc
-        drawArc(ctx, arc.x1, arc.y1, arc.x2, arc.y2, '#ffffff', a * 0.85, 1.2);
+        drawArc(ctx, arc.x1, arc.y1, arc.x2, arc.y2, '#ffffff', a * 0.9, 1.2 + boost * 0.6);
         // Colored glow — colorA
-        drawArc(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorA, a * 0.55, 2.5);
+        drawArc(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorA, a * 0.6 * boost, 2.5 + boost * 1.5);
         // Colored glow — colorB
-        drawArc(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorB, a * 0.45, 3.5);
-        // Branch arc at 25% life
-        if (arc.branches && arc.life > 0.5) {
-          const bx = arc.x1 + (arc.x2 - arc.x1) * 0.4 + (Math.random() - 0.5) * 40;
-          const by = arc.y1 + (arc.y2 - arc.y1) * 0.4 + (Math.random() - 0.5) * 40;
-          drawArc(ctx, arc.x1, arc.y1, bx, by, arc.colorA, a * 0.35, 0.8);
+        drawArc(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorB, a * 0.5 * boost, 3.5 + boost * 2.0);
+        // Branch arc on high-intensity hits
+        if (arc.branches && arc.life > 0.4) {
+          const bx = arc.x1 + (arc.x2 - arc.x1) * 0.4 + (Math.random() - 0.5) * 50;
+          const by = arc.y1 + (arc.y2 - arc.y1) * 0.4 + (Math.random() - 0.5) * 50;
+          drawArc(ctx, arc.x1, arc.y1, bx, by, arc.colorA, a * 0.45, 0.9);
+          drawArc(ctx, arc.x2, arc.y2, bx, by, arc.colorB, a * 0.35, 0.7);
         }
         arc.life -= arc.decay;
       }
