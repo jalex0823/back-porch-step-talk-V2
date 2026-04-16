@@ -4,7 +4,7 @@ import { useGLTF, Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
-function Model({ rotationZ = 0, rotationY = 0, exitSpin = false, entranceSpin = false }) {
+function Model({ rotationZ = 0, rotationY = 0, exitSpin = false, entranceSpin = false, celebrate = false }) {
   const { scene } = useGLTF('/Iron_Owl_Sentinel.glb');
   const groupRef = useRef();
   const elapsed = useRef(0);
@@ -34,8 +34,11 @@ function Model({ rotationZ = 0, rotationY = 0, exitSpin = false, entranceSpin = 
     const wobble = (exitSpin || entranceSpin) ? 0 : Math.sin(elapsed.current * 0.3) * 0.06;
     const exitS = exitSpin ? spinElapsed.current * 7 : 0;
     const entS = entranceSpin ? -(Math.PI * 2) * Math.max(0, 1 - spinElapsed.current * 1.2) : 0;
-    groupRef.current.rotation.y = baseY + wobble + exitS + entS;
+    const celebS = celebrate ? spinElapsed.current * 5 : 0;
+    const celebBob = celebrate ? Math.sin(elapsed.current * 8) * 0.18 : 0;
+    groupRef.current.rotation.y = baseY + wobble + exitS + entS + celebS;
     groupRef.current.rotation.z = rotationZ * (Math.PI / 180);
+    if (celebrate) groupRef.current.position.y = Math.sin(elapsed.current * 8) * 0.15;
   });
 
   return (
@@ -47,7 +50,7 @@ function Model({ rotationZ = 0, rotationY = 0, exitSpin = false, entranceSpin = 
 
 let owlHasMounted = false;
 
-export default function OwlSentinel({ visible, phase, rotationZ = 0, rotationY = 0 }) {
+export default function OwlSentinel({ visible, phase, rotationZ = 0, rotationY = 0, celebrate = false }) {
   const ready = useRef(owlHasMounted);
   const [exitSpin, setExitSpin] = useState(false);
   const [entranceSpin, setEntranceSpin] = useState(false);
@@ -100,7 +103,7 @@ export default function OwlSentinel({ visible, phase, rotationZ = 0, rotationY =
         <pointLight position={[2, -1, 1]} intensity={0.3} color="#c06020" />
         <spotLight position={[0, 4, 2]} angle={0.3} penumbra={0.8} intensity={0.8} />
         <Environment preset="city" />
-        <Model rotationZ={rotationZ} rotationY={rotationY} exitSpin={exitSpin} entranceSpin={entranceSpin} />
+        <Model rotationZ={rotationZ} rotationY={rotationY} exitSpin={exitSpin} entranceSpin={entranceSpin} celebrate={celebrate} />
       </Canvas>
     </motion.div>
   );

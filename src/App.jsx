@@ -12,6 +12,7 @@ import CompassModel from './CompassModel';
 import OwlSentinel from './OwlSentinel';
 import { RECOVERY_SLOGANS } from './slogans';
 import HudControlPanel from './HudControlPanel';
+import CelebrationOverlay from './CelebrationOverlay';
 import { Copy, Check } from 'lucide-react';
 
 function SloganCopyBtn({ slogan }) {
@@ -32,7 +33,7 @@ function SloganCopyBtn({ slogan }) {
 }
 
 export default function App() {
-  // idle | energize | spin | shimmer | spotlight | reveal | card
+  // idle | energize | spin | shimmer | celebrate | spotlight | reveal | card
   const [phase, setPhase] = useState('idle');
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -42,6 +43,10 @@ export default function App() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [cardNumber, setCardNumber] = useState(0);
   const [activeSlogan, setActiveSlogan] = useState(null);
+  const [celebrateVisible, setCelebrateVisible] = useState(false);
+  const [celebrateMsgIndex, setCelebrateMsgIndex] = useState(0);
+  const spinCountRef = useRef(0);
+  const lastCelebratedRef = useRef(-99);
   const timeoutsRef = useRef([]);
 
   const pickSlogan = useCallback(() => {
@@ -64,6 +69,17 @@ export default function App() {
     setSelectedCard(null);
     setPhase('idle');
 
+    // Determine if this spin triggers a celebration
+    spinCountRef.current += 1;
+    const currentSpin = spinCountRef.current;
+    const spinsSinceLast = currentSpin - lastCelebratedRef.current;
+    const eligible = spinCountRef.current >= 3 && spinsSinceLast >= 3;
+    const willCelebrate = eligible && Math.random() < 0.22;
+    if (willCelebrate) {
+      lastCelebratedRef.current = currentSpin;
+      setCelebrateMsgIndex(Math.floor(Math.random() * 6));
+    }
+
     const t0 = setTimeout(() => {
       if (soundEnabled) playDrawSound();
       setPhase('energize');
@@ -77,18 +93,31 @@ export default function App() {
         const pick = Math.floor(Math.random() * TOPICS.length);
         setSelectedIndex(pick);
         setSelectedCard(getRandomCard(TOPICS[pick].id));
-        setPhase('spotlight');
         setDrawCount(c => c + 1);
         setCardNumber(c => c + 1);
-        if (soundEnabled) playRevealSound();
+        if (willCelebrate) {
+          setPhase('celebrate');
+          setCelebrateVisible(true);
+          if (soundEnabled) playRevealSound();
+        } else {
+          setPhase('spotlight');
+          if (soundEnabled) playRevealSound();
+        }
       }, 6200);
+      // After celebrate window, proceed to spotlight → reveal
+      const t3cel = willCelebrate ? setTimeout(() => {
+        setCelebrateVisible(false);
+        setTimeout(() => setPhase('spotlight'), 300);
+      }, 6200 + 3000) : null;
       const t3b = setTimeout(() => {
         setPhase('reveal');
         if (soundEnabled) playSpaceDoorsSound();
-      }, 7600);
-      const t4 = setTimeout(() => { setPhase('card'); if (soundEnabled) playCardSound(); }, 10200);
+      }, willCelebrate ? 6200 + 3000 + 300 + 1400 : 7600);
+      const t4 = setTimeout(() => { setPhase('card'); if (soundEnabled) playCardSound(); }, willCelebrate ? 6200 + 3000 + 300 + 1400 + 2600 : 10200);
 
-      timeoutsRef.current.push(t1, t2, t3, t3b, t4);
+      const extras = [t1, t2, t3, t3b, t4];
+      if (t3cel) extras.push(t3cel);
+      timeoutsRef.current.push(...extras);
     }, phase === 'idle' ? 0 : 150);
 
     timeoutsRef.current.push(t0);
@@ -435,7 +464,7 @@ export default function App() {
 
           {/* Owl Sentinel — absolutely positioned, independent of layout */}
           <div style={{ position: 'absolute', left: owlX, top: owlY, width: owlSize, height: owlSize, zIndex: 2, pointerEvents: 'none' }}>
-            <OwlSentinel visible={phase === 'idle'} phase={phase} rotationZ={owlZ} rotationY={owlRotY} />
+            <OwlSentinel visible={phase === 'idle' || phase === 'celebrate'} phase={phase} rotationZ={owlZ} rotationY={owlRotY} celebrate={phase === 'celebrate'} />
           </div>
 
           {/* Content area */}
@@ -460,6 +489,9 @@ export default function App() {
                       sparkleOnly
                     />
                   )}
+
+                  {/* Celebration overlay */}
+                  <CelebrationOverlay visible={celebrateVisible} messageIndex={celebrateMsgIndex} />
                   {/* Header + subtitle group */}
                   <motion.div
                     className="flex flex-col items-center w-full"

@@ -24,10 +24,12 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
   const isEnergize = phase === 'energize';
   const isShimmer = phase === 'shimmer';
   const isSpotlight = phase === 'spotlight';
+  const isCelebrate = phase === 'celebrate';
 
   if (isEnergize) glowIntensity = 1.2;
   else if (isSpin) glowIntensity = 1.4;
   else if (isShimmer) glowIntensity = 1.2;
+  else if (isCelebrate) glowIntensity = 2.2;
   else if (isSpotlight) {
     if (isSelected) {
       glowIntensity = 3.0;
@@ -148,6 +150,21 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
           />
         )}
       </AnimatePresence>
+
+      {/* Celebrate ripple ring — all balls pulse outward */}
+      {isCelebrate && (
+        <motion.div
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            inset: -8,
+            border: `2px solid ${glowColor}`,
+            boxShadow: `0 0 30px ${glowColor}66`,
+          }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: [0, 0.9, 0.6, 0], scale: [0.8, 1.6, 2.2, 3.0] }}
+          transition={{ duration: 1.6, delay: index * 0.08, ease: 'easeOut', repeat: Infinity, repeatDelay: 0.3 }}
+        />
+      )}
 
       {/* Spotlight pulse ring */}
       {isSpotlight && isSelected && (
