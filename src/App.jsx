@@ -13,6 +13,7 @@ import OwlSentinel from './OwlSentinel';
 import { RECOVERY_SLOGANS } from './slogans';
 import HudControlPanel from './HudControlPanel';
 import CelebrationOverlay from './CelebrationOverlay';
+import CelebrationTrigger from './CelebrationTrigger';
 import { Copy, Check } from 'lucide-react';
 
 function SloganCopyBtn({ slogan }) {
@@ -120,6 +121,41 @@ export default function App() {
       timeoutsRef.current.push(...extras);
     }, phase === 'idle' ? 0 : 150);
 
+    timeoutsRef.current.push(t0);
+  }, [phase, soundEnabled]);
+
+  // Manual celebration trigger — widget button
+  const triggerCelebration = useCallback(() => {
+    if (phase !== 'idle' && phase !== 'card') return;
+    clearTimeouts();
+    setSelectedIndex(null);
+    setSelectedCard(null);
+    setPhase('idle');
+    setCelebrateMsgIndex(Math.floor(Math.random() * 6));
+
+    const t0 = setTimeout(() => {
+      if (soundEnabled) playDrawSound();
+      setPhase('energize');
+      const t1 = setTimeout(() => { setPhase('spin'); if (soundEnabled) playSpinSound(); }, 800);
+      const t2 = setTimeout(() => setPhase('shimmer'), 5500);
+      const t3 = setTimeout(() => {
+        const pick = Math.floor(Math.random() * TOPICS.length);
+        setSelectedIndex(pick);
+        setSelectedCard(getRandomCard(TOPICS[pick].id));
+        setDrawCount(c => c + 1);
+        setCardNumber(c => c + 1);
+        setPhase('celebrate');
+        setCelebrateVisible(true);
+        if (soundEnabled) playRevealSound();
+      }, 6200);
+      const t3cel = setTimeout(() => {
+        setCelebrateVisible(false);
+        setTimeout(() => setPhase('spotlight'), 300);
+      }, 6200 + 3000);
+      const t3b = setTimeout(() => { setPhase('reveal'); if (soundEnabled) playSpaceDoorsSound(); }, 6200 + 3000 + 300 + 1400);
+      const t4 = setTimeout(() => { setPhase('card'); if (soundEnabled) playCardSound(); }, 6200 + 3000 + 300 + 1400 + 2600);
+      timeoutsRef.current.push(t1, t2, t3, t3cel, t3b, t4);
+    }, phase === 'idle' ? 0 : 150);
     timeoutsRef.current.push(t0);
   }, [phase, soundEnabled]);
 
@@ -552,6 +588,11 @@ export default function App() {
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ type: 'spring', stiffness: 180, damping: 12, mass: 1, delay: 0.2 }}
                     style={{ width: '560px', height: '560px', position: 'relative', left: `calc(50% + ${orbitOffsetX}px)`, top: orbitOffsetY }}>
+
+                    {/* Celebration Trigger widget — floats left of orbit, does not affect orbit layout */}
+                    <div style={{ position: 'absolute', left: -88, top: '50%', transform: 'translateY(-50%)', zIndex: 10 }}>
+                      <CelebrationTrigger onTrigger={triggerCelebration} phase={phase} />
+                    </div>
 
                     {/* Center "sun" glow — pulses during spin */}
                     <motion.div
