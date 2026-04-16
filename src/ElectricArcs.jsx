@@ -110,6 +110,7 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const SIZE = 560;
     const cx = SIZE / 2, cy = SIZE / 2;
     const n = topics.length;
+    const BALL_R = 45; // ball radius — bolt reaches into the orb
     const SPEED = TWO_PI / (5 * 60);
     let angleBase = -Math.PI / 2;
     let lastHalf = Math.floor(angleBase / Math.PI);
@@ -117,8 +118,10 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const spawnAllBolts = () => {
       for (let i = 0; i < n; i++) {
         const angle = angleBase + (i / n) * TWO_PI;
-        const tx = cx + Math.cos(angle) * orbitRadius;
-        const ty = cy + Math.sin(angle) * orbitRadius;
+        // Extend past ball center so tip overlaps into the orb
+        const reach = orbitRadius + BALL_R;
+        const tx = cx + Math.cos(angle) * reach;
+        const ty = cy + Math.sin(angle) * reach;
         setTimeout(() => {
           boltPoolRef.current.push({
             tx, ty,
