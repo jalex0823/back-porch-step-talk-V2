@@ -461,7 +461,12 @@ export default function App() {
                     />
                   )}
                   {/* Header + subtitle group */}
-                  <div className="flex flex-col items-center w-full" style={{ transform: `translateY(${titleOffsetY}px)`, paddingTop: '96px' }}>
+                  <motion.div
+                    className="flex flex-col items-center w-full"
+                    animate={{ opacity: phase === 'idle' ? 1 : 0, y: phase === 'idle' ? titleOffsetY : titleOffsetY - 12 }}
+                    transition={{ duration: 0.4, ease: 'easeIn' }}
+                    style={{ paddingTop: '96px' }}
+                  >
                   <div className="flex items-center justify-center gap-3 mb-3">
                     <div className="flex gap-[3px]">
                       {[...Array(4)].map((_, i) => (
@@ -506,7 +511,7 @@ export default function App() {
                   >
                     AA Discussion Cards — choose a topic or tap <span style={{ color: '#2ba4b5', fontWeight: 600 }}>Randomizer</span> to draw one
                   </p>
-                  </div>{/* end header+subtitle group */}
+                  </motion.div>{/* end header+subtitle group */}
 
                   {/* Orbital area — perfect circle */}
                   <motion.div
