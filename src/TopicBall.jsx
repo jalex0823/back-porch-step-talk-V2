@@ -286,14 +286,14 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
       <div className="absolute rounded-full pointer-events-none" style={{
         inset: -3,
         background: `conic-gradient(from 120deg,
-          rgba(110,122,140,0.95) 0deg,
-          rgba(180,192,210,1) 55deg,
-          rgba(220,230,242,1) 100deg,
-          rgba(160,172,188,0.95) 150deg,
-          rgba(80,92,108,0.95) 210deg,
-          rgba(190,202,218,0.98) 270deg,
-          rgba(110,122,140,0.95) 360deg)`,
-        boxShadow: `0 4px 18px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.18)`,
+          rgba(140,155,175,1) 0deg,
+          rgba(205,218,235,1) 55deg,
+          rgba(245,250,255,1) 100deg,
+          rgba(185,198,215,1) 150deg,
+          rgba(105,118,136,1) 210deg,
+          rgba(215,228,245,1) 270deg,
+          rgba(140,155,175,1) 360deg)`,
+        boxShadow: `0 4px 18px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.32)`,
       }} />
 
       {/* ── Dark glass orb body ── */}
