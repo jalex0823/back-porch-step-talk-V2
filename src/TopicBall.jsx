@@ -230,14 +230,35 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
         }}
       />
 
+      {/* ── Machined steel outer housing ring ── */}
+      <div className="absolute rounded-full pointer-events-none" style={{
+        inset: -3,
+        background: `conic-gradient(from 120deg,
+          rgba(55,65,80,0.9) 0deg,
+          rgba(90,100,118,0.95) 60deg,
+          rgba(130,140,158,0.9) 110deg,
+          rgba(75,85,100,0.9) 160deg,
+          rgba(42,50,64,0.95) 220deg,
+          rgba(100,112,130,0.9) 280deg,
+          rgba(55,65,80,0.9) 360deg)`,
+        boxShadow: `0 4px 16px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.07)`,
+      }} />
+
       {/* ── Dark glass orb body ── */}
       <div className="absolute inset-0 rounded-full" style={{
         background: `radial-gradient(circle at 42% 35%,
-          rgba(28,36,52,0.95) 0%,
-          rgba(10,16,26,0.98) 55%,
-          rgba(4,8,16,1) 100%)`,
-        border: `1.5px solid ${glowColor}44`,
-        boxShadow: `0 4px 20px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -2px 8px rgba(0,0,0,0.6)`,
+          rgba(22,30,44,0.97) 0%,
+          rgba(14,20,32,0.99) 50%,
+          rgba(6,10,18,1) 100%)`,
+        border: `1px solid rgba(255,255,255,0.06)`,
+        boxShadow: `inset 0 2px 8px rgba(0,0,0,0.8), inset 0 -1px 4px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(0,0,0,0.6)`,
+      }} />
+
+      {/* ── Inner panel recess ring ── */}
+      <div className="absolute rounded-full pointer-events-none" style={{
+        inset: '6%',
+        boxShadow: `inset 0 2px 6px rgba(0,0,0,0.9), inset 0 -1px 3px rgba(255,255,255,0.04), 0 0 0 1px rgba(255,255,255,0.04)`,
+        borderRadius: '50%',
       }} />
 
       {/* ── Animated plasma core bloom ── */}
@@ -273,33 +294,46 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
         overflow: 'hidden',
       }} />
 
-      {/* ── Top-left specular glint ── */}
+      {/* ── Chrome hard specular — wide diffuse ── */}
       <div className="absolute rounded-full" style={{
-        top: '8%', left: '13%', width: '38%', height: '22%',
-        background: 'radial-gradient(ellipse at 40% 55%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.06) 55%, transparent 80%)',
-        filter: 'blur(1.5px)',
+        top: '6%', left: '10%', width: '46%', height: '26%',
+        background: 'radial-gradient(ellipse at 38% 52%, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0.10) 45%, transparent 75%)',
+        filter: 'blur(1px)',
       }} />
-      {/* ── Tiny hot pinpoint specular ── */}
+      {/* ── Chrome hard specular — sharp hot pinpoint ── */}
       <div className="absolute rounded-full" style={{
-        top: '12%', left: '22%', width: '14%', height: '9%',
-        background: 'radial-gradient(ellipse, rgba(255,255,255,0.65) 0%, transparent 70%)',
+        top: '9%', left: '20%', width: '16%', height: '10%',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.4) 40%, transparent 70%)',
+        filter: 'blur(0.3px)',
+      }} />
+      {/* ── Secondary chrome glint — right side ── */}
+      <div className="absolute rounded-full" style={{
+        top: '18%', right: '14%', width: '10%', height: '7%',
+        background: 'radial-gradient(ellipse, rgba(200,215,235,0.55) 0%, transparent 70%)',
         filter: 'blur(0.5px)',
       }} />
-      {/* ── Colored equator band ── */}
-      <div className="absolute rounded-full pointer-events-none" style={{
-        top: '42%', left: '8%', right: '8%', height: '16%',
-        background: `linear-gradient(90deg, transparent, ${glowColor}22, ${glowColor}44, ${glowColor}22, transparent)`,
-        filter: 'blur(2px)',
+      {/* ── Neon equator seam ── */}
+      <div className="absolute pointer-events-none" style={{
+        top: '46%', left: '4%', right: '4%', height: '1.5px',
+        background: `linear-gradient(90deg, transparent 0%, ${glowColor}66 20%, ${glowColor}cc 50%, ${glowColor}66 80%, transparent 100%)`,
+        filter: 'blur(0.5px)',
+        borderRadius: '2px',
+      }} />
+      {/* ── Neon equator seam glow halo ── */}
+      <div className="absolute pointer-events-none" style={{
+        top: '43%', left: '8%', right: '8%', height: '14%',
+        background: `linear-gradient(180deg, transparent, ${glowColor}18 40%, ${glowColor}28 50%, ${glowColor}18 60%, transparent)`,
+        filter: 'blur(3px)',
       }} />
       {/* ── Bottom underside glow ── */}
       <div className="absolute rounded-full" style={{
-        bottom: '6%', left: '18%', width: '64%', height: '16%',
-        background: `radial-gradient(ellipse, ${glowColor}44 0%, transparent 70%)`,
+        bottom: '5%', left: '16%', width: '68%', height: '14%',
+        background: `radial-gradient(ellipse, ${glowColor}55 0%, transparent 70%)`,
         filter: 'blur(4px)',
       }} />
-      {/* ── Outer rim refraction ── */}
-      <div className="absolute inset-0 rounded-full" style={{
-        boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.09), inset 0 -1px 3px rgba(255,255,255,0.04)`,
+      {/* ── Steel rim inner edge highlight ── */}
+      <div className="absolute inset-0 rounded-full pointer-events-none" style={{
+        boxShadow: `inset 0 0 0 1.5px rgba(255,255,255,0.11), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.5)`,
       }} />
 
       {/* Icon + Label */}
