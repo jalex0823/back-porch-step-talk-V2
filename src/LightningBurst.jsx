@@ -56,9 +56,28 @@ function branch(ctx, x1, y1, angle, length, depth, glowColor, alpha) {
   }
 }
 
-export default function LightningBurst({ topics, orbitRadius, active }) {
+// Cubic bezier easing matching framer-motion [0.12, 0.6, 0.08, 1]
+function cubicBezier(t, p1x, p1y, p2x, p2y) {
+  // Newton-Raphson approximation
+  const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
+  const cy2 = 3 * p1y, by = 3 * (p2y - p1y) - cy2, ay = 1 - cy2 - by;
+  const sampleX = u => ((ax * u + bx) * u + cx) * u;
+  const sampleY = u => ((ay * u + by) * u + cy2) * u;
+  let u = t;
+  for (let i = 0; i < 8; i++) {
+    const x = sampleX(u) - t;
+    const dx = (3 * ax * u + 2 * bx) * u + cx;
+    if (Math.abs(dx) < 1e-6) break;
+    u -= x / dx;
+  }
+  return sampleY(Math.max(0, Math.min(1, u)));
+}
+
+export default function LightningBurst({ topics, orbitRadius, active, phase }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
+  const startTimeRef = useRef(null);
+  const baseAngleRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -67,14 +86,31 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
     const SIZE = 560;
     const cx = SIZE / 2, cy = SIZE / 2;
     const n = topics.length;
-    // Frame counter — stagger which balls fire each frame for density without overdraw
+    const SPIN_DURATION = 4500; // ms — matches orbit transition duration
     let frame = 0;
 
-    const loop = () => {
+    if (active) {
+      startTimeRef.current = performance.now();
+    }
+
+    const loop = (now) => {
       ctx.clearRect(0, 0, SIZE, SIZE);
       frame++;
 
       if (active) {
+        // Compute rotation angle matching the orbit CSS easing
+        const elapsed = now - (startTimeRef.current || now);
+        let rotDeg = 0;
+        if (phase === 'spin') {
+          const t = Math.min(elapsed / SPIN_DURATION, 1);
+          const eased = cubicBezier(t, 0.12, 0.6, 0.08, 1);
+          rotDeg = eased * 360;
+        } else {
+          // shimmer — keep at 360 (end of spin)
+          rotDeg = 360;
+        }
+        const rotRad = (rotDeg * Math.PI) / 180;
+
         // Clip to orbit circle
         ctx.save();
         ctx.beginPath();
@@ -92,11 +128,11 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
         ctx.arc(cx, cy, 50, 0, TWO_PI);
         ctx.fill();
 
-        // Fire ALL balls every frame — alternating dense/sparse for flicker
+        // Fire all balls at rotated angles
         for (let i = 0; i < n; i++) {
-          const angle = -Math.PI / 2 + (i / n) * TWO_PI;
+          const baseAngle = -Math.PI / 2 + (i / n) * TWO_PI;
+          const angle = baseAngle + rotRad;
           const len = orbitRadius - 10;
-          // Every ball fires every frame; alternate depth 7/8 for natural flicker
           const depth = (frame + i) % 3 === 0 ? 8 : 7;
           branch(ctx, cx, cy, angle, len, depth, topics[i].glowColor, 0.9);
         }
@@ -109,7 +145,7 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
 
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [active, orbitRadius, topics]);
+  }, [active, orbitRadius, topics, phase]);
 
   return (
     <canvas
