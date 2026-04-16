@@ -14,6 +14,8 @@ import { RECOVERY_SLOGANS } from './slogans';
 import HudControlPanel from './HudControlPanel';
 import CelebrationOverlay from './CelebrationOverlay';
 import CelebrationTrigger from './CelebrationTrigger';
+import CometTrails from './CometTrails';
+import DrawHistory from './DrawHistory';
 import { Copy, Check } from 'lucide-react';
 
 function SloganCopyBtn({ slogan }) {
@@ -46,6 +48,7 @@ export default function App() {
   const [activeSlogan, setActiveSlogan] = useState(null);
   const [celebrateVisible, setCelebrateVisible] = useState(false);
   const [celebrateMsgIndex, setCelebrateMsgIndex] = useState(0);
+  const [drawHistory, setDrawHistory] = useState([]);
   const spinCountRef = useRef(0);
   const lastCelebratedRef = useRef(-99);
   const timeoutsRef = useRef([]);
@@ -92,9 +95,17 @@ export default function App() {
       const t2 = setTimeout(() => setPhase('shimmer'), 5500);
       const t3 = setTimeout(() => {
         const pick = Math.floor(Math.random() * TOPICS.length);
+        const card = getRandomCard(TOPICS[pick].id);
         setSelectedIndex(pick);
-        setSelectedCard(getRandomCard(TOPICS[pick].id));
-        setDrawCount(c => c + 1);
+        setSelectedCard(card);
+        setDrawCount(c => {
+          const next = c + 1;
+          setDrawHistory(h => [
+            ...h.slice(-9),
+            { drawNum: next, topicLabel: TOPICS[pick].label, accentColor: TOPICS[pick].accentColor, cardTitle: card?.title || null },
+          ]);
+          return next;
+        });
         setCardNumber(c => c + 1);
         if (willCelebrate) {
           setPhase('celebrate');
@@ -596,6 +607,13 @@ export default function App() {
                       <CelebrationTrigger onTrigger={triggerCelebration} phase={phase} size={70} color="#ffffff" />
                     </div>
 
+                    {/* Comet trails — idle orbit only */}
+                    <CometTrails
+                      topics={TOPICS}
+                      orbitRadius={orbitRadius}
+                      active={phase === 'idle' || phase === 'card'}
+                    />
+
                     {/* Center "sun" glow — pulses during spin */}
                     <motion.div
                       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none"
@@ -920,18 +938,20 @@ export default function App() {
                 <motion.div
                   key="card-view"
                   className="relative z-10"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  initial={{ opacity: 0, rotateY: 90, scale: 0.92 }}
+                  animate={{ opacity: 1, rotateY: 0, scale: 1 }}
+                  exit={{ opacity: 0, rotateY: -75, scale: 0.92 }}
+                  transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ perspective: 1200, transformStyle: 'preserve-3d' }}
                 >
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={`card-${selectedIndex}-${drawCount}`}
-                      initial={{ opacity: 0, x: 20, filter: 'blur(6px)' }}
-                      animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0, x: -20, filter: 'blur(6px)' }}
-                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                      initial={{ opacity: 0, rotateY: 45, scale: 0.96, filter: 'blur(4px)' }}
+                      animate={{ opacity: 1, rotateY: 0, scale: 1, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0, rotateY: -35, scale: 0.96, filter: 'blur(4px)' }}
+                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      style={{ transformStyle: 'preserve-3d' }}
                     >
                       <ParticleReveal
                         accentColor={TOPICS[selectedIndex].accentColor}
@@ -1050,6 +1070,9 @@ export default function App() {
         </svg>
       </motion.button>
 
+
+      {/* Draw history panel — bottom right */}
+      <DrawHistory history={drawHistory} />
 
       {/* Session counter — bottom left */}
       {drawCount > 0 && (
