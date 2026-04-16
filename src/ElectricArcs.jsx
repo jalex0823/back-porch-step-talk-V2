@@ -66,14 +66,14 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const SPEED = TWO_PI / (120 * 60);
     let angleBase = -Math.PI / 2;
     const pairCooldown = new Array(halfN).fill(0);
-    const HORIZ_TOLERANCE = 0.22;
+    const HORIZ_TOLERANCE = 0.28;
 
     const spawnBurst = (iA, iB, intensity) => {
       const baseA = angleBase + (iA / n) * TWO_PI;
       const baseB = angleBase + (iB / n) * TWO_PI;
       const jitter = s => (Math.random() - 0.5) * s;
       // Number of simultaneous strands scales with intensity
-      const strandCount = intensity > 0.9 ? 5 : intensity > 0.7 ? 3 : 2;
+      const strandCount = intensity > 0.9 ? 6 : intensity > 0.7 ? 4 : 2;
       const x1 = cx + Math.cos(baseA) * orbitRadius;
       const y1 = cy + Math.sin(baseA) * orbitRadius;
       const x2 = cx + Math.cos(baseB) * orbitRadius;
@@ -90,7 +90,7 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
           coreColor: k % 2 === 0 ? '#c8aaff' : '#aaeeff',
           life: 1.0,
           maxLife: 1.0,
-          decay: 0.018 + Math.random() * 0.022,
+          decay: 0.012 + Math.random() * 0.016,
           intensity,
           branchDepth: intensity > 0.75 ? 2 : 1,
           retraceTimer: 0,
@@ -130,18 +130,18 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
         const jitterScale = arc.retraceTimer >= arc.retracePeriod ? 1 : 0;
         if (jitterScale) arc.retraceTimer = 0;
 
-        // ── Outer fat colored corona glow (very wide, very soft) ──
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorB, a * 0.25 * b, 14 + b * 12, 28, 70);
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorA, a * 0.22 * b, 10 + b * 10, 22, 65);
+        // ── Outer fat colored corona glow ──
+        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorB, Math.min(a * 0.7 * b, 0.8), 18 + b * 14, 32, 70);
+        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.colorA, Math.min(a * 0.65 * b, 0.75), 13 + b * 11, 26, 65);
 
         // ── Mid violet/cyan glow ──
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.coreColor, a * 0.55, 4 + b * 3, 16, 52);
+        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, arc.coreColor, Math.min(a * 0.85, 0.9), 6 + b * 4, 18, 52);
 
         // ── Hot white-blue core ──
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, '#ddeeff', a * 0.85, 1.8 + b * 0.8, 6, 48);
+        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, '#aaddff', Math.min(a * 0.95, 1), 2.5 + b * 1.2, 10, 48);
 
         // ── Bright white centre filament ──
-        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, '#ffffff', a * 0.95, 0.8, 3, 44);
+        strand(ctx, arc.x1, arc.y1, arc.x2, arc.y2, '#ffffff', 1, 1.2, 5, 44);
 
         // ── Branches / tendrils ──
         if (arc.branchDepth >= 1) {
@@ -183,7 +183,7 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
       width={560}
       height={560}
       className="absolute inset-0 pointer-events-none"
-      style={{ zIndex: 30, mixBlendMode: 'screen' }}
+      style={{ zIndex: 30 }}
     />
   );
 }
