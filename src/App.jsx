@@ -32,7 +32,7 @@ function SloganCopyBtn({ slogan }) {
 }
 
 export default function App() {
-  // idle | energize | spin | shimmer | reveal | card
+  // idle | energize | spin | shimmer | spotlight | reveal | card
   const [phase, setPhase] = useState('idle');
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
@@ -77,15 +77,18 @@ export default function App() {
         const pick = Math.floor(Math.random() * TOPICS.length);
         setSelectedIndex(pick);
         setSelectedCard(getRandomCard(TOPICS[pick].id));
-        setPhase('reveal');
+        setPhase('spotlight');
         setDrawCount(c => c + 1);
         setCardNumber(c => c + 1);
         if (soundEnabled) playRevealSound();
-        if (soundEnabled) playSpaceDoorsSound();
       }, 6200);
-      const t4 = setTimeout(() => { setPhase('card'); if (soundEnabled) playCardSound(); }, 8800);
+      const t3b = setTimeout(() => {
+        setPhase('reveal');
+        if (soundEnabled) playSpaceDoorsSound();
+      }, 7600);
+      const t4 = setTimeout(() => { setPhase('card'); if (soundEnabled) playCardSound(); }, 10200);
 
-      timeoutsRef.current.push(t1, t2, t3, t4);
+      timeoutsRef.current.push(t1, t2, t3, t3b, t4);
     }, phase === 'idle' ? 0 : 150);
 
     timeoutsRef.current.push(t0);
@@ -146,16 +149,16 @@ export default function App() {
 
   // Dev position controls — load from localStorage or use hardcoded defaults
   const D = (() => { try { return JSON.parse(localStorage.getItem('hudDefaults') || '{}'); } catch { return {}; } })();
-  const [orbitOffsetX, setOrbitOffsetX] = useState(D.orbitOffsetX ?? -440);
-  const [orbitOffsetY, setOrbitOffsetY] = useState(D.orbitOffsetY ?? -56);
+  const [orbitOffsetX, setOrbitOffsetX] = useState(D.orbitOffsetX ?? -442);
+  const [orbitOffsetY, setOrbitOffsetY] = useState(D.orbitOffsetY ?? -62);
   const [orbitRadius, setOrbitRadius] = useState(D.orbitRadius ?? 203);
-  const [compassX, setCompassX] = useState(D.compassX ?? 458);
-  const [compassY, setCompassY] = useState(D.compassY ?? 450);
-  const [titleOffsetY, setTitleOffsetY] = useState(D.titleOffsetY ?? -18);
+  const [compassX, setCompassX] = useState(D.compassX ?? 472);
+  const [compassY, setCompassY] = useState(D.compassY ?? 464);
+  const [titleOffsetY, setTitleOffsetY] = useState(D.titleOffsetY ?? -57);
   const [bottomOffsetY, setBottomOffsetY] = useState(D.bottomOffsetY ?? -23);
-  const [bottomOffsetX, setBottomOffsetX] = useState(D.bottomOffsetX ?? 148);
-  const [starOffsetX, setStarOffsetX] = useState(D.starOffsetX ?? 69);
-  const [starOffsetY, setStarOffsetY] = useState(D.starOffsetY ?? 1);
+  const [bottomOffsetX, setBottomOffsetX] = useState(D.bottomOffsetX ?? 151);
+  const [starOffsetX, setStarOffsetX] = useState(D.starOffsetX ?? 62);
+  const [starOffsetY, setStarOffsetY] = useState(D.starOffsetY ?? -33);
   const orbitBounced = useRef(false);
   const [owlX, setOwlX] = useState(D.owlX ?? 696);
   const [owlY, setOwlY] = useState(D.owlY ?? 336);
@@ -475,7 +478,7 @@ export default function App() {
                         textShadow: '0 0 18px rgba(255,255,255,0.35), 0 0 40px rgba(61,158,207,0.25), 0 2px 10px rgba(0,0,0,0.6)',
                       }}
                     >
-                      Step Talk
+                      AA Picalizer 2K26
                     </h1>
                     <div className="flex gap-[3px]">
                       {[...Array(4)].map((_, i) => (
@@ -692,13 +695,17 @@ export default function App() {
                         const cx = center + Math.cos(rad) * radius - half;
                         const cy = center + Math.sin(rad) * radius - half;
 
-                        // During reveal, selected expands to fill the whole orbit circle
+                        // During spotlight, fly to left open zone; during reveal, expand to fill
+                        const isSpotlight = phase === 'spotlight' && selectedIndex === index;
                         const isRevealed = phase === 'reveal' && selectedIndex === index;
-                        const isNotSelected = phase === 'reveal' && selectedIndex !== null && selectedIndex !== index;
-                        // Fill entire 380px area: 380/88 ≈ 4.32
+                        const isNotSelected = (phase === 'spotlight' || phase === 'reveal') && selectedIndex !== null && selectedIndex !== index;
+                        // Left open zone: approx x=60, y=center inside 560px orbit area
+                        const spotlightX = 60 - half;
+                        const spotlightY = center - half;
+                        // Fill entire area
                         const fillScale = 560 / ballSize;
-                        const targetX = isRevealed ? center - half : cx;
-                        const targetY = isRevealed ? center - half : cy;
+                        const targetX = isRevealed ? center - half : isSpotlight ? spotlightX : cx;
+                        const targetY = isRevealed ? center - half : isSpotlight ? spotlightY : cy;
 
                         return (
                           <motion.div
@@ -714,7 +721,7 @@ export default function App() {
                             animate={{
                               left: targetX,
                               top: targetY,
-                              scale: isRevealed ? fillScale : isNotSelected ? 0.15 : 1,
+                              scale: isRevealed ? fillScale : isSpotlight ? 1.35 : isNotSelected ? 0.15 : 1,
                               opacity: isNotSelected ? 0 : 1,
                               rotateY: isRevealed ? [0, 25, -20, 12, -8, 0] : 0,
                               // Counter-rotate to keep balls upright
@@ -737,6 +744,11 @@ export default function App() {
                                 ? {
                                     rotate: { duration: 120, repeat: Infinity, ease: 'linear' },
                                     default: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+                                  }
+                                : isSpotlight
+                                ? {
+                                    rotate: { duration: 0 },
+                                    default: { duration: 0.9, ease: [0.34, 1.56, 0.64, 1] },
                                   }
                                 : isRevealed
                                 ? {

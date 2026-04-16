@@ -23,11 +23,19 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
   const isSpin = phase === 'spin';
   const isEnergize = phase === 'energize';
   const isShimmer = phase === 'shimmer';
+  const isSpotlight = phase === 'spotlight';
 
   if (isEnergize) glowIntensity = 1.2;
   else if (isSpin) glowIntensity = 1.4;
   else if (isShimmer) glowIntensity = 1.2;
-  else if (phase === 'reveal') {
+  else if (isSpotlight) {
+    if (isSelected) {
+      glowIntensity = 3.0;
+    } else {
+      glowIntensity = 0.1;
+      dimmed = true;
+    }
+  } else if (phase === 'reveal') {
     if (isSelected) {
       glowIntensity = 2.5;
     } else {
@@ -140,6 +148,20 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
           />
         )}
       </AnimatePresence>
+
+      {/* Spotlight pulse ring */}
+      {isSpotlight && isSelected && (
+        <motion.div
+          className="absolute -inset-4 rounded-full pointer-events-none"
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: [0, 1, 0.6, 1, 0.6], scale: [0.7, 1.4, 1.2, 1.5, 1.3] }}
+          transition={{ duration: 1.4, ease: 'easeOut', repeat: Infinity }}
+          style={{
+            border: `2px solid ${glowColor}`,
+            boxShadow: `0 0 40px ${glowColor}88`,
+          }}
+        />
+      )}
 
       {/* Reveal pulse ring */}
       {phase === 'reveal' && isSelected && (

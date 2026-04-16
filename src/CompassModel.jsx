@@ -37,6 +37,9 @@ function Model() {
 
 export default function CompassModel({ visible, onClick, offsetX = 295, offsetY = 295 }) {
   const [hovered, setHovered] = useState(false);
+  const shownCount = useRef(0);
+  if (visible) shownCount.current += 1;
+  const isReturn = shownCount.current > 1;
   return (
     <motion.div
       onClick={visible ? onClick : undefined}
@@ -56,12 +59,12 @@ export default function CompassModel({ visible, onClick, offsetX = 295, offsetY 
       initial={{ opacity: 0, scale: 0.72 }}
       animate={{
         opacity: visible ? 1 : 0,
-        scale: visible ? 1 : 0.72,
+        scale: visible ? 1 : 0.85,
       }}
       whileTap={{ scale: 0.97 }}
       transition={{
-        opacity: { duration: visible ? 1.0 : 0.3, delay: visible ? 1.6 : 0, ease: [0.22, 1, 0.36, 1] },
-        scale:   { type: 'spring', stiffness: 260, damping: 18, delay: visible ? 1.6 : 0 },
+        opacity: { duration: visible ? 0.6 : 0.3, delay: visible && !isReturn ? 1.6 : 0, ease: [0.22, 1, 0.36, 1] },
+        scale:   { type: 'spring', stiffness: 260, damping: 18, delay: visible && !isReturn ? 1.6 : 0 },
       }}
     >
       {/* Hover tooltip */}

@@ -61,7 +61,7 @@ export default function HudControlPanel({
       transition={{ duration: 0.5, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
       style={{
         position: 'absolute',
-        top: 116,
+        top: 220,
         right: -18,
         width: collapsed ? 140 : 420,
         zIndex: 50,
