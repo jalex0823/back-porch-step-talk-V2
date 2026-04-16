@@ -78,8 +78,8 @@ export default function App() {
     spinCountRef.current += 1;
     const currentSpin = spinCountRef.current;
     const spinsSinceLast = currentSpin - lastCelebratedRef.current;
-    const eligible = spinCountRef.current >= 3 && spinsSinceLast >= 3;
-    const willCelebrate = eligible && Math.random() < 0.22;
+    const eligible = spinCountRef.current >= 1;
+    const willCelebrate = eligible;
     if (willCelebrate) {
       lastCelebratedRef.current = currentSpin;
       setCelebrateMsgIndex(Math.floor(Math.random() * 6));
