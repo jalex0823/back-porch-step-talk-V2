@@ -52,6 +52,7 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
   const poolRef = useRef([]);
+  const eyeRef = useRef({ x: 0, y: 0, vx: (R()-0.5)*0.4, vy: (R()-0.5)*0.4 }); // eye random walk
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -89,11 +90,27 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
     }
 
     const TARGET_COUNT = 14;
+    const EYE_RANGE = 28; // max pixels eye wanders from true center
 
     const loop = () => {
       ctx.clearRect(0, 0, SIZE, SIZE);
 
       if (active) {
+        // --- Eye random walk ---
+        const eye = eyeRef.current;
+        // Accelerate toward random target, with soft rebound toward center
+        eye.vx += (R() - 0.5) * 0.18 - eye.x * 0.012;
+        eye.vy += (R() - 0.5) * 0.18 - eye.y * 0.012;
+        // Dampen
+        eye.vx *= 0.88;
+        eye.vy *= 0.88;
+        eye.x += eye.vx;
+        eye.y += eye.vy;
+        // Hard clamp so it never leaves the inner zone
+        const dist = Math.sqrt(eye.x * eye.x + eye.y * eye.y);
+        if (dist > EYE_RANGE) { eye.x *= EYE_RANGE / dist; eye.y *= EYE_RANGE / dist; }
+        const ex = cx + eye.x, ey = cy + eye.y;
+
         // Maintain pool size — add replacements for dead bolts
         while (poolRef.current.length < TARGET_COUNT) {
           poolRef.current.push(spawnBolt());
@@ -105,21 +122,21 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
         ctx.arc(cx, cy, orbitRadius - 46, 0, TWO_PI); // clip before ball edge (~45px radius)
         ctx.clip();
 
-        // Central corona — intensity proportional to average life
+        // Central corona drawn at drifting eye position
         const avgLife = poolRef.current.reduce((s, b) => s + b.life, 0) / poolRef.current.length;
-        const flare = ctx.createRadialGradient(cx, cy, 0, cx, cy, 55);
+        const flare = ctx.createRadialGradient(ex, ey, 0, ex, ey, 55);
         flare.addColorStop(0,    `rgba(255,255,255,${(avgLife * 0.9).toFixed(2)})`);
         flare.addColorStop(0.12, `rgba(200,225,255,${(avgLife * 0.5).toFixed(2)})`);
         flare.addColorStop(0.4,  `rgba(120,160,255,${(avgLife * 0.12).toFixed(2)})`);
         flare.addColorStop(1,    'transparent');
         ctx.fillStyle = flare;
         ctx.beginPath();
-        ctx.arc(cx, cy, 55, 0, TWO_PI);
+        ctx.arc(ex, ey, 55, 0, TWO_PI);
         ctx.fill();
 
-        // Draw and update each bolt
+        // Draw and update each bolt — all rooted at the drifting eye
         poolRef.current = poolRef.current.filter(b => {
-          bolt(ctx, cx, cy, b.angle, b.len, b.depth, b.color, b.life);
+          bolt(ctx, ex, ey, b.angle, b.len, b.depth, b.color, b.life);
 
           // Drift angle slowly for organic wavering
           b.angle += b.angleVel;
