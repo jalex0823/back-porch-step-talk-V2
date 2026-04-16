@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, Sparkles } from 'lucide-react';
 
@@ -230,60 +230,77 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
         }}
       />
 
-      {/* Orb base — deep glass body */}
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{
-          background: `radial-gradient(circle at 42% 35%,
-            ${glowColor}77 0%,
-            ${color}cc 20%,
-            ${color}f0 50%,
-            ${color}dd 75%,
-            rgba(0,0,0,0.25) 100%)`,
-          boxShadow: `0 6px 24px rgba(0,0,0,0.6), inset 0 2px 6px rgba(255,255,255,0.08), inset 0 -4px 12px rgba(0,0,0,0.5), inset 0 0 20px 6px ${shadowColor}`,
-          border: `1px solid ${glowColor}55`,
-        }}
-      />
-      {/* Glass refraction layer */}
-      <div
-        className="absolute inset-0 rounded-full overflow-hidden"
-        style={{
-          background: `radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.13) 0%, transparent 55%),
-                       radial-gradient(ellipse at 70% 75%, ${glowColor}22 0%, transparent 50%)`,
-        }}
-      />
-      {/* Primary specular — sharp top-left glint */}
-      <div className="absolute rounded-full"
-        style={{
-          top: '7%', left: '12%', width: '44%', height: '28%',
-          background: 'radial-gradient(ellipse at 40% 55%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 40%, transparent 70%)',
-          filter: 'blur(1px)',
-        }}
-      />
-      {/* Secondary caustic — small bright pinpoint */}
-      <div className="absolute rounded-full"
-        style={{
-          top: '11%', left: '20%', width: '18%', height: '12%',
-          background: 'radial-gradient(ellipse, rgba(255,255,255,0.75) 0%, transparent 70%)',
-          filter: 'blur(0.5px)',
-        }}
-      />
-      {/* Bottom reflection — faint underside glow */}
-      <div className="absolute rounded-full"
-        style={{
-          bottom: '8%', left: '20%', width: '60%', height: '18%',
-          background: `radial-gradient(ellipse, ${glowColor}33 0%, transparent 70%)`,
+      {/* ── Dark glass orb body ── */}
+      <div className="absolute inset-0 rounded-full" style={{
+        background: `radial-gradient(circle at 42% 35%,
+          rgba(28,36,52,0.95) 0%,
+          rgba(10,16,26,0.98) 55%,
+          rgba(4,8,16,1) 100%)`,
+        border: `1.5px solid ${glowColor}44`,
+        boxShadow: `0 4px 20px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -2px 8px rgba(0,0,0,0.6)`,
+      }} />
+
+      {/* ── Animated plasma core bloom ── */}
+      <motion.div className="absolute inset-0 rounded-full pointer-events-none" style={{ overflow: 'hidden' }}
+        animate={{ opacity: isCelebrate ? [0.7, 1, 0.7] : isEnergize || isSpin ? [0.45, 0.7, 0.45] : [0.28, 0.42, 0.28] }}
+        transition={{ duration: isCelebrate ? 0.5 : 2.8 + index * 0.25, repeat: Infinity, ease: 'easeInOut', delay: index * 0.18 }}
+      >
+        <div style={{
+          position: 'absolute', inset: 0, borderRadius: '50%',
+          background: `radial-gradient(circle at 50% 58%, ${glowColor}cc 0%, ${glowColor}55 28%, transparent 62%)`,
           filter: 'blur(3px)',
-        }}
-      />
-      {/* Edge rim — outer ring refraction */}
-      <div
-        className="absolute inset-0 rounded-full"
+        }} />
+      </motion.div>
+
+      {/* ── Plasma outer halo ring ── */}
+      <motion.div className="absolute inset-0 rounded-full pointer-events-none"
+        animate={{ opacity: isEnergize || isSpin || isCelebrate ? [0.5, 0.9, 0.5] : [0.2, 0.35, 0.2] }}
+        transition={{ duration: 3.2 + index * 0.2, repeat: Infinity, ease: 'easeInOut', delay: index * 0.22 }}
         style={{
-          background: 'transparent',
-          boxShadow: `inset 0 0 0 1.5px rgba(255,255,255,0.12), inset 0 -2px 4px rgba(255,255,255,0.06)`,
+          boxShadow: `inset 0 0 18px 4px ${glowColor}55`,
+          border: `1px solid ${glowColor}33`,
+          borderRadius: '50%',
         }}
       />
+
+      {/* ── Hex grid tech overlay ── */}
+      <div className="absolute inset-0 rounded-full pointer-events-none" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='14'%3E%3Cpath d='M6 1l5 3v6l-5 3-5-3V4z' fill='none' stroke='${encodeURIComponent(glowColor)}' stroke-width='0.3' stroke-opacity='0.18'/%3E%3C/svg%3E")`,
+        backgroundSize: '12px 14px',
+        opacity: 0.7,
+        mixBlendMode: 'screen',
+        borderRadius: '50%',
+        overflow: 'hidden',
+      }} />
+
+      {/* ── Top-left specular glint ── */}
+      <div className="absolute rounded-full" style={{
+        top: '8%', left: '13%', width: '38%', height: '22%',
+        background: 'radial-gradient(ellipse at 40% 55%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.06) 55%, transparent 80%)',
+        filter: 'blur(1.5px)',
+      }} />
+      {/* ── Tiny hot pinpoint specular ── */}
+      <div className="absolute rounded-full" style={{
+        top: '12%', left: '22%', width: '14%', height: '9%',
+        background: 'radial-gradient(ellipse, rgba(255,255,255,0.65) 0%, transparent 70%)',
+        filter: 'blur(0.5px)',
+      }} />
+      {/* ── Colored equator band ── */}
+      <div className="absolute rounded-full pointer-events-none" style={{
+        top: '42%', left: '8%', right: '8%', height: '16%',
+        background: `linear-gradient(90deg, transparent, ${glowColor}22, ${glowColor}44, ${glowColor}22, transparent)`,
+        filter: 'blur(2px)',
+      }} />
+      {/* ── Bottom underside glow ── */}
+      <div className="absolute rounded-full" style={{
+        bottom: '6%', left: '18%', width: '64%', height: '16%',
+        background: `radial-gradient(ellipse, ${glowColor}44 0%, transparent 70%)`,
+        filter: 'blur(4px)',
+      }} />
+      {/* ── Outer rim refraction ── */}
+      <div className="absolute inset-0 rounded-full" style={{
+        boxShadow: `inset 0 0 0 1px rgba(255,255,255,0.09), inset 0 -1px 3px rgba(255,255,255,0.04)`,
+      }} />
 
       {/* Icon + Label */}
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5"
