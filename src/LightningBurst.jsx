@@ -64,7 +64,7 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
     // Spawn a new bolt entry
     const spawnBolt = () => ({
       angle: R() * TWO_PI,
-      len: orbitRadius * (0.15 + R() * R() * 0.85),
+      len: orbitRadius * (0.15 + R() * R() * 0.72), // cap so bolts stop before ball edge
       color: topics[Math.floor(R() * n)].glowColor,
       depth: 4 + Math.floor(R() * 5),
       // Life: 0→1→0 fade cycle
@@ -102,7 +102,7 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
         // Clip to orbit circle
         ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy, orbitRadius, 0, TWO_PI);
+        ctx.arc(cx, cy, orbitRadius - 46, 0, TWO_PI); // clip before ball edge (~45px radius)
         ctx.clip();
 
         // Central corona — intensity proportional to average life
@@ -158,7 +158,7 @@ export default function LightningBurst({ topics, orbitRadius, active }) {
       width={560}
       height={560}
       className="absolute inset-0 pointer-events-none"
-      style={{ zIndex: 4 }}
+      style={{ zIndex: 2 }}
     />
   );
 }
