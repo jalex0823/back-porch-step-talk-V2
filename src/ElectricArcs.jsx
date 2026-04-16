@@ -63,16 +63,15 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
     const cx = SIZE / 2, cy = SIZE / 2;
     const n = topics.length;
     const halfN = Math.floor(n / 2);
-    const SPEED = TWO_PI / (120 * 60);
+    const SPEED = TWO_PI / (5 * 60); // match ~5s spin duration
     let angleBase = -Math.PI / 2;
-    const pairCooldown = new Array(halfN).fill(0);
-    let frameCount = 0;
+    let lastHalfRotation = Math.floor((angleBase / Math.PI));
 
     const spawnBurst = (iA, iB, intensity) => {
       const baseA = angleBase + (iA / n) * TWO_PI;
       const baseB = angleBase + (iB / n) * TWO_PI;
       const jitter = s => (Math.random() - 0.5) * s;
-      const strandCount = intensity > 0.85 ? 5 : intensity > 0.6 ? 3 : 2;
+      const strandCount = 5;
       const x1 = cx + Math.cos(baseA) * orbitRadius;
       const y1 = cy + Math.sin(baseA) * orbitRadius;
       const x2 = cx + Math.cos(baseB) * orbitRadius;
@@ -85,9 +84,9 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
           colorB: topics[iB].glowColor,
           coreColor: k % 2 === 0 ? '#c8aaff' : '#aaeeff',
           life: 1.0,
-          decay: 0.015 + Math.random() * 0.02,
+          decay: 0.01 + Math.random() * 0.012,
           intensity,
-          branchDepth: intensity > 0.7 ? 2 : 1,
+          branchDepth: 2,
           retraceTimer: 0,
           retracePeriod: 2 + Math.floor(Math.random() * 3),
         });
@@ -96,18 +95,15 @@ export default function ElectricArcs({ topics, orbitRadius, active }) {
 
     const loop = () => {
       ctx.clearRect(0, 0, SIZE, SIZE);
-      frameCount++;
 
       if (active) {
         angleBase += SPEED;
-        // Fire arcs between ALL opposite pairs on a rolling stagger — no alignment gate
-        for (let p = 0; p < halfN; p++) {
-          if (pairCooldown[p] > 0) { pairCooldown[p]--; continue; }
-          // Stagger pairs so they don't all fire at once
-          if (frameCount % Math.max(1, Math.floor(8 / halfN)) === p % Math.max(1, Math.floor(8 / halfN))) {
-            const intensity = 0.6 + Math.random() * 0.4;
-            spawnBurst(p, p + halfN, intensity);
-            pairCooldown[p] = 10 + Math.floor(Math.random() * 8);
+        // Detect each half-rotation so we get 2 bursts per full spin
+        const currentHalf = Math.floor(angleBase / Math.PI);
+        if (currentHalf !== lastHalfRotation) {
+          lastHalfRotation = currentHalf;
+          for (let p = 0; p < halfN; p++) {
+            setTimeout(() => spawnBurst(p, p + halfN, 0.8 + Math.random() * 0.2), p * 80);
           }
         }
       } else {
