@@ -15,6 +15,7 @@ import HudControlPanel from './HudControlPanel';
 import CelebrationOverlay from './CelebrationOverlay';
 import CelebrationTrigger from './CelebrationTrigger';
 import CometTrails from './CometTrails';
+import ElectricArcs from './ElectricArcs';
 import DrawHistory from './DrawHistory';
 import { Copy, Check } from 'lucide-react';
 
@@ -612,6 +613,13 @@ export default function App() {
                       topics={TOPICS}
                       orbitRadius={orbitRadius}
                       active={phase === 'idle' || phase === 'card'}
+                    />
+
+                    {/* Electric arcs — behind compass during spin/energize */}
+                    <ElectricArcs
+                      topics={TOPICS}
+                      orbitRadius={orbitRadius}
+                      active={phase === 'spin' || phase === 'energize'}
                     />
 
                     {/* Center "sun" glow — pulses during spin */}

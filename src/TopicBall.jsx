@@ -282,18 +282,56 @@ export default function TopicBall({ topic, index, phase, isSelected }) {
         }}
       />
 
-      {/* ── Machined silver outer housing ring ── */}
+      {/* ── Weathered metallic outer housing ring ── */}
       <div className="absolute rounded-full pointer-events-none" style={{
         inset: -3,
-        background: `conic-gradient(from 120deg,
-          rgba(140,155,175,1) 0deg,
-          rgba(205,218,235,1) 55deg,
-          rgba(245,250,255,1) 100deg,
-          rgba(185,198,215,1) 150deg,
-          rgba(105,118,136,1) 210deg,
-          rgba(215,228,245,1) 270deg,
-          rgba(140,155,175,1) 360deg)`,
-        boxShadow: `0 4px 18px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.32)`,
+        background: `conic-gradient(from 115deg,
+          rgba(95,100,108,1)    0deg,
+          rgba(155,162,172,1)   28deg,
+          rgba(210,218,228,1)   52deg,
+          rgba(235,242,250,1)   80deg,
+          rgba(175,180,188,1)   108deg,
+          rgba(88,82,72,0.9)    138deg,
+          rgba(118,108,96,0.95) 158deg,
+          rgba(145,138,128,1)   178deg,
+          rgba(82,88,98,1)      205deg,
+          rgba(58,62,70,0.95)   228deg,
+          rgba(105,112,122,1)   255deg,
+          rgba(195,205,218,1)   282deg,
+          rgba(215,222,232,1)   308deg,
+          rgba(135,142,152,1)   335deg,
+          rgba(95,100,108,1)    360deg)`,
+        boxShadow: `0 4px 18px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.22)`,
+      }} />
+      {/* ── Scratch texture overlay on ring ── */}
+      <div className="absolute rounded-full pointer-events-none" style={{
+        inset: -3,
+        backgroundImage: `repeating-linear-gradient(
+          68deg,
+          rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 1px,
+          transparent 1px, transparent 4px
+        ), repeating-linear-gradient(
+          -22deg,
+          rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px,
+          transparent 1px, transparent 6px
+        )`,
+        mixBlendMode: 'overlay',
+      }} />
+      {/* ── Oxidation/rust patches ── */}
+      <div className="absolute rounded-full pointer-events-none" style={{
+        inset: -3,
+        background: `conic-gradient(from 115deg,
+          transparent               0deg,
+          transparent               125deg,
+          rgba(90,62,32,0.22)       138deg,
+          rgba(72,48,22,0.18)       155deg,
+          transparent               170deg,
+          transparent               215deg,
+          rgba(65,50,28,0.15)       228deg,
+          rgba(80,58,28,0.12)       242deg,
+          transparent               258deg,
+          transparent               360deg)`,
+        mixBlendMode: 'multiply',
       }} />
 
       {/* ── Dark glass orb body ── */}
