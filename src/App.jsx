@@ -619,7 +619,7 @@ export default function App() {
                     <LightningBurst
                       topics={TOPICS}
                       orbitRadius={orbitRadius}
-                      active={phase === 'spin' || phase === 'energize'}
+                      active={phase === 'spin' || phase === 'shimmer'}
                     />
 
                     {/* Center "sun" glow — pulses during spin */}
