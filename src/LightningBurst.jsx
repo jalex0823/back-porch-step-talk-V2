@@ -1,83 +1,56 @@
 import { useEffect, useRef } from 'react';
 
 const TWO_PI = Math.PI * 2;
+const R = () => Math.random();
 
-// Recursive fractal branch drawn directly to canvas — re-randomised every frame = continuous crackle
-function branch(ctx, x1, y1, angle, length, depth, glowColor, alpha) {
-  if (depth === 0 || length < 4) return;
+// Draw one segment — glow + white core
+function seg(ctx, x1, y1, x2, y2, color, alpha, width, blur) {
+  ctx.save();
+  ctx.globalAlpha = Math.min(alpha, 1);
+  ctx.lineWidth = width;
+  ctx.strokeStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = blur;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.restore();
+}
 
-  const jag = (Math.random() - 0.5) * 0.55;
+// Wild chaotic fractal — high roughness, deviates heavily from base angle
+function bolt(ctx, x1, y1, angle, length, depth, color, alpha) {
+  if (depth === 0 || length < 3) return;
+
+  // Large random deviation — makes it look wild not directed
+  const jag = (R() - 0.5) * 1.4;
   const x2 = x1 + Math.cos(angle + jag) * length;
   const y2 = y1 + Math.sin(angle + jag) * length;
 
-  // Neon glow layer
-  ctx.save();
-  ctx.globalAlpha = alpha * 0.55;
-  ctx.lineWidth = Math.max(0.5, depth * 0.6);
-  ctx.strokeStyle = glowColor;
-  ctx.shadowColor = glowColor;
-  ctx.shadowBlur = 10 + depth * 2;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-  ctx.restore();
+  // Outer glow
+  seg(ctx, x1, y1, x2, y2, color, alpha * 0.5, Math.max(0.6, depth * 0.7), 12 + depth * 2);
+  // White core
+  seg(ctx, x1, y1, x2, y2, depth > 2 ? '#ffffff' : '#bbddff', alpha * 0.9, Math.max(0.3, depth * 0.25), 3);
 
-  // White-hot core
-  ctx.save();
-  ctx.globalAlpha = alpha * 0.95;
-  ctx.lineWidth = Math.max(0.3, depth * 0.28);
-  ctx.strokeStyle = depth > 3 ? '#ffffff' : '#cceeff';
-  ctx.shadowColor = '#ffffff';
-  ctx.shadowBlur = 4;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-  ctx.restore();
+  // Continue with random direction drift
+  bolt(ctx, x2, y2, angle + (R() - 0.5) * 0.7, length * (0.6 + R() * 0.2), depth - 1, color, alpha * 0.92);
 
-  // Continue trunk
-  branch(ctx, x2, y2, angle + (Math.random() - 0.5) * 0.3, length * (0.65 + Math.random() * 0.15), depth - 1, glowColor, alpha * 0.93);
-
-  // Dense side branches
-  if (depth >= 2 && Math.random() < 0.78) {
-    const a1 = angle + (Math.random() < 0.5 ? 1 : -1) * (0.35 + Math.random() * 0.5);
-    branch(ctx, x2, y2, a1, length * (0.45 + Math.random() * 0.2), depth - 1, glowColor, alpha * 0.7);
+  // Aggressive branching — multiple splits
+  if (depth >= 2 && R() < 0.82) {
+    bolt(ctx, x2, y2, angle + (R() < 0.5 ? 1 : -1) * (0.5 + R() * 0.9), length * (0.4 + R() * 0.25), depth - 1, color, alpha * 0.72);
   }
-  if (depth >= 2 && Math.random() < 0.5) {
-    const a2 = angle + (Math.random() < 0.5 ? 1 : -1) * (0.55 + Math.random() * 0.45);
-    branch(ctx, x2, y2, a2, length * (0.35 + Math.random() * 0.18), depth - 2, glowColor, alpha * 0.55);
+  if (depth >= 2 && R() < 0.55) {
+    bolt(ctx, x2, y2, angle + (R() < 0.5 ? 1 : -1) * (0.8 + R() * 0.8), length * (0.3 + R() * 0.2), depth - 2, color, alpha * 0.55);
   }
-  if (depth >= 3 && Math.random() < 0.38) {
-    const a3 = angle + (Math.random() < 0.5 ? 1 : -1) * (0.7 + Math.random() * 0.35);
-    branch(ctx, x2, y2, a3, length * (0.28 + Math.random() * 0.15), depth - 3, glowColor, alpha * 0.4);
+  if (depth >= 3 && R() < 0.4) {
+    bolt(ctx, x2, y2, angle + (R() - 0.5) * TWO_PI, length * (0.25 + R() * 0.15), depth - 3, color, alpha * 0.4);
   }
 }
 
-// Cubic bezier easing matching framer-motion [0.12, 0.6, 0.08, 1]
-function cubicBezier(t, p1x, p1y, p2x, p2y) {
-  // Newton-Raphson approximation
-  const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
-  const cy2 = 3 * p1y, by = 3 * (p2y - p1y) - cy2, ay = 1 - cy2 - by;
-  const sampleX = u => ((ax * u + bx) * u + cx) * u;
-  const sampleY = u => ((ay * u + by) * u + cy2) * u;
-  let u = t;
-  for (let i = 0; i < 8; i++) {
-    const x = sampleX(u) - t;
-    const dx = (3 * ax * u + 2 * bx) * u + cx;
-    if (Math.abs(dx) < 1e-6) break;
-    u -= x / dx;
-  }
-  return sampleY(Math.max(0, Math.min(1, u)));
-}
-
-export default function LightningBurst({ topics, orbitRadius, active, phase }) {
+export default function LightningBurst({ topics, orbitRadius, active }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
-  const startTimeRef = useRef(null);
-  const baseAngleRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -86,55 +59,39 @@ export default function LightningBurst({ topics, orbitRadius, active, phase }) {
     const SIZE = 560;
     const cx = SIZE / 2, cy = SIZE / 2;
     const n = topics.length;
-    const SPIN_DURATION = 4500; // ms — matches orbit transition duration
     let frame = 0;
 
-    if (active) {
-      startTimeRef.current = performance.now();
-    }
-
-    const loop = (now) => {
+    const loop = () => {
       ctx.clearRect(0, 0, SIZE, SIZE);
       frame++;
 
       if (active) {
-        // Compute rotation angle matching the orbit CSS easing
-        const elapsed = now - (startTimeRef.current || now);
-        let rotDeg = 0;
-        if (phase === 'spin') {
-          const t = Math.min(elapsed / SPIN_DURATION, 1);
-          const eased = cubicBezier(t, 0.12, 0.6, 0.08, 1);
-          rotDeg = eased * 360;
-        } else {
-          // shimmer — keep at 360 (end of spin)
-          rotDeg = 360;
-        }
-        const rotRad = (rotDeg * Math.PI) / 180;
-
         // Clip to orbit circle
         ctx.save();
         ctx.beginPath();
-        ctx.arc(cx, cy, orbitRadius - 2, 0, TWO_PI);
+        ctx.arc(cx, cy, orbitRadius, 0, TWO_PI);
         ctx.clip();
 
-        // Origin flare
-        const flare = ctx.createRadialGradient(cx, cy, 0, cx, cy, 50);
-        flare.addColorStop(0, 'rgba(255,255,255,0.85)');
-        flare.addColorStop(0.15, 'rgba(180,220,255,0.45)');
-        flare.addColorStop(0.5, 'rgba(100,150,255,0.1)');
-        flare.addColorStop(1, 'transparent');
+        // Central white corona
+        const flare = ctx.createRadialGradient(cx, cy, 0, cx, cy, 55);
+        flare.addColorStop(0,    'rgba(255,255,255,0.9)');
+        flare.addColorStop(0.12, 'rgba(200,225,255,0.5)');
+        flare.addColorStop(0.4,  'rgba(120,160,255,0.12)');
+        flare.addColorStop(1,    'transparent');
         ctx.fillStyle = flare;
         ctx.beginPath();
-        ctx.arc(cx, cy, 50, 0, TWO_PI);
+        ctx.arc(cx, cy, 55, 0, TWO_PI);
         ctx.fill();
 
-        // Fire all balls at rotated angles
-        for (let i = 0; i < n; i++) {
-          const baseAngle = -Math.PI / 2 + (i / n) * TWO_PI;
-          const angle = baseAngle + rotRad;
-          const len = orbitRadius - 10;
-          const depth = (frame + i) % 3 === 0 ? 8 : 7;
-          branch(ctx, cx, cy, angle, len, depth, topics[i].glowColor, 0.9);
+        // Spread bolts in ALL directions — not aimed at balls
+        // 16 root directions for full 360° coverage
+        const ROOTS = 16;
+        for (let i = 0; i < ROOTS; i++) {
+          const angle = (i / ROOTS) * TWO_PI + (R() - 0.5) * 0.3;
+          const color = topics[i % n].glowColor;
+          const len = orbitRadius * (0.55 + R() * 0.4);
+          const depth = frame % 4 === 0 ? 8 : 7;
+          bolt(ctx, cx, cy, angle, len, depth, color, 0.85);
         }
 
         ctx.restore();
@@ -145,7 +102,7 @@ export default function LightningBurst({ topics, orbitRadius, active, phase }) {
 
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [active, orbitRadius, topics, phase]);
+  }, [active, orbitRadius, topics]);
 
   return (
     <canvas
