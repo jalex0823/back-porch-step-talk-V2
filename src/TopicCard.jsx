@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, Sparkles, CheckCircle2, Home, Check, Hash, Keyboard } from 'lucide-react';
+import { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, BookMarked, Sparkles, CheckCircle2, Home, Check, Hash, Keyboard, Play, Pause, RotateCcw, Plus } from 'lucide-react';
 
 const AAIcon = ({ size = 24, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={style}>
@@ -10,6 +10,184 @@ const AAIcon = ({ size = 24, style }) => (
 );
 
 const ICON_MAP = { BookOpen, Sunrise, MessageCircle, Feather, Shuffle, AAIcon, BookMarked, Sparkles };
+
+const MIN_MINUTES = 3;
+const MAX_MINUTES = 5;
+
+function CountdownTimer({ accentColor, glowColor }) {
+  const [minutes, setMinutes] = useState(MIN_MINUTES);
+  const [seconds, setSeconds] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [alarming, setAlarming] = useState(false);
+  const intervalRef = useRef(null);
+  const totalRef = useRef(MIN_MINUTES * 60);
+  const setRef = useRef(MIN_MINUTES);
+
+  const totalSecs = setRef.current * 60;
+  const elapsed = totalSecs - (minutes * 60 + seconds);
+  const progress = totalSecs > 0 ? elapsed / totalSecs : 0;
+  const displayM = String(minutes).padStart(2, '0');
+  const displayS = String(seconds).padStart(2, '0');
+  const isLow = minutes === 0 && seconds <= 30 && (minutes * 60 + seconds) > 0;
+
+  const stop = useCallback(() => {
+    clearInterval(intervalRef.current);
+    setRunning(false);
+  }, []);
+
+  const reset = useCallback(() => {
+    stop();
+    setAlarming(false);
+    setMinutes(setRef.current);
+    setSeconds(0);
+  }, [stop]);
+
+  const addMinute = () => {
+    if (setRef.current >= MAX_MINUTES) return;
+    setRef.current += 1;
+    stop();
+    setAlarming(false);
+    setMinutes(setRef.current);
+    setSeconds(0);
+  };
+
+  useEffect(() => {
+    if (!running) return;
+    intervalRef.current = setInterval(() => {
+      setMinutes(m => {
+        setSeconds(s => {
+          if (m === 0 && s === 0) {
+            clearInterval(intervalRef.current);
+            setRunning(false);
+            setAlarming(true);
+            return 0;
+          }
+          if (s === 0) return 59;
+          return s - 1;
+        });
+        if (minutes === 0 && seconds === 1) return 0;
+        return seconds === 0 ? m - 1 : m;
+      });
+    }, 1000);
+    return () => clearInterval(intervalRef.current);
+  }, [running]);
+
+  // Stop alarming after 4s
+  useEffect(() => {
+    if (!alarming) return;
+    const t = setTimeout(() => setAlarming(false), 4000);
+    return () => clearTimeout(t);
+  }, [alarming]);
+
+  // SVG arc for progress ring
+  const R = 26;
+  const circ = 2 * Math.PI * R;
+  const dash = circ * (1 - progress);
+
+  return (
+    <motion.div
+      className="flex flex-col items-center gap-1 select-none"
+      style={{ minWidth: 110 }}
+      animate={alarming ? { x: [-4, 4, -4, 4, 0] } : {}}
+      transition={{ duration: 0.35, repeat: alarming ? 6 : 0 }}
+    >
+      {/* Ring + time display */}
+      <div className="relative" style={{ width: 68, height: 68 }}>
+        <svg width="68" height="68" viewBox="0 0 68 68" style={{ position: 'absolute', inset: 0 }}>
+          {/* Track */}
+          <circle cx="34" cy="34" r={R} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="3" />
+          {/* Progress arc */}
+          <motion.circle
+            cx="34" cy="34" r={R} fill="none"
+            stroke={alarming ? '#ff4444' : isLow ? '#ffaa22' : accentColor}
+            strokeWidth="3" strokeLinecap="round"
+            strokeDasharray={circ}
+            strokeDashoffset={dash}
+            style={{ transformOrigin: '34px 34px', transform: 'rotate(-90deg)' }}
+            animate={alarming ? { opacity: [1, 0.2, 1] } : { opacity: 1 }}
+            transition={alarming ? { duration: 0.4, repeat: 8 } : {}}
+          />
+          {/* Glow ring */}
+          {(running || alarming) && (
+            <circle cx="34" cy="34" r={R} fill="none"
+              stroke={alarming ? '#ff4444' : accentColor}
+              strokeWidth="6" opacity="0.08"
+              style={{ filter: `blur(3px)` }}
+            />
+          )}
+        </svg>
+        {/* Time text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <motion.span
+            animate={alarming ? { scale: [1, 1.2, 1] } : isLow && running ? { opacity: [1, 0.4, 1] } : {}}
+            transition={alarming ? { duration: 0.4, repeat: 8 } : isLow ? { duration: 0.8, repeat: Infinity } : {}}
+            style={{
+              fontFamily: "'Orbitron', monospace",
+              fontSize: '1.05rem', fontWeight: 700, letterSpacing: '0.05em',
+              color: alarming ? '#ff6666' : isLow ? '#ffaa22' : '#fff',
+              textShadow: `0 0 10px ${alarming ? '#ff4444' : accentColor}88`,
+              lineHeight: 1,
+            }}>
+            {displayM}:{displayS}
+          </motion.span>
+          <span style={{ fontSize: '0.38rem', color: 'rgba(180,195,210,0.45)', fontFamily: "'Orbitron', monospace", letterSpacing: '0.15em', marginTop: 2 }}>
+            {setRef.current} MIN
+          </span>
+        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={reset}
+          title="Reset"
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 6, padding: '3px 5px', cursor: 'pointer', color: 'rgba(200,210,220,0.5)', display: 'flex', alignItems: 'center' }}
+        >
+          <RotateCcw size={10} />
+        </button>
+        <button
+          onClick={() => running ? stop() : setRunning(true)}
+          title={running ? 'Pause' : 'Start'}
+          style={{
+            background: running ? `${accentColor}22` : `${accentColor}33`,
+            border: `1px solid ${accentColor}55`,
+            borderRadius: 6, padding: '3px 8px', cursor: 'pointer',
+            color: accentColor, display: 'flex', alignItems: 'center', gap: 3,
+            fontFamily: "'Orbitron', monospace", fontSize: '0.42rem', letterSpacing: '0.1em',
+          }}
+        >
+          {running ? <Pause size={10} /> : <Play size={10} />}
+          {running ? 'PAUSE' : 'START'}
+        </button>
+        <button
+          onClick={addMinute}
+          title="+1 min (max 5)"
+          disabled={setRef.current >= MAX_MINUTES}
+          style={{
+            background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 6, padding: '3px 5px', cursor: setRef.current >= MAX_MINUTES ? 'not-allowed' : 'pointer',
+            color: setRef.current >= MAX_MINUTES ? 'rgba(255,255,255,0.2)' : 'rgba(200,210,220,0.5)',
+            display: 'flex', alignItems: 'center',
+          }}
+        >
+          <Plus size={10} />
+        </button>
+      </div>
+
+      {/* Alarm label */}
+      <AnimatePresence>
+        {alarming && (
+          <motion.span
+            initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            style={{ fontSize: '0.42rem', color: '#ff6666', fontFamily: "'Orbitron', monospace", letterSpacing: '0.2em' }}
+          >
+            ⏰ TIME&apos;S UP
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
 
 const stagger = (delay) => ({
   initial: { opacity: 0, x: -18 },
@@ -235,7 +413,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
       transition={{ duration: 0.35, ease: 'linear' }}
     >
 
-      {/* Header row: compass widget with ball + title */}
+      {/* Header row: compass widget with ball + title + timer */}
       <div className="flex items-center gap-4 mb-3">
         {/* Compass widget with spinning ball centered */}
         <motion.div
@@ -340,7 +518,7 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
         </motion.div>
 
         {/* Title block */}
-        <div className="flex flex-col">
+        <div className="flex flex-col flex-1">
           <div className="flex items-center gap-2">
             <div className="flex gap-[3px]">
               {[...Array(4)].map((_, i) => (
@@ -376,6 +554,11 @@ export default function TopicCard({ topic, onDrawAgain, onHome, sessionNumber, c
               </span>
             )}
           </div>
+        </div>
+
+        {/* Countdown Timer — top right */}
+        <div className="flex-shrink-0 hidden sm:flex">
+          <CountdownTimer accentColor={accentColor} glowColor={glowColor} />
         </div>
       </div>
 
