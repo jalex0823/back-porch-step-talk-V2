@@ -15,69 +15,77 @@ const MIN_MINUTES = 3;
 const MAX_MINUTES = 5;
 
 function CountdownTimer({ accentColor, glowColor }) {
-  const [minutes, setMinutes] = useState(MIN_MINUTES);
-  const [seconds, setSeconds] = useState(0);
+  const setRef = useRef(MIN_MINUTES);           // chosen duration in minutes
+  const secsRef = useRef(MIN_MINUTES * 60);     // remaining seconds (source of truth)
+  const intervalRef = useRef(null);
+  const alarmTimerRef = useRef(null);
+
+  // Display state — only used for re-render
+  const [display, setDisplay] = useState({ m: MIN_MINUTES, s: 0 });
   const [running, setRunning] = useState(false);
   const [alarming, setAlarming] = useState(false);
-  const intervalRef = useRef(null);
-  const totalRef = useRef(MIN_MINUTES * 60);
-  const setRef = useRef(MIN_MINUTES);
 
   const totalSecs = setRef.current * 60;
-  const elapsed = totalSecs - (minutes * 60 + seconds);
-  const progress = totalSecs > 0 ? elapsed / totalSecs : 0;
-  const displayM = String(minutes).padStart(2, '0');
-  const displayS = String(seconds).padStart(2, '0');
-  const isLow = minutes === 0 && seconds <= 30 && (minutes * 60 + seconds) > 0;
+  const remaining = display.m * 60 + display.s;
+  const progress = totalSecs > 0 ? (totalSecs - remaining) / totalSecs : 0;
+  const displayM = String(display.m).padStart(2, '0');
+  const displayS = String(display.s).padStart(2, '0');
+  const isLow = remaining > 0 && remaining <= 30;
 
   const stop = useCallback(() => {
     clearInterval(intervalRef.current);
+    intervalRef.current = null;
     setRunning(false);
   }, []);
 
+  const applyRef = () => {
+    const m = Math.floor(secsRef.current / 60);
+    const s = secsRef.current % 60;
+    setDisplay({ m, s });
+  };
+
   const reset = useCallback(() => {
     stop();
+    clearTimeout(alarmTimerRef.current);
     setAlarming(false);
-    setMinutes(setRef.current);
-    setSeconds(0);
+    secsRef.current = setRef.current * 60;
+    applyRef();
   }, [stop]);
 
   const addMinute = () => {
     if (setRef.current >= MAX_MINUTES) return;
     setRef.current += 1;
     stop();
+    clearTimeout(alarmTimerRef.current);
     setAlarming(false);
-    setMinutes(setRef.current);
-    setSeconds(0);
+    secsRef.current = setRef.current * 60;
+    applyRef();
   };
 
-  useEffect(() => {
-    if (!running) return;
+  const startTimer = () => {
+    if (intervalRef.current) return;
+    setRunning(true);
     intervalRef.current = setInterval(() => {
-      setMinutes(m => {
-        setSeconds(s => {
-          if (m === 0 && s === 0) {
-            clearInterval(intervalRef.current);
-            setRunning(false);
-            setAlarming(true);
-            return 0;
-          }
-          if (s === 0) return 59;
-          return s - 1;
-        });
-        if (minutes === 0 && seconds === 1) return 0;
-        return seconds === 0 ? m - 1 : m;
-      });
+      if (secsRef.current <= 0) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+        secsRef.current = 0;
+        applyRef();
+        setRunning(false);
+        setAlarming(true);
+        alarmTimerRef.current = setTimeout(() => setAlarming(false), 4000);
+        return;
+      }
+      secsRef.current -= 1;
+      applyRef();
     }, 1000);
-    return () => clearInterval(intervalRef.current);
-  }, [running]);
+  };
 
-  // Stop alarming after 4s
-  useEffect(() => {
-    if (!alarming) return;
-    const t = setTimeout(() => setAlarming(false), 4000);
-    return () => clearTimeout(t);
-  }, [alarming]);
+  // Cleanup on unmount
+  useEffect(() => () => {
+    clearInterval(intervalRef.current);
+    clearTimeout(alarmTimerRef.current);
+  }, []);
 
   // SVG arc for progress ring
   const R = 26;
@@ -146,7 +154,7 @@ function CountdownTimer({ accentColor, glowColor }) {
           <RotateCcw size={10} />
         </button>
         <button
-          onClick={() => running ? stop() : setRunning(true)}
+          onClick={() => running ? stop() : startTimer()}
           title={running ? 'Pause' : 'Start'}
           style={{
             background: running ? `${accentColor}22` : `${accentColor}33`,
